@@ -1,13 +1,13 @@
-package io.github.bible_verse_api;
+package io.github.logos_api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BibleVerseApiApplication {
+public class LogosApiApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(BibleVerseApiApplication.class, args);
+		SpringApplication.run(LogosApiApplication.class, args);
 	}
 
 }

@@ -1,7 +1,7 @@
-package io.github.bible_verse_api.controller;
+package io.github.logos_api.controller;
 
-import io.github.bible_verse_api.model.BibleVerse;
-import io.github.bible_verse_api.service.BibleVerseService;
+import io.github.logos_api.model.Logos;
+import io.github.logos_api.service.LogosService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
@@ -16,14 +16,14 @@ import java.time.Duration;
 @RequestMapping("/api")
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
-public class VerseController {
+public class LogosController {
 
-    private final BibleVerseService bibleVerseService;
+    private final LogosService logosService;
 
     @GetMapping("/verse")
-    public ResponseEntity<BibleVerse> random(){
+    public ResponseEntity<Logos> random(){
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofSeconds(5)).cachePublic())
-                .body(bibleVerseService.getRandomVerse());
+                .body(logosService.getRandomVerse());
     }
 }

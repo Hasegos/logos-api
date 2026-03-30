@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>io.github</groupId>
-	<artifactId>bible_verse_api</artifactId>
+	<artifactId>logos-api</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>bible_verse_api</name>
+	<name>logos-api</name>
 	<description>Demo project for Spring Boot</description>
 	<url/>
 	<licenses>

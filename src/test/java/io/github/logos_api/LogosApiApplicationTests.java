@@ -1,10 +1,10 @@
-package io.github.bible_verse_api;
+package io.github.logos_api;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BibleVerseApiApplicationTests {
+class LogosApiApplicationTests {
 
 	@Test
 	void contextLoads() {

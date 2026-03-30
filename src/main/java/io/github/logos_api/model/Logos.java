@@ -1,4 +1,4 @@
-package io.github.bible_verse_api.model;
+package io.github.logos_api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BibleVerse {
+public class Logos {
 
     @JsonProperty("book")
     private String book;
