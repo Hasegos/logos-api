@@ -1,6 +1,6 @@
 package io.github.logos_api.controller;
 
-import io.github.logos_api.model.Logos;
+import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.service.LogosService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
@@ -21,7 +21,7 @@ public class LogosController {
     private final LogosService logosService;
 
     @GetMapping("/verse")
-    public ResponseEntity<Logos> random(){
+    public ResponseEntity<LogosResponseDTO> random(){
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofSeconds(5)).cachePublic())
                 .body(logosService.getRandomVerse());
