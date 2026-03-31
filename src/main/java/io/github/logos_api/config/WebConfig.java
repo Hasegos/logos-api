@@ -9,11 +9,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
 
+    private final ApiKeyInterceptor apiKeyInterceptor;
     private final RateLimitInterceptor rateLimitInterceptor;
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+       registry.addInterceptor(apiKeyInterceptor)
+               .addPathPatterns("/api/**")
+               .excludePathPatterns("/api/verse")
+               .order(1);
+
        registry.addInterceptor(rateLimitInterceptor)
-               .addPathPatterns("/api/**");
+               .addPathPatterns("/api/**")
+               .excludePathPatterns("/api/key/generate")
+               .order(2);
     }
 }
