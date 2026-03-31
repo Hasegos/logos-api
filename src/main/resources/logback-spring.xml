@@ -2,27 +2,45 @@
 <configuration>
 
     <property name="LOG_PATH" value="logs" />
+    <property name="LOG_FORMAT" value="%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%thread] %logger{36} [%X{clientIp}] - %msg%n" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level [%thread] %logger{36} - %msg%n</pattern>
+            <pattern>${LOG_FORMAT}</pattern>
         </encoder>
     </appender>
 
-    <appender name="APP_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOG_PATH}/app.log</file>
+    <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/info.log</fileNamePattern>
             <maxHistory>30</maxHistory>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>${LOG_FORMAT}</pattern>
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/error.log</fileNamePattern>
+            <maxHistory>60</maxHistory> </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_FORMAT}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
         <appender-ref ref="STDOUT"/>
-        <appender-ref ref="APP_FILE"/>
+        <appender-ref ref="INFO_FILE"/>
+        <appender-ref ref="ERROR_FILE"/>
     </root>
+
+    <logger name="io.github.logos_api" level="DEBUG" />
 
 </configuration>
