@@ -2,6 +2,7 @@ package io.github.logos_api.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.model.Logos;
 import jakarta.annotation.PostConstruct;
 import org.springframework.core.io.ClassPathResource;
@@ -27,11 +28,17 @@ public class LogosService {
         }
     }
 
-    public Logos getRandomVerse(){
+    public LogosResponseDTO getRandomVerse(){
         if(verses.isEmpty()){
-            return new Logos("로딩 실패", "0", "0", "성경 구절 데이터를 불러오는데 실패했습니다.");
+            return LogosResponseDTO.builder()
+                    .book("error")
+                    .verse("")
+                    .chapter("")
+                    .text("성경 구절 데이터를 불러오는데 실패했습니다.")
+                    .build();
         }
 
-        return verses.get(random.nextInt(verses.size()));
+        Logos randomLogos = verses.get(random.nextInt(verses.size()));
+        return LogosResponseDTO.from(randomLogos);
     }
 }
