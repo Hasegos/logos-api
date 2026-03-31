@@ -16,12 +16,12 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
        registry.addInterceptor(apiKeyInterceptor)
                .addPathPatterns("/api/**")
-               .excludePathPatterns("/api/verse")
+               .excludePathPatterns("/api/key/generate")
                .order(1);
 
        registry.addInterceptor(rateLimitInterceptor)
                .addPathPatterns("/api/**")
-               .excludePathPatterns("/api/key/generate")
+               .excludePathPatterns("/api/verse")
                .order(2);
     }
 }
