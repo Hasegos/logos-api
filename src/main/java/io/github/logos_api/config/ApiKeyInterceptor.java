@@ -20,7 +20,12 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        String referer = request.getHeader("Referer");
         String apikey = request.getHeader("X-API-KEY");
+
+        if(referer != null && referer.contains("logos-api.com")){
+            return true;
+        }
 
         if(apikey == null || apikey.isBlank()){
             log.warn("[Unauthorized] API Key is missing. URI: {}", request.getRequestURI());
