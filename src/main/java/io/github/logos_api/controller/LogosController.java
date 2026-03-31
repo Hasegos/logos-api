@@ -14,7 +14,7 @@ import java.time.Duration;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://logos-api.com/")
 @RequiredArgsConstructor
 public class LogosController {
 
@@ -23,7 +23,7 @@ public class LogosController {
     @GetMapping("/verse")
     public ResponseEntity<LogosResponseDTO> random(){
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(5)).cachePublic())
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(3)).cachePublic())
                 .body(logosService.getRandomVerse());
     }
 }

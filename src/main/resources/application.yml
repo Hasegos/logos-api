@@ -14,7 +14,18 @@ spring:
       indent-output: true
     default-property-inclusion: NON_NULL
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/${POSTGRESQL_DATABASE}
+    driver-class-name: org.postgresql.Driver
+    username: ${POSTGRESQL_USERNAME}
+    password: ${POSTGRESQL_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+
 logging:
   level:
     root: INFO
     io.github.logos_api: DEBUG
+    org.hibernate.SQL: DEBUG
