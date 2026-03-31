@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -21,6 +22,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String ip = getClientIp(request);
+        MDC.put("clientIp", ip);
         Bucket bucket = rateLimitService.resolveBucket(ip);
 
         log.info("[API Request] Method: {}, URI: {}, IP: {}", request.getMethod(), request.getRequestURI(), ip);
@@ -33,6 +35,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
             response.addHeader("X-Rate-Limit-limit", "60");
             response.addHeader("X-Rate-Limit-Remaining", String.valueOf(probe.getRemainingTokens()));
+            return true;
         }
         else{
             long waitForRefill = probe.getNanosToWaitForRefill() / 1_000_000_000;
@@ -42,10 +45,15 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             response.setContentType("application/json;charset=UTF-8");
             response.addHeader("X-RateLimit-Retry-After", String.valueOf(waitForRefill));
             response.getWriter().write("{\"error\": \"Too Many Requests\",\"retry_after_seconds\":"+waitForRefill +"}");
+
+            MDC.clear();
             return false;
         }
+    }
 
-        return HandlerInterceptor.super.preHandle(request, response, handler);
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        MDC.clear();
     }
 
     private String getClientIp(HttpServletRequest request){
