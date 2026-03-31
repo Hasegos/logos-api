@@ -1,0 +1,57 @@
+body {
+  font-family: sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f4f7f6;
+}
+
+.card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  text-align: center;
+  width: 400px;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+button:hover {
+  background-color: #45a049;
+}
+
+#key-container {
+  margin-top: 20px;
+  display: none;
+}
+
+#api-key {
+  background: #eee;
+  padding: 10px;
+  border-radius: 4px;
+  word-break: break-all;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.copy-btn {
+  background-color: #008CBA;
+  font-size: 0.8rem;
+}
+
+/* home.css 추가 */
+button:disabled {
+    background-color: #ccc; /* 회색으로 변경 */
+    cursor: not-allowed;    /* 마우스 커서 변경 */
+    transform: scale(0.98); /* 살짝 눌린 느낌 */
+}
