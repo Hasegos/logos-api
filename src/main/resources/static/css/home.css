@@ -5,6 +5,7 @@ body {
   align-items: center;
   height: 100vh;
   background-color: #f4f7f6;
+  margin: 0;
 }
 
 .card {
@@ -24,10 +25,15 @@ button {
   border-radius: 5px;
   cursor: pointer;
   font-size: 1rem;
+  transition: background-color 0.3s;
 }
 
 button:hover {
   background-color: #45a049;
+}
+
+button:disabled {
+    transform: scale(0.98);
 }
 
 #key-container {
@@ -49,9 +55,47 @@ button:hover {
   font-size: 0.8rem;
 }
 
-/* home.css 추가 */
-button:disabled {
-    background-color: #ccc; /* 회색으로 변경 */
-    cursor: not-allowed;    /* 마우스 커서 변경 */
-    transform: scale(0.98); /* 살짝 눌린 느낌 */
+#copy-msg {
+  color: green;
+  font-size: 0.8rem;
+  display: none;
+  margin-top: 5px;
+}
+
+.hr-line {
+  margin: 20px 0;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+#verse-btn {
+  background-color: #673AB7;
+}
+
+#verse-btn:hover {
+  background-color: #5E35B1;
+}
+
+.verse-box {
+  display: none;
+  margin-top: 15px;
+  text-align: left;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  border-left: 4px solid #673AB7;
+}
+
+#verse-text {
+  margin: 0;
+  font-style: italic;
+  color: #333;
+  transition: opacity 0.3s;
+}
+
+#verse-ref {
+  margin: 10px 0 0 0;
+  font-weight: bold;
+  color: #673AB7;
+  text-align: right;
 }
