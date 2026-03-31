@@ -15,16 +15,17 @@
         <div id="key-container">
             <code id="api-key"></code>
             <button class="copy-btn" onclick="copyToClipboard()">키 복사하기</button>
-            <p id="copy-msg" style="color: green; font-size: 0.8rem; display: none;">복사되었습니다!</p>
+            <p id="copy-msg">복사되었습니다!</p>
         </div>
 
-        <hr style="margin: 20px 0; border: 0; border-top: 1px solid #eee;">
+        <hr class="hr-line">
 
         <h3>성경 구절 랜덤 호출</h3>
-        <button onclick="getVerse()" style="background-color: #673AB7;">오늘의 말씀 보기</button>
-        <div id="verse-container" style="display: none; margin-top: 15px; text-align: left; background: #f9f9f9; padding: 15px; border-radius: 8px; border-left: 4px solid #673AB7;">
-            <p id="verse-text" style="margin: 0; font-style: italic; color: #333;"></p>
-            <p id="verse-ref" style="margin: 10px 0 0 0; font-weight: bold; color: #673AB7; text-align: right;"></p>
+        <button id="verse-btn" onclick="getVerse()">오늘의 말씀 보기</button>
+
+        <div id="verse-container" class="verse-box">
+            <p id="verse-text"></p>
+            <p id="verse-ref"></p>
         </div>
     </div>
     <script th:src="@{/js/home.js}"></script>
