@@ -26,9 +26,8 @@ async function getVerse() {
     const container = document.getElementById('verse-container');
     const refElem = document.getElementById('verse-ref');
 
-    // 1. 즉각적인 피드백: 버튼 잠금 및 문구 변경
     btn.disabled = true;
-    btn.innerText = "말씀을 묵상하는 중..."; // 문구를 조금 더 부드럽게 변경
+    btn.innerText = "말씀을 묵상하는 중...";
     btn.style.backgroundColor = "#999";
     btn.style.cursor = "not-allowed";
 
@@ -38,16 +37,13 @@ async function getVerse() {
     refElem.innerText = "";
 
     try {
-        // 2. API 호출 (실제 응답은 약 10ms로 매우 빠름)
         const response = await fetch('/api/verse', {
             method: 'GET',
-            headers: { 'x-api-key': currentKey }
         });
 
         if (!response.ok) throw new Error('데이터를 가져오지 못했습니다.');
         const data = await response.json();
 
-        // 3. 데이터 업데이트
         textElem.innerText = `"${data.text}"`;
         refElem.innerText = `- ${data.reference}`;
         textElem.style.opacity = "1";
@@ -56,12 +52,11 @@ async function getVerse() {
         alert(err.message);
         textElem.innerText = "오류가 발생했습니다. 다시 시도해주세요.";
     } finally {
-        // 4. 핵심: 1.5초(1500ms) 동안 버튼을 계속 비활성화
         setTimeout(() => {
             btn.disabled = false;
             btn.innerText = "오늘의 말씀 보기";
             btn.style.backgroundColor = "#673AB7";
             btn.style.cursor = "pointer";
-        }, 1500);
+        }, 3000);
     }
 }
