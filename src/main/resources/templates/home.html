@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Logos API Key 발급</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+<body>
+    <div class="card">
+        <h2>Logos API Key</h2>
+        <p>버튼을 누르면 새로운 키가 발급됩니다.<br>(기존 키는 즉시 폐기됩니다)</p>
+        <button onclick="generateKey()">새 키 발급하기</button>
+
+        <div id="key-container">
+            <code id="api-key"></code>
+            <button class="copy-btn" onclick="copyToClipboard()">키 복사하기</button>
+            <p id="copy-msg">복사되었습니다!</p>
+        </div>
+
+        <hr class="hr-line">
+
+        <h3>성경 구절 랜덤 호출</h3>
+        <button id="verse-btn" onclick="getVerse()">오늘의 말씀 보기</button>
+
+        <div id="verse-container" class="verse-box">
+            <p id="verse-text"></p>
+            <p id="verse-ref"></p>
+        </div>
+    </div>
+    <script th:src="@{/js/home.js}"></script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 package io.github.logos_api.controller;
 
-import io.github.logos_api.model.Logos;
+import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.service.LogosService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
@@ -14,16 +14,16 @@ import java.time.Duration;
 
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "https://logos-api.com/")
 @RequiredArgsConstructor
 public class LogosController {
 
     private final LogosService logosService;
 
     @GetMapping("/verse")
-    public ResponseEntity<Logos> random(){
+    public ResponseEntity<LogosResponseDTO> random(){
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(5)).cachePublic())
+                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(3)).cachePublic())
                 .body(logosService.getRandomVerse());
     }
 }
