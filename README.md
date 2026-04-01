@@ -42,11 +42,19 @@ GET https://logos-api.com/api/verse
   "reference": "골로새서 3:23"
 }
 ```
-## 📱 사용 예시 (JavaScript)
+## 📱 사용 예시
 
 우리 페이지(`logos-api.com`) 내에서는 Referer 체크를 통해 키 없이 호출 가능하지만, 외부 인터페이스에서는 다음과 같이 호출해야 합니다.
 
-```javascript
+### curl로 테스트
+
+```bash
+curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse
+```
+
+### JavaScript
+
+```JavaScript
 const apiKey = 'your_api_key_here';
 
 fetch('https://logos-api.com/api/verse', {
@@ -56,6 +64,50 @@ fetch('https://logos-api.com/api/verse', {
 .then(res => res.json())
 .then(data => console.log(data.text));
 ```
+
+### Java
+
+```Java
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class LogosApiTest {
+    public static void main(String[] args) throws Exception {
+        String apiKey = "your_api_key_here";
+        String url = "https://logos-api.com/api/verse";
+
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("X-API-KEY", apiKey) // API 키 헤더 추가
+                .GET()
+                .build();
+
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            System.out.println("성경 데이터: " + response.body());
+        } else {
+            System.out.println("호출 실패: " + response.statusCode());
+        }
+    }
+}
+```
+## 🤝 기여하기
+
+새로운 성경 구절을 추가하여 프로젝트에 기여하고 싶으시면 아래 절차를 따라주세요:
+
+1. 이 리포지토리를 Fork 합니다.
+
+2. `src/main/resources/verses.json` 파일에 아래 형식으로 성경 말씀을 추가합니다:
+
+```JSON
+{"book":"책(서)", "chapter":"장(章)", "verse":"절(節)", "text":"본문/말씀"}
+```
+
+3. 변경 사항을 Commit한 후 Pull Request를 보냅니다.
 
 ## 🛠️ 기술 스택
 
@@ -77,9 +129,25 @@ fetch('https://logos-api.com/api/verse', {
 
 ## 📄 라이선스
 
-+ © 2025-2026 Su Ho Choi. All rights reserved.
+본 프로젝트는 **사용자 정의 라이선스 (비상업·수정 금지) v1.1**을 따릅니다.
 
-+ 비상업적 용도로만 사용 가능하며, 데이터 무단 전재 및 재배포를 금합니다.
++ **저작권자**: Su Ho Choi (@csw020106)
+
++ **주요 내용**: 비상업적 용도의 개인/교육/연구 목적으로만 사용 가능하며, 소스코드의 수정 및 파생 저작물 생성을 금지합니다.
+
++ **상업적 이용**: 별도의 서면 허가가 필요합니다 (문의: csw020106@naver.com).
+
+상세한 내용은 [LICENSE](./LICENSE) 파일을 확인해 주세요.
+
+© 2025 Su Ho Choi. All rights reserved
+
+## 📚 데이터 고지
+
++ 본 API에서 제공하는 성경 텍스트는 **개역개정(KRV)** 판을 바탕으로 수동 입력되었습니다.
+
++ 성경 텍스트의 저작권은 해당 권리자(대한성서공회 등)에게 있으며, 본 프로젝트는 이를 상업적으로 이용하지 않습니다.
+
++ 교육 및 개인 묵상용으로만 사용해 주시기 바랍니다.
 
 ## 📬 문의
 
