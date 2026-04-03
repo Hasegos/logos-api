@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /api/key/
+Disallow: /actuator/
+
+Sitemap: https://logos-api.com/sitemap.xml
