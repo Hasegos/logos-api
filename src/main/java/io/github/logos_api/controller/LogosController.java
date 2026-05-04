@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
 
+/**
+ * 성경 구절 조회를 담당하는 REST 컨트롤러입니다.
+ */
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "https://logos-api.com/")
@@ -20,6 +23,12 @@ public class LogosController {
 
     private final LogosService logosService;
 
+    /**
+     * 무작위 성경 구절을 하나 반환합니다.
+     * 브라우저 캐시 설정을 통해 3초 동안의 캐싱을 권장합니다.
+     *
+     * @return 랜덤 성경 구절 정보
+     */
     @GetMapping("/verse")
     public ResponseEntity<LogosResponseDTO> random(){
         return ResponseEntity.ok()

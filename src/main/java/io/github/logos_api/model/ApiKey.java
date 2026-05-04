@@ -9,6 +9,10 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/**
+ * 발급된 API 키 정보를 담는 엔티티 클래스입니다.
+ * JPA Auditing을 사용하여 생성 시간을 자동으로 기록합니다.
+ */
 @Entity
 @Table(name = "api_keys")
 @Getter
