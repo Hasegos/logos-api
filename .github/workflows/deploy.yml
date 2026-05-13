@@ -3,7 +3,6 @@ name: Logos API CI/CD
 on:
   push:
     branches: [master]
-    
 
 jobs: 
   deploy:
@@ -35,6 +34,7 @@ jobs:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           source: "target/logos-api-0.0.1-SNAPSHOT.jar"
           target: "/root/workspace/logos-api"
           rm: false
@@ -46,13 +46,14 @@ jobs:
           host: ${{ secrets.REMOTE_IP }}
           username: ${{ secrets.REMOTE_USER }}
           key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
           script: |
             # 새 파일에 대한 보안 라벨 갱신 
             restorecon -v /root/workspace/logos-api/target/logos-api-0.0.1-SNAPSHOT.jar
             
             # systemctl 서비스 재시작
-            systemctl restart logos-api
+            systemctl restart logos-api.service
             
             # 5초 대기후 서비스 상태 확인
             sleep 5
-            systemctl is-active logos-api
+            systemctl is-active logos-api.service
