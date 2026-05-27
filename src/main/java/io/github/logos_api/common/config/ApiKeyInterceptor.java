@@ -1,4 +1,4 @@
-package io.github.logos_api.config;
+package io.github.logos_api.common.config;
 
 import io.github.logos_api.repository.ApiKeyRepository;
 import jakarta.servlet.http.HttpServletRequest;

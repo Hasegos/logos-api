@@ -1,0 +1,47 @@
+<th:block th:fragment="head">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- SEO -->
+    <meta name="keywords" content="성경 API, Bible API, 성경 구절, 개역개정, 무료 API">
+    <meta name="description" content="개역개정 성경 구절을 무료로 제공하는 REST API 서비스입니다. API 키를 발급받아 바로 사용하세요.">
+
+    <!-- Canonical -->
+    <link rel="canonical" href="https://logos-api.com/">
+
+    <!-- OG -->
+    <meta property="og:site_name" content="Logos API">
+    <meta property="og:type"        content="website">
+    <meta property="og:title"       content="Logos API - 무료 성경 구절 API">
+    <meta property="og:description" content="개역개정 성경 구절을 무료로 제공하는 REST API 서비스입니다. API 키를 발급받아 바로 사용하세요.">
+    <meta property="og:url"         content="https://logos-api.com/">
+    <meta property="og:image"       content="https://logos-api.com/img/og_image.png">
+    <meta property="og:image:width"  content="1200">
+    <meta property="og:image:height" content="630">
+
+    <!-- Twitter -->
+    <meta name="twitter:card"        content="summary_large_image">
+    <meta name="twitter:title"       content="Logos API - 무료 성경 구절 API">
+    <meta name="twitter:description" content="개역개정 성경 구절을 무료로 제공하는 REST API 서비스입니다.">
+    <meta name="twitter:image"       content="https://logos-api.com/img/og_image.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" th:href="@{/img/favicon.svg}">
+    <link rel="apple-touch-icon"  th:href="@{/img/favicon.svg}">
+
+    <link rel="stylesheet" th:href="@{/css/common/common.css}">
+    <link rel="stylesheet" th:href="@{/css/page/home.css}">
+
+    <!-- JSON-LD -->
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Logos API",
+            "url": "https://logos-api.com/",
+            "description": "개역개정 성경 구절을 무료로 제공하는 REST API 서비스",
+            "applicationCategory": "DeveloperApplication",
+            "inLanguage": "ko"
+        }
+    </script>
+</th:block>
