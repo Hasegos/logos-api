@@ -1,4 +1,4 @@
-package io.github.logos_api.config;
+package io.github.logos_api.common.config;
 
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;

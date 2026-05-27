@@ -1,4 +1,4 @@
-package io.github.logos_api.config;
+package io.github.logos_api.common.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
