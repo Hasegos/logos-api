@@ -7,7 +7,7 @@ server:
 
 spring:
   application:
-   name: logos_api
+    name: logos_api
 
   jackson:
     serialization:

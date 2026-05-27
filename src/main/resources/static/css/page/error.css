@@ -1,0 +1,40 @@
+.error-card {
+    padding: 2.5rem 2rem;
+    border-top: 4px solid #673AB7;
+}
+
+.error-code {
+    font-size: 3.5rem;
+    font-weight: bold;
+    color: #673AB7;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.error-title {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.error-msg {
+    color: #777;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+.back-btn {
+    background-color: #673AB7;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 5px;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 1rem;
+    transition: background-color 0.3s;
+}
+
+.back-btn:hover {
+    background-color: #5E35B1;
+}
