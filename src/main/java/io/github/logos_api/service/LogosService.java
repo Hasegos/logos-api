@@ -25,6 +25,7 @@ import java.util.*;
 public class LogosService {
 
     private Map<String, Map<Integer, List<Logos>>> bibleMap = new HashMap<>();
+    private List<Logos> allVerses = new ArrayList<>();
     private final Random random = new Random();
 
     /**
@@ -55,35 +56,27 @@ public class LogosService {
 
                 bibleMap.computeIfAbsent(bookName, k -> new HashMap<>())
                         .put(chapterNum, chapterVerses);
+                allVerses.addAll(chapterVerses);
             }catch (Exception e){
-                log.info("파일 로드 실패 : " + resource.getFilename() + " - " + e.getMessage());
+                log.error("파일 로드 실패: {} - {}", resource.getFilename(), e.getMessage());
             }
         }
     }
 
     /**
      * 메모리에 적재된 성경 데이터 중 무작위로 하나의 구절을 선택하여 반환합니다.
-     * [권 선택 -> 장 선택 -> 절 선택]의 3단계 랜덤 로직을 수행합니다.
+     * 전체 구절을 flat list로 관리하여 모든 구절이 동일한 확률로 선택됩니다.
      *
      * @return 랜덤하게 선택된 성경 구절 DTO
      */
     public LogosResponseDTO getRandomVerse(){
-        if (bibleMap.isEmpty()) {
+        if (allVerses.isEmpty()) {
             return LogosResponseDTO.builder()
                     .book("error")
                     .text("성경 데이터를 불러오지 못했습니다.")
                     .build();
         }
-
-        List<String> bookNames = new ArrayList<>(bibleMap.keySet());
-        String selectedBookName = bookNames.get(random.nextInt(bookNames.size()));
-        Map<Integer, List<Logos>> chaptersMap = bibleMap.get(selectedBookName);
-
-        List<Integer> chapterNumbers = new ArrayList<>(chaptersMap.keySet());
-        Integer selectedChapterNum = chapterNumbers.get(random.nextInt(chapterNumbers.size()));
-        List<Logos> verses = chaptersMap.get(selectedChapterNum);
-
-        Logos randomLogos = verses.get(random.nextInt(verses.size()));
+        Logos randomLogos = allVerses.get(random.nextInt(allVerses.size()));
 
         return LogosResponseDTO.from(randomLogos);
     }
