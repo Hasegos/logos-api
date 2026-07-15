@@ -84,3 +84,10 @@ button:disabled {
     color: #673AB7;
     text-align: right;
 }
+
+.dev-note {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.85rem;
+    color: #777;
+    text-align: left;
+}
