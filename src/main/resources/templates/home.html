@@ -1,31 +1,59 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <th:block th:replace="~{fragments/head :: head}"></th:block>
-    <title>Logos API - 무료 성경 구절 API</title>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle='Logos API - 무료 성경 구절 API',
+        pageDescription='개역개정 성경 구절을 무료로 제공하는 REST API 서비스입니다. API 키를 발급받아 바로 사용하세요.',
+        canonicalUrl='https://logos-api.com/',
+        pageCssPath='/css/page/home.css')}"></th:block>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebApplication",
+            "name": "Logos API",
+            "url": "https://logos-api.com/",
+            "description": "개역개정 성경 구절을 무료로 제공하는 REST API 서비스",
+            "applicationCategory": "DeveloperApplication",
+            "inLanguage": "ko"
+        }
+    </script>
 </head>
 <body>
-    <div class="card">
-        <h2>Logos API Key</h2>
-        <p>버튼을 누르면 새로운 키가 발급됩니다.<br>(기존 키는 즉시 폐기됩니다)</p>
-        <button onclick="generateKey()">새 키 발급하기</button>
+    <div th:replace="~{fragments/header :: header}"></div>
 
-        <div id="key-container">
-            <code id="api-key"></code>
-            <button class="copy-btn" onclick="copyToClipboard()">키 복사하기</button>
-            <p id="copy-msg">복사되었습니다!</p>
+    <main class="page-main">
+        <div class="card">
+            <h2>Logos API Key</h2>
+            <p>버튼을 누르면 새로운 키가 발급됩니다.<br>(기존 키는 즉시 폐기됩니다)</p>
+            <button id="generate-key-btn">새 키 발급하기</button>
+
+            <div id="key-container">
+                <code id="api-key"></code>
+                <button class="copy-btn" id="copy-key-btn">키 복사하기</button>
+                <p id="copy-msg">복사되었습니다!</p>
+            </div>
+
+            <hr class="hr-line">
+
+            <h3>성경 구절 랜덤 호출</h3>
+            <button id="verse-btn">오늘의 말씀 보기</button>
+
+            <div id="verse-container" class="verse-box">
+                <p id="verse-text"></p>
+                <p id="verse-ref"></p>
+            </div>
+
+            <hr class="hr-line">
+
+            <p class="dev-note">🧑‍💻 개발자이신가요? 바로 호출해보세요.</p>
+            <pre><code>curl -H "X-API-KEY: 발급받은_키" https://logos-api.com/api/verse</code></pre>
+            <p><a href="/docs">API 문서 전체 보기 →</a></p>
         </div>
+    </main>
 
-        <hr class="hr-line">
+    <div th:replace="~{fragments/footer :: footer}"></div>
 
-        <h3>성경 구절 랜덤 호출</h3>
-        <button id="verse-btn" onclick="getVerse()">오늘의 말씀 보기</button>
-
-        <div id="verse-container" class="verse-box">
-            <p id="verse-text"></p>
-            <p id="verse-ref"></p>
-        </div>
-    </div>
     <script th:src="@{/js/home.js}"></script>
+    <script th:src="@{/js/copy-code.js}"></script>
 </body>
 </html>
