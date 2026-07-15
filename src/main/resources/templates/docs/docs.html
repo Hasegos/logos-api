@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle='Logos API 문서 - 성경 구절 API 사용법',
+        pageDescription='Logos API 인증 방법, 요청/응답 형식, curl・JavaScript・Java 예제와 속도 제한 정책을 안내합니다.',
+        canonicalUrl='https://logos-api.com/docs',
+        pageCssPath='/css/page/docs.css')}"></th:block>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            "mainEntity": [
+                {
+                    "@type": "Question",
+                    "name": "Logos API는 어떻게 인증하나요?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "HTTP 요청 헤더에 X-API-KEY 값으로 발급받은 API 키를 포함하면 됩니다."
+                    }
+                },
+                {
+                    "@type": "Question",
+                    "name": "Logos API는 무료인가요?",
+                    "acceptedAnswer": {
+                        "@type": "Answer",
+                        "text": "개인/교육/연구 목적의 비상업적 사용은 무료입니다."
+                    }
+                }
+            ]
+        }
+    </script>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header}"></div>
+
+    <main class="page-main wide">
+        <div class="docs-container">
+            <h1>Logos API 문서</h1>
+            <p class="docs-lead">개역개정 성경 구절을 무료로 제공하는 REST API입니다. 아래 안내에 따라 바로 연동해보세요.</p>
+
+            <section class="docs-section">
+                <h2>1. API 주소</h2>
+                <pre><code>GET https://logos-api.com/api/verse</code></pre>
+            </section>
+
+            <section class="docs-section">
+                <h2>2. 키 발급</h2>
+                <ol>
+                    <li>메인 페이지에서 <strong>새 키 발급하기</strong> 버튼을 누릅니다.</li>
+                    <li>발급 시 기존 키는 즉시 폐기되며, 동일 IP 기준 하루 10회로 제한됩니다.</li>
+                </ol>
+                <a href="/" class="docs-cta">키 발급하러 가기 →</a>
+            </section>
+
+            <section class="docs-section">
+                <h2>3. 인증 방법</h2>
+                <p>모든 요청에는 아래 헤더가 필요합니다.</p>
+                <table class="docs-table">
+                    <thead>
+                    <tr><th>Key</th><th>Value</th></tr>
+                    </thead>
+                    <tbody>
+                    <tr><td><code>X-API-KEY</code></td><td>발급받은 UUID</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="docs-section">
+                <h2>4. 요청 예제</h2>
+
+                <h3>curl</h3>
+                <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse</code></pre>
+
+                <h3>JavaScript</h3>
+                <pre><code>const apiKey = 'your_api_key_here';
+
+fetch('https://logos-api.com/api/verse', {
+    method: 'GET',
+    headers: { 'X-API-KEY': apiKey }
+})
+.then(res => res.json())
+.then(data => console.log(data.text));</code></pre>
+
+                <h3>Java</h3>
+                <pre><code>import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class LogosApiTest {
+    public static void main(String[] args) throws Exception {
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://logos-api.com/api/verse"))
+                .header("X-API-KEY", "your_api_key_here")
+                .GET()
+                .build();
+
+        HttpResponse&lt;String&gt; response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+    }
+}</code></pre>
+            </section>
+
+            <section class="docs-section">
+                <h2>5. 응답 형식</h2>
+    <pre><code>{
+  "book": "골로새서",
+  "chapter": "3",
+  "verse": "23",
+  "text": "무엇을 하든지 마음을 다하여 주께 하듯 하고 사람에게 하듯 하지 말라",
+  "reference": "골로새서 3:23"
+}</code></pre>
+            </section>
+
+            <section class="docs-section">
+                <h2>6. 속도 제한 정책</h2>
+                <table class="docs-table">
+                    <tr><th>키 발급</th><td>동일 IP 기준 하루 10회</td></tr>
+                    <tr><th>API 호출</th><td>과도한 트래픽은 서버 단에서 제한됩니다</td></tr>
+                    <tr><th>캐싱</th><td>동일 응답에 대해 3초간 브라우저 캐싱 적용</td></tr>
+                </table>
+            </section>
+
+            <section class="docs-section">
+                <h2>7. 라이선스 및 데이터 고지</h2>
+                <p>성경 텍스트는 개역개정(KRV) 판을 기반으로 하며, 저작권은 대한성서공회 등 해당 권리자에게 있습니다. 교육 및 개인 묵상 목적으로만 사용해 주세요. 자세한 내용은
+                    <a href="https://github.com/Hasegos/logos-api" target="_blank" rel="noopener noreferrer">GitHub 저장소</a>의 LICENSE를 참고하세요.
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/copy-code.js}"></script>
+</body>
+</html>

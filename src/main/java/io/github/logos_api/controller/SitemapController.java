@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
  * 사이트맵 요청을 처리하는 컨트롤러.
- * logos-api는 단일 페이지 서비스이므로 정적으로 생성한다.
+ * logos-api는 정적 페이지 수가 적으므로 사이트맵을 정적으로 생성한다.
  */
 @Controller
 public class SitemapController {
@@ -27,6 +27,7 @@ public class SitemapController {
         sb.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
         sb.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
         sb.append(url(BASE_URL + "/", CHANGE_FREQ_WEEKLY, "1.0"));
+        sb.append(url(BASE_URL + "/docs", CHANGE_FREQ_WEEKLY, "0.8"));
         sb.append("</urlset>");
         return sb.toString();
     }

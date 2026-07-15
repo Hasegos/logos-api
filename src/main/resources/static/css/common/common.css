@@ -4,13 +4,61 @@
 
 body {
     font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f7f6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+a {
+    color: #673AB7;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.site-header .brand {
+    font-weight: bold;
+    font-size: 1.1rem;
+    color: #673AB7;
+}
+
+.site-header .main-nav a {
+    margin-left: 1.2rem;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.site-header .main-nav a:hover {
+    color: #673AB7;
+    text-decoration: none;
+}
+
+.page-main {
+    flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
-    background-color: #f4f7f6;
-    margin: 0;
-    padding: 0;
+    padding: 2rem 1rem;
+}
+
+.page-main.wide {
+    align-items: flex-start;
 }
 
 .card,
@@ -20,4 +68,84 @@ body {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     text-align: center;
     width: 400px;
+}
+
+.site-footer {
+    text-align: center;
+    padding: 1.25rem 1rem;
+    color: #999;
+    font-size: 0.8rem;
+}
+
+.site-footer a {
+    color: #999;
+    text-decoration: underline;
+}
+
+pre {
+    background: #2d2d2d;
+    color: #f1f1f1;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: left;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    overflow-wrap: break-word;
+}
+
+pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+code {
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    background: #eee;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+
+pre.code-block {
+    position: relative;
+}
+
+.copy-code-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    background: #3f3f3f;
+    color: #f1f1f1;
+    border: 1px solid #5a5a5a;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    font-family: sans-serif;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+pre.code-block:hover .copy-code-btn,
+pre.code-block:focus-within .copy-code-btn {
+    opacity: 1;
+}
+
+.copy-code-btn--active {
+    opacity: 1;
+}
+
+.copy-code-btn:hover {
+    background: #525252;
+}
+
+.copy-code-btn:disabled {
+    cursor: default;
+}
+
+@media (hover: none) {
+    .copy-code-btn {
+        opacity: 1;
+    }
 }
