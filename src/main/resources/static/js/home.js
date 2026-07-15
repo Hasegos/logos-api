@@ -1,8 +1,13 @@
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('generate-key-btn').addEventListener('click', generateKey);
+    document.getElementById('copy-key-btn').addEventListener('click', copyToClipboard);
+    document.getElementById('verse-btn').addEventListener('click', getVerse);
+});
+
 function generateKey() {
     fetch('/api/key/generate', { method: 'POST' })
         .then(response => response.text())
         .then(key => {
-            currentKey = key;
             const container = document.getElementById('key-container');
             const keyElement = document.getElementById('api-key');
             keyElement.innerText = key;
@@ -19,8 +24,7 @@ function copyToClipboard() {
     });
 }
 
-async function getVerse() {
-
+async function getVerse(event) {
     const btn = event.currentTarget;
     const textElem = document.getElementById('verse-text');
     const container = document.getElementById('verse-container');
