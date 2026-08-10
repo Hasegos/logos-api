@@ -3,6 +3,7 @@ package io.github.logos_api.common.config;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import io.github.logos_api.service.RateLimitService;
+import io.github.logos_api.common.interceptor.AccessLogInterceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +16,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 /**
  * 클라이언트 IP 주소를 기반으로 API 요청 횟수를 제한하는 인터셉터입니다.
  * Bucket4j를 사용하여 분당 요청 제한을 초과한 경우 429(Too Many Requests) 에러를 반환합니다.
+ * <p>
+ * 일반 API 접근 로그는 {@link AccessLogInterceptor}가 경로 제외 여부와 무관하게 전담하여 기록하므로,
+ * 이 인터셉터는 속도 제한 판단/거부 로그만 남깁니다.
+ * </p>
  */
 @Slf4j
 @Component
@@ -31,11 +36,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String ip = getClientIp(request);
+        String ip = ClientIpResolver.resolve(request);
         MDC.put("clientIp", ip);
         Bucket bucket = rateLimitService.resolveBucket(ip);
-
-        log.info("[API Request] Method: {}, URI: {}, IP: {}", request.getMethod(), request.getRequestURI(), ip);
 
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
 
@@ -74,20 +77,5 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     @Override
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         MDC.clear();
-    }
-
-    /**
-     * HTTP 요청 정보에서 클라이언트의 실제 IP 주소를 식별합니다.
-     * 프록시 서버나 로드 밸런서를 거치는 경우를 대비하여 'X-Forwarded-For' 헤더를 우선적으로 확인합니다.
-     *
-     * @param request HTTP 요청 객체
-     * @return 식별된 클라이언트 IP 주소
-     */
-    private String getClientIp(HttpServletRequest request){
-        String ip = request.getHeader("X-Forwarded-For");
-        if(ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)){
-            ip = request.getRemoteAddr();
-        }
-        return ip;
     }
 }

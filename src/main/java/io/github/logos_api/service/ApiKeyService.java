@@ -1,5 +1,6 @@
 package io.github.logos_api.service;
 
+import io.github.logos_api.common.config.ClientIpResolver;
 import io.github.logos_api.model.ApiKey;
 import io.github.logos_api.model.ApiKeyLog;
 import io.github.logos_api.repository.ApiKeyLogRepository;
@@ -70,11 +71,7 @@ public class ApiKeyService {
      * @return 클라이언트 IP 주소
      */
     public String getClientIp(HttpServletRequest request){
-        String ip = request.getHeader("X-Forwarded-For");
-        if(ip == null || ip.isBlank() || "unknown".equalsIgnoreCase(ip)){
-            ip = request.getRemoteAddr();
-        }
-        return ip;
+        return ClientIpResolver.resolve(request);
     }
 
     /**
