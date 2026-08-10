@@ -35,6 +35,16 @@
         </encoder>
     </appender>
 
+    <appender name="ACCESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/access.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_FORMAT}</pattern>
+        </encoder>
+    </appender>
+
     <root level="INFO">
         <appender-ref ref="STDOUT"/>
         <appender-ref ref="INFO_FILE"/>
@@ -42,5 +52,10 @@
     </root>
 
     <logger name="io.github.logos_api" level="DEBUG" />
+
+    <logger name="io.github.logos_api.access" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ACCESS_FILE"/>
+    </logger>
 
 </configuration>
