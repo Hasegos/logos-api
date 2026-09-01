@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle=|${book} ${chapter}장 - Logos API|,
+        pageDescription=|${book} ${chapter}장 전체 본문을 확인할 수 있습니다.|,
+        canonicalUrl=|https://logos-api.com/read/${book}/${chapter}|,
+        pageCssPath='/css/page/read.css?v=6')}"></th:block>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header(current='read')}"></div>
+
+    <main class="page-main page-main--wide">
+        <div class="read" th:attr="data-book=${book},data-chapter=${chapter}">
+            <a th:href="@{'/read#book-' + ${book}}" class="chapter-view__back" th:text="|← ${book} 목록으로|">← 목록으로</a>
+            <h1 th:text="|${book} ${chapter}장|">사도행전 1장</h1>
+
+            <div th:if="${#lists.isEmpty(verses)}">
+                <p class="read__lead">해당 장을 찾을 수 없습니다.</p>
+            </div>
+
+            <p class="chapter-view__verse" th:each="v : ${verses}" th:id="'v' + ${v.verse}">
+                <span class="chapter-view__verse-num" th:text="${v.verse}">1</span><span th:text="${v.text}">본문</span>
+            </p>
+
+            <div class="chapter-view__nav">
+                <a th:if="${prevChapter != null}" th:href="@{'/read/' + ${book} + '/' + ${prevChapter}}">← 이전 장</a>
+                <span th:unless="${prevChapter != null}"></span>
+                <a th:if="${nextChapter != null}" th:href="@{'/read/' + ${book} + '/' + ${nextChapter}}">다음 장 →</a>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/read.js?v=6}"></script>
+</body>
+</html>
