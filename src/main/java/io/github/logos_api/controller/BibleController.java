@@ -21,7 +21,6 @@ public class BibleController {
 
     private final LogosService logosService;
 
-
     /**
      * 데이터가 존재하는 책 목록을 성경 정경 순서로 반환합니다.
      *
@@ -38,7 +37,7 @@ public class BibleController {
      * @param book 책 이름
      * @return 장 번호 목록
      */
-    @GetMapping("/{book}/{chapters}")
+    @GetMapping("/{book}/chapters")
     public List<Integer> chapters(@PathVariable String book){
         return logosService.getChapters(book);
     }
@@ -51,7 +50,7 @@ public class BibleController {
      * @return 절 목록 (절 번호 + 본문)
      */
     @GetMapping("/{book}/chapters/{chapter}")
-    public List<ChapterVerseResponseDTO> verse(@PathVariable String book,
+    public List<ChapterVerseResponseDTO> verses(@PathVariable String book,
                                                @PathVariable int chapter){
         return logosService.getVerses(book, chapter).stream()
                 .map(ChapterVerseResponseDTO::from)
