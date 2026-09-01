@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -58,6 +59,34 @@ public class GlobalExceptionHandler {
         model.addAttribute("status", 404);
         model.addAttribute("title", "페이지를 찾을 수 없습니다");
         model.addAttribute("message", "요청하신 주소가 없거나 이동되었습니다.");
+        return "error/error";
+    }
+
+    /**
+     * 경로 변수/파라미터의 타입이 맞지 않는 경우를 처리한다. (400)
+     * <p>
+     * 예: {@code /read/창세기/abc}처럼 장 번호 자리에 숫자가 아닌 값이 들어온 경우.
+     * 클라이언트 요청 형식 오류이므로 {@code warn} 레벨로 기록하고, 서버 오류(500)가 아닌
+     * 잘못된 요청(400)으로 정확히 응답한다.
+     * API 경로: JSON 에러 응답 반환
+     * 그 외 경로: 에러 페이지 렌더링
+     * </p>
+     *
+     * @param request HTTP 요청 객체
+     * @param e       발생한 예외
+     * @param model   에러 정보를 뷰에 전달하기 위한 모델
+     * @return API 요청 시 JSON 응답, 그 외 에러 뷰 이름
+     */
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public Object handleTypeMismatch(HttpServletRequest request, MethodArgumentTypeMismatchException e, Model model) {
+        log.warn("[400] 잘못된 요청 파라미터 - URI: {}, 파라미터명: {}", request.getRequestURI(), e.getName());
+        if (isApiRequest(request)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "Bad Request", "path", request.getRequestURI()));
+        }
+        model.addAttribute("status", 400);
+        model.addAttribute("title", "잘못된 요청입니다");
+        model.addAttribute("message", "요청하신 주소의 형식이 올바르지 않습니다.");
         return "error/error";
     }
 
