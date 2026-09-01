@@ -74,17 +74,53 @@ public class LogosService {
                     continue;
                 }
 
-                Logos firstVerse = chapterVerses.get(0);
+                List<Logos> validVerses = chapterVerses.stream()
+                        .filter(this::isValidVerse)
+                        .collect(Collectors.toList());
+
+                if (validVerses.isEmpty()) {
+                    log.error("유효한 절이 하나도 없어 파일을 건너뜁니다: {}", resource.getFilename());
+                    continue;
+                }
+
+                Logos firstVerse = validVerses.get(0);
                 String bookName = firstVerse.getBook();
                 int chapterNum = Integer.parseInt(firstVerse.getChapter());
 
                 bibleMap.computeIfAbsent(bookName, k -> new HashMap<>())
-                        .put(chapterNum, chapterVerses);
-                allVerses.addAll(chapterVerses);
+                        .put(chapterNum, validVerses);
+                allVerses.addAll(validVerses);
             }catch (Exception e){
                 log.error("파일 로드 실패: {} - {}", resource.getFilename(), e.getMessage());
             }
         }
+    }
+
+    /**
+     * 절 데이터가 book/chapter/verse 값을 모두 정상적으로 갖추고 있는지 검증합니다.
+     * chapter/verse는 요청 처리 시 숫자로 파싱되므로, 여기서 미리 걸러내면 잘못된 데이터 하나 때문에
+     * 해당 장 전체 조회가 요청 시점에 500 에러로 이어지는 것을 막을 수 있습니다.
+     * 형식이 깨진 절만 제외되고, 같은 파일 내 나머지 정상 절은 그대로 서비스됩니다.
+     *
+     * @param logos 검증할 절 데이터
+     * @return 형식이 정상이면 true
+     */
+    private boolean isValidVerse(Logos logos) {
+        if (logos.getBook() == null || logos.getBook().isBlank()) {
+            return false;
+        }
+        if (logos.getChapter() == null || logos.getVerse() == null) {
+            return false;
+        }
+        try {
+            Integer.parseInt(logos.getChapter());
+            Integer.parseInt(logos.getVerse());
+        } catch (NumberFormatException e) {
+            log.warn("잘못된 장/절 번호 형식이라 제외함 - book: {}, chapter: {}, verse: {}",
+                    logos.getBook(), logos.getChapter(), logos.getVerse());
+            return false;
+        }
+        return true;
     }
 
     /**
