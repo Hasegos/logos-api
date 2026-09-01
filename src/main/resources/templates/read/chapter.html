@@ -5,7 +5,7 @@
         pageTitle=|${book} ${chapter}장 - Logos API|,
         pageDescription=|${book} ${chapter}장 전체 본문을 확인할 수 있습니다.|,
         canonicalUrl=|https://logos-api.com/read/${book}/${chapter}|,
-        pageCssPath='/css/page/read.css?v=6')}"></th:block>
+        pageCssPath='/css/page/read.css')}"></th:block>
 </head>
 <body>
     <div th:replace="~{fragments/header :: header(current='read')}"></div>
@@ -33,6 +33,6 @@
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 
-    <script th:src="@{/js/read.js?v=6}"></script>
+    <script th:src="@{/js/read.js}"></script>
 </body>
 </html>

@@ -5,7 +5,7 @@
         pageTitle='성경 읽기 - Logos API',
         pageDescription='책과 장을 직접 선택해 원하는 성경 구절을 읽을 수 있습니다.',
         canonicalUrl='https://logos-api.com/read',
-        pageCssPath='/css/page/read.css?v=6')}"></th:block>
+        pageCssPath='/css/page/read.css')}"></th:block>
 </head>
 <body>
     <div th:replace="~{fragments/header :: header(current='read')}"></div>
@@ -41,6 +41,6 @@
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 
-    <script th:src="@{/js/read.js?v=6}"></script>`
+    <script th:src="@{/js/read.js}"></script>`
 </body>
 </html>
