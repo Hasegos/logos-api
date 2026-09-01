@@ -1,8 +1,9 @@
-<header th:fragment="header" class="site-header">
-    <a href="/" class="brand">📖 Logos API</a>
-    <nav class="main-nav">
-        <a href="/">홈</a>
-        <a href="/docs">API 문서</a>
+<header th:fragment="header(current)" class="site-header">
+    <a href="/" class="site-header__brand">📖 Logos API</a>
+    <nav class="site-header__nav">
+        <a href="/" th:classappend="${current == 'home'} ? 'site-header__link--active'">홈</a>
+        <a href="/read" th:classappend="${current == 'read'} ? 'site-header__link--active'">성경 읽기</a>
+        <a href="/docs" th:classappend="${current == 'docs'} ? 'site-header__link--active'">API 문서</a>
         <a href="https://github.com/Hasegos/logos-api" target="_blank" rel="noopener noreferrer">GitHub</a>
     </nav>
 </header>

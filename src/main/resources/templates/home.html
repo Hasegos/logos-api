@@ -19,36 +19,61 @@
     </script>
 </head>
 <body>
-    <div th:replace="~{fragments/header :: header}"></div>
+    <div th:replace="~{fragments/header :: header(current='home')}"></div>
 
     <main class="page-main">
-        <div class="card">
-            <h2>Logos API Key</h2>
-            <p>버튼을 누르면 새로운 키가 발급됩니다.<br>(기존 키는 즉시 폐기됩니다)</p>
-            <button id="generate-key-btn">새 키 발급하기</button>
-
-            <div id="key-container">
-                <code id="api-key"></code>
-                <button class="copy-btn" id="copy-key-btn">키 복사하기</button>
-                <p id="copy-msg">복사되었습니다!</p>
+        <section class="hero">
+            <div class="hero__verse-card">
+                <p class="hero__verse-label">오늘의 말씀</p>
+                <p class="hero__verse-text">"<span th:text="${todayVerse.text}">본문</span>"</p>
+                <p class="hero__verse-ref">— <span th:text="${todayVerse.reference}">참조</span></p>
             </div>
 
-            <hr class="hr-line">
+            <div class="hero__content">
+                <h1>성경 구절, API 하나로</h1>
+                <p class="hero__content-desc">개역개정 성경 구절을 무료로 제공하는 REST API. 키 하나면 바로 연동할 수 있습니다.</p>
+                <pre><code>curl -H "X-API-KEY: 발급받은_키" https://logos-api.com/api/verse</code></pre>
 
-            <h3>성경 구절 랜덤 호출</h3>
-            <button id="verse-btn">오늘의 말씀 보기</button>
+                <div class="hero__cta-row">
+                    <button id="generate-key-btn" class="btn btn--primary">API 키 발급받기</button>
+                    <a href="/docs" class="btn btn--ghost">문서 보기</a>
+                </div>
 
-            <div id="verse-container" class="verse-box">
-                <p id="verse-text"></p>
-                <p id="verse-ref"></p>
+                <div id="key-container" class="key-panel">
+                    <code id="api-key" class="key-panel__key"></code>
+                    <button id="copy-key-btn" class="key-panel__copy-btn">키 복사하기</button>
+                    <p id="copy-msg" class="key-panel__message">복사되었습니다!</p>
+                </div>
             </div>
+        </section>
 
-            <hr class="hr-line">
+        <section class="stats">
+            <div class="stats__item">
+                <div class="stats__number" th:text="${#numbers.formatInteger(totalVerses, 0, 'COMMA')}">0</div>
+                <div class="stats__label">등록된 구절</div>
+            </div>
+            <div class="stats__item">
+                <div class="stats__number">무료</div>
+                <div class="stats__label">비상업적 이용</div>
+            </div>
+            <div class="stats__item">
+                <div class="stats__number">개인정보 없음</div>
+                <div class="stats__label">로그인 불필요</div>
+            </div>
+        </section>
 
-            <p class="dev-note">🧑‍💻 개발자이신가요? 바로 호출해보세요.</p>
-            <pre><code>curl -H "X-API-KEY: 발급받은_키" https://logos-api.com/api/verse</code></pre>
-            <p><a href="/docs">API 문서 전체 보기 →</a></p>
-        </div>
+        <section class="split">
+            <div class="split__col">
+                <h2>묵상하시는 분이라면</h2>
+                <p>책과 장을 골라 원하는 말씀을 직접 찾아 읽을 수 있습니다.</p>
+                <a href="/read">성경 읽기 시작하기 →</a>
+            </div>
+            <div class="split__col">
+                <h2>개발자시라면</h2>
+                <p>curl, JavaScript, Java 예제와 함께 5분 안에 연동을 마칠 수 있습니다.</p>
+                <a href="/docs">API 문서 보기 →</a>
+            </div>
+        </section>
     </main>
 
     <div th:replace="~{fragments/footer :: footer}"></div>

@@ -28,6 +28,7 @@ public class SitemapController {
         sb.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
         sb.append(url(BASE_URL + "/", CHANGE_FREQ_WEEKLY, "1.0"));
         sb.append(url(BASE_URL + "/docs", CHANGE_FREQ_WEEKLY, "0.8"));
+        sb.append(url(BASE_URL + "/read", CHANGE_FREQ_WEEKLY, "0.7"));
         sb.append("</urlset>");
         return sb.toString();
     }

@@ -1,67 +1,139 @@
-.docs-container {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 100%;
-    max-width: 760px;
-    padding: 2.5rem 2rem;
+.docs-layout {
+    max-width: 940px;
+    margin: 0 auto;
+    padding: 3rem 2rem 5rem;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.toc {
+    position: sticky;
+    top: 2rem;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1.1rem 0.9rem;
+    font-size: 0.86rem;
+}
+
+.toc__link {
+    display: block;
+    padding: 0.5rem 0.6rem;
+    color: var(--ink-soft);
+    border-radius: 4px;
+}
+
+.toc__link:hover {
+    background: var(--bg);
+    text-decoration: none;
+}
+
+.toc__link--active {
+    color: var(--violet);
+    background: #F0EBFA;
+    font-weight: 500;
+}
+
+.docs {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2.2rem 2rem;
     text-align: left;
 }
 
-.docs-container h1 {
+.docs h1 {
     margin-top: 0;
-    color: #673AB7;
+    font-size: 1.8rem;
 }
 
-.docs-lead {
-    color: #555;
+.docs__lead {
+    color: var(--ink-soft);
     margin-bottom: 2rem;
 }
 
-.docs-section {
-    margin-bottom: 2rem;
+.docs__section {
+    margin-bottom: 2.2rem;
+    scroll-margin-top: 1.5rem;
 }
 
-.docs-section h2 {
-    font-size: 1.15rem;
-    border-left: 4px solid #673AB7;
-    padding-left: 0.6rem;
-    margin-bottom: 0.8rem;
+.docs__section h2 {
+    font-size: 1.1rem;
+    border-left: 3px solid var(--violet);
+    padding-left: 0.65rem;
+    margin: 0 0 0.9rem;
 }
 
-.docs-section h3 {
-    font-size: 0.95rem;
-    color: #673AB7;
-    margin: 1rem 0 0.4rem;
+.docs__section h3 {
+    font-size: 0.88rem;
+    color: var(--violet);
+    margin: 1.1rem 0 0.4rem;
+    font-weight: 500;
+    font-family: sans-serif;
 }
 
-.docs-table {
+.docs__table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 0.5rem;
 }
 
-.docs-table th,
-.docs-table td {
+.docs__table th,
+.docs__table td {
     text-align: left;
-    padding: 0.5rem 0.7rem;
-    border-bottom: 1px solid #eee;
+    padding: 0.5rem 0.6rem;
+    border-bottom: 1px solid var(--border);
     font-size: 0.9rem;
 }
 
-.docs-table th {
-    width: 140px;
-    color: #673AB7;
+.docs__table th {
+    color: var(--violet);
+    font-weight: 500;
 }
 
-.docs-cta {
+.docs__cta {
     display: inline-block;
-    margin-top: 0.8rem;
-    color: #673AB7;
-    font-weight: bold;
-    text-decoration: none;
+    margin-top: 0.6rem;
+    color: var(--violet);
+    font-weight: 500;
 }
 
-.docs-cta:hover {
+.docs__cta:hover {
     text-decoration: underline;
+}
+
+.docs__note {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: var(--bg);
+    border-left: 2px solid var(--border);
+    padding: 0.6rem 0.8rem;
+    margin: 0.6rem 0 0;
+}
+
+.badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-left: 0.4rem;
+    vertical-align: middle;
+    font-family: sans-serif;
+}
+
+.badge--new {
+    background: #F0EBFA;
+    color: var(--violet);
+}
+
+@media (max-width: 720px) {
+    .docs-layout {
+        grid-template-columns: 1fr;
+    }
+    .toc {
+        position: static;
+        margin-bottom: 1.5rem;
+    }
 }

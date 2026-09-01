@@ -35,4 +35,16 @@ public class LogosController {
                 .cacheControl(CacheControl.maxAge(Duration.ofSeconds(3)).cachePublic())
                 .body(logosService.getRandomVerse());
     }
+
+    /**
+     * 매일 자정 기준으로 고정되는 오늘의 말씀을 반환합니다.
+     * 같은 날짜에 호출하면 누가 호출하든 항상 동일한 구절을 반환합니다.
+     *
+     * @return 오늘의 말씀 정보
+     */
+    @GetMapping("/verse/today")
+    public ResponseEntity<LogosResponseDTO> today(){
+        return ResponseEntity.ok()
+                .body(logosService.getTodayVerse());
+    }
 }
