@@ -1,12 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('pre').forEach((pre) => {
-        if (pre.querySelector('.copy-code-btn')) return;
+        if (pre.querySelector('.code-block__copy-btn')) return;
 
         pre.classList.add('code-block');
 
         const button = document.createElement('button');
         button.type = 'button';
-        button.className = 'copy-code-btn';
+        button.className = 'code-block__copy-btn';
         button.textContent = '복사';
         button.setAttribute('aria-label', '코드 복사');
 
@@ -27,10 +27,10 @@ function showFeedback(button, message) {
     const original = button.textContent;
     button.textContent = message;
     button.disabled = true;
-    button.classList.add('copy-code-btn--active');
+    button.classList.add('code-block__copy-btn--active');
     setTimeout(() => {
         button.textContent = original;
         button.disabled = false;
-        button.classList.remove('copy-code-btn--active');
+        button.classList.remove('code-block__copy-btn--active');
     }, 1500);
 }

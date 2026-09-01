@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle='성경 읽기 - Logos API',
+        pageDescription='책과 장을 직접 선택해 원하는 성경 구절을 읽을 수 있습니다.',
+        canonicalUrl='https://logos-api.com/read',
+        pageCssPath='/css/page/read.css?v=6')}"></th:block>
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header(current='read')}"></div>
+
+    <main class="page-main page-main--wide">
+        <div class="read">
+            <h1>성경 읽기</h1>
+            <p class="read__lead">데이터가 등록된 책만 표시됩니다. 장을 선택하면 해당 장의 전체 절을 볼 수 있습니다.</p>
+
+            <div id="continue-reading" class="continue-banner" style="display:none;">
+                <a href="#" class="continue-banner__link">이어서 읽기 →</a>
+                <button type="button" class="continue-banner__reset">초기화</button>
+            </div>
+
+            <div th:each="entry : ${booksByTestament}">
+                <div class="book-list__testament" th:text="${entry.key}">구약</div>
+
+                <div class="book-list__book" th:each="book : ${entry.value}" th:id="'book-' + ${book}" th:attr="data-book=${book}">
+                    <div class="book-list__row">
+                        <span class="book-list__name" th:text="${book}">창세기</span>
+                        <span class="book-list__chevron">▸</span>
+                    </div>
+                    <div class="book-list__chapters">
+                        <a class="book-list__chapter"
+                           th:each="ch : ${chaptersByBook.get(book)}"
+                           th:href="@{'/read/' + ${book} + '/' + ${ch}}"
+                           th:text="${ch}">1</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/read.js?v=6}"></script>`
+</body>
+</html>
