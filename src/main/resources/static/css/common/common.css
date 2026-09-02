@@ -87,6 +87,39 @@ a:hover {
     font-weight: 500;
 }
 
+.site-header__toggle {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    line-height: 1;
+    color: var(--ink);
+    cursor: pointer;
+    padding: 0.2rem 0.4rem;
+}
+
+@media (max-width: 640px) {
+    .site-header__toggle {
+        display: block;
+    }
+
+    .site-header__nav {
+        display: none;
+        flex-basis: 100%;
+        flex-direction: column;
+    }
+
+    .site-header__nav.site-header__nav--open {
+        display: flex;
+    }
+
+    .site-header__nav a {
+        margin-left: 0;
+        padding: 0.7rem 0.2rem;
+        border-top: 1px solid var(--border);
+    }
+}
+
 .page-main {
     flex: 1;
     display: flex;
