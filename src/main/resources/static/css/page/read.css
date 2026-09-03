@@ -173,11 +173,6 @@
     vertical-align: top;
     margin-right: 0.35rem;
     font-family: sans-serif;
-    cursor: pointer;
-}
-
-.chapter-view__verse-num:hover {
-    text-decoration: underline;
 }
 
 .chapter-view__nav {
@@ -187,4 +182,26 @@
     padding-top: 1.1rem;
     border-top: 1px solid var(--border);
     font-size: 0.9rem;
+}
+
+.toast {
+    position: fixed;
+    left: 50%;
+    bottom: 2rem;
+    transform: translateX(-50%) translateY(12px);
+    background: var(--ink);
+    color: #fff;
+    padding: 0.7rem 1.3rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 200;
+    white-space: nowrap;
+}
+
+.toast--visible {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
 }
