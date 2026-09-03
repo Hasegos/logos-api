@@ -43,6 +43,24 @@ function logosClearProgress() {
     }
 }
 
+function logosShowToast(message) {
+    let toast = document.getElementById('logos-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'logos-toast';
+        toast.className = 'toast';
+        document.body.appendChild(toast);
+    }
+
+    toast.textContent = message;
+    toast.classList.add('toast--visible');
+
+    clearTimeout(toast._logosHideTimer);
+    toast._logosHideTimer = setTimeout(() => {
+        toast.classList.remove('toast--visible');
+    }, 1800);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initBookAccordion();
     initContinueReadingBanner();
@@ -113,25 +131,13 @@ function initChapterDetailPage() {
     logosMarkChapterRead(book, chapter);
 
     document.querySelectorAll('.chapter-view__verse').forEach((verse) => {
-        verse.addEventListener('click', (event) => {
-            if (event.target.closest('.chapter-view__verse-num')) return;
+        verse.addEventListener('click', () => {
             verse.classList.toggle('chapter-view__verse--highlighted');
-        });
-    });
 
-    document.querySelectorAll('.chapter-view__verse-num').forEach((numEl) => {
-        numEl.addEventListener('click', (event) => {
-            event.stopPropagation();
-            const verseEl = numEl.closest('.chapter-view__verse');
-            const url = `${location.origin}/read/${encodeURIComponent(book)}/${chapter}#${verseEl.id}`;
-
-            navigator.clipboard.writeText(url).then(() => {
-                const original = numEl.textContent;
-                numEl.textContent = '✓';
-                setTimeout(() => {
-                    numEl.textContent = original;
-                }, 1000);
-            });
+            const url = `${location.origin}/read/${encodeURIComponent(book)}/${chapter}#${verse.id}`;
+            navigator.clipboard.writeText(url)
+                .then(() => logosShowToast('말씀 링크가 복사되었습니다'))
+                .catch(() => logosShowToast('복사에 실패했습니다'));
         });
     });
 
