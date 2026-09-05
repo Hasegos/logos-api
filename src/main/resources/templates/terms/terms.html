@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle='이용약관 - Logos API',
+        pageDescription='Logos API 웹사이트 및 API 서비스 이용약관입니다.',
+        canonicalUrl='https://logos-api.com/terms',
+        pageCssPath='/css/page/policy.css')}"></th:block>
+    <meta name="robots" content="noindex, follow">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header(current='')}"></div>
+
+    <main class="page-main page-main--wide">
+        <div class="policy-page">
+
+            <nav class="policy-page__breadcrumb">
+                <a th:href="@{/}" class="policy-page__breadcrumb-link">홈</a>
+                <span class="policy-page__breadcrumb-sep">/</span>
+                <span class="policy-page__breadcrumb-current">이용약관</span>
+            </nav>
+
+            <h1 class="policy-page__title">이용약관</h1>
+
+            <section class="policy-page__section">
+                <h2>제1조 (목적)</h2>
+                <p>본 약관은 Logos API 운영자(이하 "운영자")가 제공하는 Logos API 및 관련 웹사이트 logos-api.com(이하 "서비스")의 이용조건 및 절차, 운영자와 이용자의 권리·의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제2조 (정의)</h2>
+                <ul class="policy-page__list">
+                    <li>"서비스"란 성경 구절을 제공하는 REST API와, 이를 열람·이용할 수 있도록 제공되는 웹사이트 일체를 말합니다.</li>
+                    <li>"이용자"란 본 약관에 따라 서비스를 이용하는 자를 말하며, 별도의 회원가입 절차는 없습니다.</li>
+                    <li>"API 키"란 API 호출 인증을 위해 서비스가 발급하는 고유 식별값을 말합니다.</li>
+                </ul>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제3조 (약관의 효력 및 변경)</h2>
+                <p>본 약관은 서비스 화면에 게시함으로써 효력이 발생합니다. 운영자는 관련 법령을 위반하지 않는 범위에서 약관을 변경할 수 있으며, 변경 시 시행일자 및 변경 사유를 서비스를 통해 사전 공지합니다. 이용자가 변경된 약관에 동의하지 않는 경우 서비스 이용을 중단할 수 있습니다.</p>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제4조 (서비스의 제공 및 변경·중단)</h2>
+                <p>서비스는 별도의 회원가입 절차 없이 누구나 무료로 이용할 수 있도록 제공됩니다. 다만 서버 점검, 기술적 문제, 운영상의 필요 등에 따라 서비스의 전부 또는 일부를 예고 없이 변경하거나 일시적으로 중단할 수 있습니다.</p>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제5조 (API 이용 및 요청 제한)</h2>
+                <ul class="policy-page__list">
+                    <li>API 이용을 위해서는 웹사이트를 통해 API 키를 발급받아야 하며, 발급은 동일 IP 기준 하루 10회로 제한됩니다.</li>
+                    <li>새 키 발급 시 기존에 발급된 키는 즉시 폐기됩니다.</li>
+                    <li>과도한 트래픽을 유발하는 요청은 서버 및 애플리케이션 단에서 제한될 수 있으며, 운영자는 서비스 안정성을 위해 사전 고지 없이 요청 제한 정책을 변경할 수 있습니다.</li>
+                </ul>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제6조 (콘텐츠 내용에 관한 안내)</h2>
+                <p>서비스가 제공하는 성경 본문은 개역개정(KRV)판을 바탕으로 수동 입력되었습니다. 오탈자 등 입력 과정의 오류가 포함되어 있을 수 있으며, 운영자는 본문의 완전성이나 정확성을 보증하지 않습니다. 정확한 본문 확인이 중요한 목적으로 활용하실 때는 대한성서공회 등 공식 자료를 함께 참고하시기 바랍니다.</p>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제7조 (저작권 및 지적재산권)</h2>
+                <ul class="policy-page__list">
+                    <li>서비스가 제공하는 성경 본문의 저작권은 대한성서공회 등 원 저작권자에게 있습니다.</li>
+                    <li>서비스의 소스코드, 디자인 등 콘텐츠에 대한 권리는 별도의 사용자 정의 라이선스를 따르며, 상세 내용은 <a href="https://github.com/Hasegos/logos-api/blob/master/LICENSE" target="_blank" rel="noopener noreferrer">GitHub 저장소의 LICENSE</a> 문서를 참고하시기 바랍니다.</li>
+                    <li>이용자는 문서화된 API 호출 방식의 범위를 벗어나 성경 본문 전체를 조직적으로 수집(크롤링)하거나, 원 저작권자의 정책 범위를 벗어나 상업적으로 재배포해서는 안 됩니다.</li>
+                </ul>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제8조 (광고 게재)</h2>
+                <p>서비스는 운영에 필요한 비용 충당을 위하여 Google AdSense 등을 통한 광고를 게재할 수 있습니다. 광고 및 쿠키에 관한 자세한 사항은 <a href="/privacy">개인정보처리방침</a>을 참고하시기 바랍니다.</p>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제9조 (이용자의 의무)</h2>
+                <p>이용자는 서비스를 이용함에 있어 관계 법령과 본 약관을 준수해야 하며, 다음 각 호에 해당하는 행위를 하여서는 안 됩니다.</p>
+                <ul class="policy-page__list">
+                    <li>인증 우회, 속도 제한 우회 등 서비스의 정상적인 운영을 방해하는 행위</li>
+                    <li>문서화된 방식 외의 방법으로 서버에 과도한 부하를 유발하는 행위</li>
+                    <li>그 밖에 관계 법령에 위반되는 행위</li>
+                </ul>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제10조 (면책조항)</h2>
+                <p>서비스는 무료로 제공되며, 운영자는 서비스 이용과 관련하여 이용자에게 발생한 손해에 대해 관련 법령에서 달리 정하지 않는 한 책임을 지지 않습니다. 천재지변 또는 이에 준하는 불가항력으로 서비스를 제공할 수 없는 경우에도 그 책임이 면제됩니다. 제6조에서 밝힌 바와 같이 콘텐츠의 정확성을 신뢰하여 발생한 손해에 대해서도 운영자는 책임을 지지 않습니다.</p>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제11조 (준거법 및 관할)</h2>
+                <p>본 약관과 관련하여 운영자와 이용자 간에 분쟁이 발생한 경우 대한민국 법령을 준거법으로 하며, 관련 법령에 따른 관할법원에 소를 제기할 수 있습니다.</p>
+            </section>
+
+            <section class="policy-page__section">
+                <h2>제12조 (문의처)</h2>
+                <p>이용약관과 관련한 문의사항은 아래 연락처로 문의해 주시기 바랍니다.</p>
+                <p class="policy-page__contact">이메일: <a href="mailto:csw020106@naver.com">csw020106@naver.com</a></p>
+            </section>
+
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
