@@ -6,6 +6,21 @@
         pageDescription='책과 장을 직접 선택해 원하는 성경 구절을 읽을 수 있습니다.',
         canonicalUrl='https://logos-api.com/read',
         pageCssPath='/css/page/read.css')}"></th:block>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            "name": "성경 읽기",
+            "url": "https://logos-api.com/read",
+            "description": "책과 장을 직접 선택해 원하는 성경 구절을 읽을 수 있습니다.",
+            "inLanguage": "ko",
+            "isPartOf": {
+                "@type": "WebSite",
+                "name": "Logos API",
+                "url": "https://logos-api.com/"
+            }
+        }
+    </script>
 </head>
 <body>
     <div th:replace="~{fragments/header :: header(current='read')}"></div>
@@ -41,6 +56,6 @@
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 
-    <script th:src="@{/js/read.js}"></script>`
+    <script th:src="@{/js/read.js}"></script>
 </body>
 </html>

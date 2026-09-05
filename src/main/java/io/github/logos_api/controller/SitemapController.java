@@ -14,6 +14,7 @@ public class SitemapController {
 
     private static final String BASE_URL = "https://logos-api.com";
     private static final String CHANGE_FREQ_WEEKLY = "weekly";
+    private static final String CHANGE_FREQ_YEARLY = "yearly";
 
     /**
      * sitemap.xml을 생성하여 반환한다.
@@ -29,6 +30,8 @@ public class SitemapController {
         sb.append(url(BASE_URL + "/", CHANGE_FREQ_WEEKLY, "1.0"));
         sb.append(url(BASE_URL + "/docs", CHANGE_FREQ_WEEKLY, "0.8"));
         sb.append(url(BASE_URL + "/read", CHANGE_FREQ_WEEKLY, "0.7"));
+        sb.append(url(BASE_URL + "/terms", CHANGE_FREQ_YEARLY, "0.3"));
+        sb.append(url(BASE_URL + "/privacy", CHANGE_FREQ_YEARLY, "0.3"));
         sb.append("</urlset>");
         return sb.toString();
     }

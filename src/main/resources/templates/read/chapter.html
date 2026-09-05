@@ -6,6 +6,25 @@
         pageDescription=|${book} ${chapter}장 전체 본문을 확인할 수 있습니다.|,
         canonicalUrl=|https://logos-api.com/read/${book}/${chapter}|,
         pageCssPath='/css/page/read.css')}"></th:block>
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": "[[${book}]] [[${chapter}]]장 - Logos API",
+            "url": "[[${'https://logos-api.com/read/' + book + '/' + chapter}]]",
+            "description": "[[${book}]] [[${chapter}]]장 전체 본문을 확인할 수 있습니다.",
+            "inLanguage": "ko",
+            "isPartOf": {
+                "@type": "WebSite",
+                "name": "Logos API",
+                "url": "https://logos-api.com/"
+            },
+            "about": {
+                "@type": "Book",
+                "name": "[[${book}]]"
+            }
+        }
+    </script>
 </head>
 <body>
     <div th:replace="~{fragments/header :: header(current='read')}"></div>
