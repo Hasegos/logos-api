@@ -1,0 +1,92 @@
+.policy-page {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2.3rem 2rem;
+    text-align: left;
+}
+
+.policy-page__breadcrumb {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 1.2rem;
+}
+
+.policy-page__breadcrumb-link {
+    color: var(--ink-soft);
+}
+
+.policy-page__breadcrumb-link:hover {
+    color: var(--violet);
+}
+
+.policy-page__breadcrumb-sep {
+    margin: 0 0.4rem;
+}
+
+.policy-page__breadcrumb-current {
+    color: var(--violet);
+}
+
+.policy-page__title {
+    margin: 0 0 1.6rem;
+    font-size: 1.6rem;
+}
+
+.policy-page__section {
+    margin-bottom: 1.9rem;
+}
+
+.policy-page__section h2 {
+    font-size: 1.05rem;
+    border-left: 3px solid var(--violet);
+    padding-left: 0.6rem;
+    margin: 0 0 0.8rem;
+}
+
+.policy-page__section p,
+.policy-page__list li {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    line-height: 1.7;
+}
+
+.policy-page__list {
+    padding-left: 1.2rem;
+}
+
+.policy-page__table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+}
+
+.policy-page__table th,
+.policy-page__table td {
+    text-align: left;
+    padding: 0.55rem 0.6rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.86rem;
+    vertical-align: top;
+}
+
+.policy-page__table thead th {
+    color: var(--violet);
+    font-weight: 500;
+}
+
+.policy-page__note {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: var(--bg);
+    border-left: 2px solid var(--border);
+    padding: 0.6rem 0.8rem;
+    margin: 0.6rem 0 0;
+}
+
+.policy-page__contact {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+}
