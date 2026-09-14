@@ -24,6 +24,18 @@ spring:
     hibernate:
       ddl-auto: update
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  endpoint:
+    health:
+      show-details: never
+  metrics:
+    tags:
+      application: logos-api
+
 logging:
   level:
     root: INFO

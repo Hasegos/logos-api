@@ -2,11 +2,13 @@ package io.github.logos_api.controller;
 
 import io.github.logos_api.service.LogosService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -53,7 +55,11 @@ public class ReadController {
     @GetMapping("/{book}/{chapter}")
     public String chapter(@PathVariable String book,
                           @PathVariable int chapter,
-                          Model model){
+                          Model model) throws NoResourceFoundException {
+        if (!logosService.getAvailableBooks().contains(book)) {
+            throw new NoResourceFoundException(HttpMethod.GET, "/read/" + book + "/" + chapter);
+        }
+
         List<Integer> chapters = logosService.getChapters(book);
         int idx = chapters.indexOf(chapter);
         model.addAttribute("book", book);

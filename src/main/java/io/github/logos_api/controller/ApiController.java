@@ -68,9 +68,6 @@ public class ApiController {
      */
     private boolean isSafeOrigin(HttpServletRequest request) {
         String origin = request.getHeader("Origin");
-        if (origin == null || origin.isBlank()) {
-            return true;
-        }
-        return ALLOWED_ORIGINS.contains(origin);
+        return origin != null && ALLOWED_ORIGINS.contains(origin);
     }
 }

@@ -34,3 +34,6 @@ build/
 
 ### Vercel ###
 .vercel/
+
+### Internal docs (not for public repo) ###
+docs/
