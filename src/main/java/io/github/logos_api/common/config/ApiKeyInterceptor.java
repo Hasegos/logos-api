@@ -30,24 +30,26 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
      */
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        String referer = request.getHeader("Referer");
         String apikey = request.getHeader("X-API-KEY");
 
-        if(referer != null && referer.contains("logos-api.com")){
-            return true;
-        }
-
         if(apikey == null || apikey.isBlank()){
-            log.warn("[Unauthorized] API Key is missing. URI: {}", request.getRequestURI());
+            log.warn("[Unauthorized] API Key is missing. URI: {}", sanitize(request.getRequestURI()));
             return fail(response, "API Key is missing", HttpStatus.UNAUTHORIZED);
         }
 
         if(!apiKeyRepository.existsByApiKey(apikey)){
-            log.warn("[Unauthorized] Invalid API Key: {}. URI: {}", apikey, request.getRequestURI());
+            log.warn("[Unauthorized] Invalid API Key: {}. URI: {}", sanitize(apikey), sanitize(request.getRequestURI()));
             return fail(response, "Invalid API Key", HttpStatus.UNAUTHORIZED);
         }
 
         return true;
+    }
+
+    /**
+     * 로그 위조(개행 삽입 등)를 막기 위해 제어문자를 치환합니다.
+     */
+    private static String sanitize(String value) {
+        return value == null ? null : value.replaceAll("[\r\n\t]", "_");
     }
 
     /**
