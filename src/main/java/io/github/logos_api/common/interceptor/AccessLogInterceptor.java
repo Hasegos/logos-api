@@ -52,13 +52,9 @@ public class AccessLogInterceptor implements HandlerInterceptor {
     /**
      * 요청이 어떤 방식으로 인증되었는지 식별합니다. API 키 원문은 로그에 남기지 않습니다.
      *
-     * @return "referer" | "api-key" | "none" 중 하나
+     * @return "api-key" | "none" 중 하나
      */
     private String resolveAuthMethod(HttpServletRequest request) {
-        String referer = request.getHeader("Referer");
-        if (referer != null && referer.contains("logos-api.com")) {
-            return "referer";
-        }
         String apiKey = request.getHeader("X-API-KEY");
         if (apiKey != null && !apiKey.isBlank()) {
             return "api-key";
