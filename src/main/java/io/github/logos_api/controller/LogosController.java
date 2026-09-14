@@ -17,7 +17,7 @@ import java.time.Duration;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "https://logos-api.com/")
+@CrossOrigin(origins = "https://logos-api.com")
 @RequiredArgsConstructor
 public class LogosController {
 
