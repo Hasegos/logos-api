@@ -37,3 +37,5 @@ build/
 
 ### Internal docs (not for public repo) ###
 docs/
+logs
+.serena
