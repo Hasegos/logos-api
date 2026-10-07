@@ -39,3 +39,9 @@ build/
 docs/
 logs
 .serena
+
+### Claude Code ###
+.claude/
+CLAUDE.md
+graphify-out/
+.graphifyignore
