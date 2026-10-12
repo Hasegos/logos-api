@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -47,6 +48,8 @@ public class LogosService {
             "야고보서", "베드로전서", "베드로후서", "요한1서", "요한2서", "요한3서",
             "유다서", "요한계시록"
     );
+
+    private static final Pattern VERSE_PATTERN = Pattern.compile("[0-9]+(-[0-9]+)?");
 
     private Map<String, Map<Integer, List<Logos>>> bibleMap = new HashMap<>();
     private List<Logos> allVerses = new ArrayList<>();
@@ -114,7 +117,9 @@ public class LogosService {
         }
         try {
             Integer.parseInt(logos.getChapter());
-            Integer.parseInt(logos.getVerse());
+            if (!VERSE_PATTERN.matcher(logos.getVerse()).matches()) {
+                throw new NumberFormatException(logos.getVerse());
+            }
         } catch (NumberFormatException e) {
             log.warn("잘못된 장/절 번호 형식이라 제외함 - book: {}, chapter: {}, verse: {}",
                     logos.getBook(), logos.getChapter(), logos.getVerse());
@@ -161,11 +166,33 @@ public class LogosService {
 
     /**
      * 현재 등록된 전체 구절 수를 반환합니다.
+     * "1-2"처럼 합쳐진 절 번호는 범위에 포함된 절 수만큼 센다.
      *
      * @return 전체 구절 수
      */
     public int getTotalVerseCount(){
-        return allVerses.size();
+        return allVerses.stream().mapToInt(v -> verseSpan(v.getVerse())).sum();
+    }
+
+    /**
+     * 절 번호의 시작 번호를 반환합니다. "1-2"는 1이다.
+     *
+     * @param verse 절 번호 문자열
+     * @return 시작 절 번호
+     */
+    private static int verseStart(String verse) {
+        return Integer.parseInt(verse.split("-")[0]);
+    }
+
+    /**
+     * 절 번호 하나가 차지하는 절 수를 반환합니다. "1-2"는 2, "3"은 1이다.
+     *
+     * @param verse 절 번호 문자열
+     * @return 절 수
+     */
+    private static int verseSpan(String verse) {
+        String[] parts = verse.split("-");
+        return parts.length == 2 ? Integer.parseInt(parts[1]) - Integer.parseInt(parts[0]) + 1 : 1;
     }
 
     /**
@@ -223,7 +250,7 @@ public class LogosService {
             return List.of();
         }
         return verses.stream()
-                .sorted(Comparator.comparingInt(v -> Integer.parseInt(v.getVerse())))
+                .sorted(Comparator.comparingInt(v -> verseStart(v.getVerse())))
                 .collect(Collectors.toList());
     }
 }
