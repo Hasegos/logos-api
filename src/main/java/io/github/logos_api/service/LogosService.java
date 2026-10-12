@@ -53,6 +53,7 @@ public class LogosService {
 
     private Map<String, Map<Integer, List<Logos>>> bibleMap = new HashMap<>();
     private List<Logos> allVerses = new ArrayList<>();
+    private int totalVerseCount;
     private final Random random = new Random();
 
     /**
@@ -97,6 +98,7 @@ public class LogosService {
                 log.error("파일 로드 실패: {} - {}", resource.getFilename(), e.getMessage());
             }
         }
+        totalVerseCount = allVerses.stream().mapToInt(v -> verseSpan(v.getVerse())).sum();
     }
 
     /**
@@ -166,12 +168,12 @@ public class LogosService {
 
     /**
      * 현재 등록된 전체 구절 수를 반환합니다.
-     * "1-2"처럼 합쳐진 절 번호는 범위에 포함된 절 수만큼 센다.
+     * "1-2"처럼 합쳐진 절 번호는 범위에 포함된 절 수만큼 센다. 값은 로드 시점에 한 번 계산한다.
      *
      * @return 전체 구절 수
      */
     public int getTotalVerseCount(){
-        return allVerses.stream().mapToInt(v -> verseSpan(v.getVerse())).sum();
+        return totalVerseCount;
     }
 
     /**
