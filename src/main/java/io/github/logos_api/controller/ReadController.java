@@ -1,5 +1,6 @@
 package io.github.logos_api.controller;
 
+import io.github.logos_api.model.Logos;
 import io.github.logos_api.service.LogosService;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import java.util.Map;
 public class ReadController {
 
     private static final String PAGE_CACHE_CONTROL = CacheControl.maxAge(Duration.ofHours(1)).cachePublic().getHeaderValue();
+    private static final int DESCRIPTION_SNIPPET_LENGTH = 70;
 
     private final LogosService logosService;
 
@@ -55,7 +57,8 @@ public class ReadController {
 
     /**
      * 특정 책/장의 전체 절과, 이전/다음 장 이동 정보를 함께 내려줍니다.
-     * 존재하는 책일 때만 응답에 1시간 캐시 헤더를 붙인다.
+     * 존재하는 장일 때만 응답에 1시간 캐시 헤더를 붙이고, 없는 책이나 장은 404로 응답한다.
+     * meta description에는 첫 절의 앞부분을 넣어 장마다 다른 문장이 되게 한다.
      *
      * @param book     책 이름
      * @param chapter  장 번호
@@ -68,7 +71,8 @@ public class ReadController {
                           @PathVariable int chapter,
                           Model model,
                           HttpServletResponse response) throws NoResourceFoundException {
-        if (!logosService.getAvailableBooks().contains(book)) {
+        List<Logos> verses = logosService.getVerses(book, chapter);
+        if (verses.isEmpty()) {
             throw new NoResourceFoundException(HttpMethod.GET, "/read/" + book + "/" + chapter);
         }
 
@@ -77,10 +81,27 @@ public class ReadController {
         int idx = chapters.indexOf(chapter);
         model.addAttribute("book", book);
         model.addAttribute("chapter", chapter);
-        model.addAttribute("verses", logosService.getVerses(book,chapter));
+        model.addAttribute("verses", verses);
+        model.addAttribute("description", chapterDescription(book, chapter, verses));
         model.addAttribute("prevChapter", idx > 0 ? chapters.get(idx - 1) : null);
         model.addAttribute("nextChapter", (idx >= 0 && idx < chapters.size() - 1) ? chapters.get(idx + 1) : null);
 
         return "read/chapter";
+    }
+
+    /**
+     * 장 페이지의 meta description을 만든다. 첫 절의 앞 {@value #DESCRIPTION_SNIPPET_LENGTH}자를 붙이고, 더 길면 말줄임표로 끝낸다.
+     *
+     * @param book    책 이름
+     * @param chapter 장 번호
+     * @param verses  절 번호 순으로 정렬된 비어 있지 않은 절 목록
+     * @return 장마다 다른 description 문장
+     */
+    static String chapterDescription(String book, int chapter, List<Logos> verses) {
+        String first = verses.get(0).getText() == null ? "" : verses.get(0).getText().strip();
+        String snippet = first.length() > DESCRIPTION_SNIPPET_LENGTH
+                ? first.substring(0, DESCRIPTION_SNIPPET_LENGTH) + "…"
+                : first;
+        return (book + " " + chapter + "장 본문. " + snippet).strip();
     }
 }
