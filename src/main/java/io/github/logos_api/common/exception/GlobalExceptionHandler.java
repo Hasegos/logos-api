@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -49,6 +50,7 @@ public class GlobalExceptionHandler {
      * @param model   에러 정보를 뷰에 전달하기 위한 모델
      * @return API 요청 시 JSON 응답, 그 외 에러 뷰 이름
      */
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public Object handleNotFound(HttpServletRequest  request, Exception e, Model model) {
         log.warn("[404] URI: {}", request.getRequestURI());
@@ -77,6 +79,7 @@ public class GlobalExceptionHandler {
      * @param model   에러 정보를 뷰에 전달하기 위한 모델
      * @return API 요청 시 JSON 응답, 그 외 에러 뷰 이름
      */
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Object handleTypeMismatch(HttpServletRequest request, MethodArgumentTypeMismatchException e, Model model) {
         log.warn("[400] 잘못된 요청 파라미터 - URI: {}, 파라미터명: {}", request.getRequestURI(), e.getName());
@@ -103,6 +106,7 @@ public class GlobalExceptionHandler {
      * @param model   에러 정보를 뷰에 전달하기 위한 모델
      * @return API 요청 시 JSON 응답, 그 외 에러 뷰 이름
      */
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Object handleUnexpected(HttpServletRequest request, Exception ex, Model model) {
         log.error("[500] Unexpected error. URI: {}", request.getRequestURI(), ex);
