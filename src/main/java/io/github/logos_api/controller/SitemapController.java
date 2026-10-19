@@ -1,20 +1,28 @@
 package io.github.logos_api.controller;
 
+import io.github.logos_api.service.LogosService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.util.UriUtils;
+
+import java.nio.charset.StandardCharsets;
 
 /**
  * 사이트맵 요청을 처리하는 컨트롤러.
- * logos-api는 정적 페이지 수가 적으므로 사이트맵을 정적으로 생성한다.
+ * 고정 페이지 5개와, 등록된 모든 책·장의 읽기 페이지(/read/{책}/{장})를 담아 요청 때 생성한다.
  */
 @Controller
+@RequiredArgsConstructor
 public class SitemapController {
 
     private static final String BASE_URL = "https://logos-api.com";
     private static final String CHANGE_FREQ_WEEKLY = "weekly";
     private static final String CHANGE_FREQ_YEARLY = "yearly";
+
+    private final LogosService logosService;
 
     /**
      * sitemap.xml을 생성하여 반환한다.
@@ -32,6 +40,12 @@ public class SitemapController {
         sb.append(url(BASE_URL + "/read", CHANGE_FREQ_WEEKLY, "0.7"));
         sb.append(url(BASE_URL + "/terms", CHANGE_FREQ_YEARLY, "0.3"));
         sb.append(url(BASE_URL + "/privacy", CHANGE_FREQ_YEARLY, "0.3"));
+        for (String book : logosService.getAvailableBooks()) {
+            String encodedBook = UriUtils.encodePathSegment(book, StandardCharsets.UTF_8);
+            for (int chapter : logosService.getChapters(book)) {
+                sb.append(url(BASE_URL + "/read/" + encodedBook + "/" + chapter, CHANGE_FREQ_YEARLY, "0.6"));
+            }
+        }
         sb.append("</urlset>");
         return sb.toString();
     }
