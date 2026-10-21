@@ -2,7 +2,7 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: head(
-        pageTitle=|${book} ${chapter}장 - Logos API|,
+        pageTitle=|${book} ${chapter}장 개역개정 읽기 - Logos API|,
         pageDescription=${description},
         canonicalUrl=|https://logos-api.com/read/${book}/${chapter}|,
         pageCssPath='/css/page/read.css')}"></th:block>
@@ -10,7 +10,7 @@
         {
             "@context": "https://schema.org",
             "@type": "WebPage",
-            "name": [[${book + ' ' + chapter + '장 - Logos API'}]],
+            "name": [[${book + ' ' + chapter + '장 개역개정 읽기 - Logos API'}]],
             "url": [[${'https://logos-api.com/read/' + book + '/' + chapter}]],
             "description": [[${description}]],
             "inLanguage": "ko",
