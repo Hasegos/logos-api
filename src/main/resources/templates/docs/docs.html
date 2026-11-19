@@ -55,12 +55,14 @@
 
                 <section class="docs__section" id="overview" data-section="overview">
                     <h2>1. API 개요</h2>
-                    <table class="docs__table">
-                        <tr><th>Base URL</th><td><code>https://logos-api.com</code></td></tr>
-                        <tr><th>형식</th><td>JSON</td></tr>
-                        <tr><th>이용 조건</th><td>무료 · 비상업적 이용</td></tr>
-                        <tr><th>운영시간</th><td>08:00 ~ 22:00 (KST) · 운영시간 외에는 응답이 지연되거나 제공되지 않을 수 있습니다</td></tr>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <tr><th>Base URL</th><td><code>https://logos-api.com</code></td></tr>
+                            <tr><th>형식</th><td>JSON</td></tr>
+                            <tr><th>이용 조건</th><td>무료 · 비상업적 이용</td></tr>
+                            <tr><th>운영시간</th><td>08:00 ~ 22:00 (KST) · 운영시간 외에는 응답이 지연되거나 제공되지 않을 수 있습니다</td></tr>
+                        </table>
+                    </div>
                 </section>
 
                 <section class="docs__section" id="key" data-section="key">
@@ -75,14 +77,16 @@
                 <section class="docs__section" id="auth" data-section="auth">
                     <h2>3. 인증 방법</h2>
                     <p>모든 요청에는 아래 헤더가 필요합니다.</p>
-                    <table class="docs__table">
-                        <thead>
-                        <tr><th>Key</th><th>Value</th></tr>
-                        </thead>
-                        <tbody>
-                        <tr><td><code>X-API-KEY</code></td><td>발급받은 UUID</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>Key</th><th>Value</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>X-API-KEY</code></td><td>발급받은 UUID</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
 
                 <section class="docs__section" id="random" data-section="random">
@@ -90,26 +94,30 @@
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse</code></div>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse?ref=요3:16</code></div>
 
-                    <table class="docs__table">
-                        <thead>
-                        <tr><th>파라미터</th><th>필수</th><th>설명</th></tr>
-                        </thead>
-                        <tbody>
-                        <tr><td><code>ref</code></td><td>아니오</td><td>참조 표기. 없으면 무작위 구절을 돌려줍니다</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>파라미터</th><th>필수</th><th>설명</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>ref</code></td><td>아니오</td><td>참조 표기. 없으면 무작위 구절을 돌려줍니다</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <table class="docs__table">
-                        <thead>
-                        <tr><th>표기</th><th>뜻</th><th>응답</th></tr>
-                        </thead>
-                        <tbody>
-                        <tr><td><code>요3:16</code></td><td>요한복음 3장 16절 (약어)</td><td>구절 1개</td></tr>
-                        <tr><td><code>요한복음 3:16</code></td><td>정식 이름도 됩니다</td><td>구절 1개</td></tr>
-                        <tr><td><code>요3:16-18</code></td><td>16절부터 18절까지</td><td>배열</td></tr>
-                        <tr><td><code>요3</code></td><td>3장 전체</td><td>배열</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>표기</th><th>뜻</th><th>응답</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>요3:16</code></td><td>요한복음 3장 16절 (약어)</td><td>구절 1개</td></tr>
+                            <tr><td><code>요한복음 3:16</code></td><td>정식 이름도 됩니다</td><td>구절 1개</td></tr>
+                            <tr><td><code>요3:16-18</code></td><td>16절부터 18절까지</td><td>배열</td></tr>
+                            <tr><td><code>요3</code></td><td>3장 전체</td><td>배열</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                     <p class="docs__note">약어는 <code>창</code> <code>출</code> <code>삼상</code> <code>고전</code> <code>살후</code> <code>요일</code>처럼 통용되는 66권 표기를 씁니다. 형식을 읽을 수 없으면 400, 해당 구절이 없으면 404로 응답합니다. 참조 조회 응답은 내용이 고정이라 하루 캐싱되고, 무작위 구절은 3초만 캐싱됩니다.</p>
 
                     <h3>curl</h3>
@@ -170,15 +178,17 @@
                     <h2>6. 책 · 장 · 절 조회</h2>
                     <p>특정 책과 장을 지정해 구조적으로 탐색할 수 있습니다.</p>
 
-                    <table class="docs__table">
-                        <thead>
-                        <tr><th>경로 파라미터</th><th>설명</th></tr>
-                        </thead>
-                        <tbody>
-                        <tr><td><code>book</code></td><td>책 이름. 정식 이름만 받습니다 (예: <code>요한복음</code>). 등록되지 않은 책이면 빈 배열</td></tr>
-                        <tr><td><code>chapter</code></td><td>장 번호. 숫자가 아니면 400, 없는 장이면 빈 배열</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>경로 파라미터</th><th>설명</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>book</code></td><td>책 이름. 정식 이름만 받습니다 (예: <code>요한복음</code>). 등록되지 않은 책이면 빈 배열</td></tr>
+                            <tr><td><code>chapter</code></td><td>장 번호. 숫자가 아니면 400, 없는 장이면 빈 배열</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <h3>책 목록</h3>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books</code></div>
@@ -204,17 +214,19 @@
                     <h2>7. 구절 검색</h2>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/search?q=사랑&amp;book=요한1서&amp;limit=20&amp;offset=0</code></div>
 
-                    <table class="docs__table">
-                        <thead>
-                        <tr><th>파라미터</th><th>필수</th><th>설명</th></tr>
-                        </thead>
-                        <tbody>
-                        <tr><td><code>q</code></td><td>예</td><td>검색어. 2자 이상 100자 이하. 본문에 그대로 포함된 구절을 찾습니다</td></tr>
-                        <tr><td><code>book</code></td><td>아니오</td><td>특정 책으로 좁힙니다. 등록되지 않은 책 이름은 400</td></tr>
-                        <tr><td><code>limit</code></td><td>아니오</td><td>한 번에 받을 건수. 기본 20, 최대 50</td></tr>
-                        <tr><td><code>offset</code></td><td>아니오</td><td>건너뛸 건수. 기본 0</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>파라미터</th><th>필수</th><th>설명</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>q</code></td><td>예</td><td>검색어. 2자 이상 100자 이하. 본문에 그대로 포함된 구절을 찾습니다</td></tr>
+                            <tr><td><code>book</code></td><td>아니오</td><td>특정 책으로 좁힙니다. 등록되지 않은 책 이름은 400</td></tr>
+                            <tr><td><code>limit</code></td><td>아니오</td><td>한 번에 받을 건수. 기본 20, 최대 50</td></tr>
+                            <tr><td><code>offset</code></td><td>아니오</td><td>건너뛸 건수. 기본 0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <h3>curl</h3>
                     <pre><code>curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/search?q=%EC%82%AC%EB%9E%91&amp;limit=2"</code></pre>
@@ -243,18 +255,20 @@
                     <h2>8. 오류 응답</h2>
                     <p>오류는 모두 JSON으로 돌려주며 <code>error</code> 키를 공통으로 담습니다.</p>
 
-                    <table class="docs__table">
-                        <thead>
-                        <tr><th>상태</th><th>언제</th><th>응답</th></tr>
-                        </thead>
-                        <tbody>
-                        <tr><td><code>400</code></td><td>검색어가 2~100자가 아님, 등록되지 않은 책 이름, 참조 형식을 읽을 수 없음, 장 번호가 숫자가 아님</td><td><code>{"error": "Bad Request", "message": "..."}</code></td></tr>
-                        <tr><td><code>401</code></td><td><code>X-API-KEY</code> 헤더가 없거나 폐기된 키</td><td><code>{"error": "API Key is missing"}</code> / <code>{"error": "Invalid API Key"}</code></td></tr>
-                        <tr><td><code>404</code></td><td>참조가 가리키는 구절이 없음, 없는 주소</td><td><code>{"error": "Not Found", "message": "..."}</code></td></tr>
-                        <tr><td><code>429</code></td><td>요청이 너무 잦거나(9번) 키 발급 일일 한도 초과</td><td><code>{"error": "Too Many Requests", "retry_after_seconds": 42}</code></td></tr>
-                        <tr><td><code>500</code></td><td>서버 오류</td><td><code>{"error": "Internal Server Error"}</code></td></tr>
-                        </tbody>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>상태</th><th>언제</th><th>응답</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>400</code></td><td>검색어가 2~100자가 아님, 등록되지 않은 책 이름, 참조 형식을 읽을 수 없음, 장 번호가 숫자가 아님</td><td><code>{"error": "Bad Request", "message": "..."}</code></td></tr>
+                            <tr><td><code>401</code></td><td><code>X-API-KEY</code> 헤더가 없거나 폐기된 키</td><td><code>{"error": "API Key is missing"}</code> / <code>{"error": "Invalid API Key"}</code></td></tr>
+                            <tr><td><code>404</code></td><td>참조가 가리키는 구절이 없음, 없는 주소</td><td><code>{"error": "Not Found", "message": "..."}</code></td></tr>
+                            <tr><td><code>429</code></td><td>요청이 너무 잦거나(9번) 키 발급 일일 한도 초과</td><td><code>{"error": "Too Many Requests", "retry_after_seconds": 42}</code></td></tr>
+                            <tr><td><code>500</code></td><td>서버 오류</td><td><code>{"error": "Internal Server Error"}</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
 
                     <h3>예시</h3>
                     <pre><code>curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/verse?ref=요한복음"
@@ -269,11 +283,13 @@
 
                 <section class="docs__section" id="rate" data-section="rate">
                     <h2>9. 속도 제한 정책</h2>
-                    <table class="docs__table">
-                        <tr><th>키 발급</th><td>동일 IP 기준 하루 10회</td></tr>
-                        <tr><th>API 호출</th><td>과도한 트래픽은 서버 단에서 제한됩니다</td></tr>
-                        <tr><th>캐싱</th><td>랜덤 구절 조회는 3초간 브라우저 캐싱 적용</td></tr>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <tr><th>키 발급</th><td>동일 IP 기준 하루 10회</td></tr>
+                            <tr><th>API 호출</th><td>과도한 트래픽은 서버 단에서 제한됩니다</td></tr>
+                            <tr><th>캐싱</th><td>랜덤 구절 조회는 3초간 브라우저 캐싱 적용</td></tr>
+                        </table>
+                    </div>
                 </section>
 
                 <section class="docs__section" id="license" data-section="license">

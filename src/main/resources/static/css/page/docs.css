@@ -3,7 +3,8 @@
     margin: 0 auto;
     padding: 3rem 2rem 5rem;
     display: grid;
-    grid-template-columns: 220px 1fr;
+    /* minmax(0, ...)이 없으면 긴 표나 주소가 칸을 밀어내 페이지가 가로로 넘친다. */
+    grid-template-columns: minmax(0, 220px) minmax(0, 1fr);
     gap: 2rem;
     align-items: start;
 }
@@ -37,6 +38,7 @@
 }
 
 .docs {
+    min-width: 0;
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -78,6 +80,17 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 0.5rem;
+}
+
+/* 표가 화면보다 넓으면 표 안에서만 가로로 민다. 페이지 전체가 밀리지 않게. */
+.docs__table-wrap {
+    overflow-x: auto;
+    margin-top: 0.5rem;
+}
+
+.docs__table-wrap .docs__table {
+    margin-top: 0;
+    min-width: 22rem;
 }
 
 .docs__table th,
@@ -123,7 +136,6 @@
     border-radius: 6px;
     padding: 0.6rem 0.8rem;
     margin: 0.6rem 0;
-    overflow-x: auto;
 }
 
 /* GET은 읽기 요청이라는 뜻으로 파랑을 쓴다. 다른 메서드가 생기면 색을 나눈다. */
@@ -139,18 +151,52 @@
     border-radius: 4px;
 }
 
+/* 긴 주소는 줄바꿈한다. 가로로 밀게 하면 좁은 화면에서 뒷부분이 숨은 것처럼 보인다. */
 .endpoint__path {
+    flex: 1 1 auto;
+    min-width: 0;
     font-size: 0.88rem;
     color: var(--ink);
-    white-space: nowrap;
+    overflow-wrap: anywhere;
+    line-height: 1.5;
+}
+
+/* 엔드포인트 카드는 배경이 밝아 어두운 코드 블록용 버튼 색을 쓰면 글자가 묻힌다. */
+.endpoint .code-block__copy-btn {
+    position: static;
+    flex: 0 0 auto;
+    background: #F0EBFA;
+    color: var(--violet);
+    border: 1px solid var(--border);
+    font-weight: 500;
+}
+
+.endpoint .code-block__copy-btn:hover {
+    background: var(--violet);
+    color: #FFFFFF;
+    border-color: var(--violet);
+}
+
+.endpoint .code-block__copy-btn:disabled {
+    background: #F0EBFA;
+    color: var(--violet);
 }
 
 @media (max-width: 720px) {
     .docs-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+        padding: 2rem 1rem 4rem;
     }
     .toc {
         position: static;
         margin-bottom: 1.5rem;
+    }
+    .docs {
+        padding: 1.6rem 1.1rem;
+    }
+    .docs__table th,
+    .docs__table td {
+        font-size: 0.85rem;
+        padding: 0.45rem 0.5rem;
     }
 }
