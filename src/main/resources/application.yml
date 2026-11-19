@@ -40,6 +40,15 @@ spring:
     hibernate:
       ddl-auto: update
 
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  # 브라우저로 열어 볼 때 읽히도록 줄바꿈해서 내려준다.
+  writer-with-default-pretty-printer: true
+  # -ui 아티팩트를 쓰지 않아 Swagger UI 는 없지만, 의존성이 바뀌어도 켜지지 않도록 막아 둔다.
+  swagger-ui:
+    enabled: false
+
 management:
   endpoints:
     web:

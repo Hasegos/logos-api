@@ -38,7 +38,7 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addInterceptor(accessLogInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/css/**", "/js/**", "/img/**", "/fonts/**",
-                        "/favicon.ico", "/robots.txt", "/ads.txt", "/actuator/**")
+                        "/favicon.ico", "/robots.txt", "/ads.txt", "/actuator/**", "/v3/api-docs/**")
                 .order(1);
 
         registry.addInterceptor(apiKeyInterceptor)

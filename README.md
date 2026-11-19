@@ -24,6 +24,8 @@
 
 > **운영시간**: 08:00 ~ 22:00 (KST). 운영시간 외에는 응답이 지연되거나 제공되지 않을 수 있습니다.
 
+**🧩 OpenAPI 스펙**: [logos-api.com/v3/api-docs](https://logos-api.com/v3/api-docs) — Postman·코드 생성기에서 바로 가져올 수 있습니다.
+
 **📚 전체 문서**: 각 엔드포인트의 상세 사용법과 응답 예시는 [logos-api.com/docs](https://logos-api.com/docs)에서 확인하세요.
 
 ## 🔑 API 키 발급 및 사용

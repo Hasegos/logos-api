@@ -4,6 +4,7 @@ import io.github.logos_api.service.LogosService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
+import io.swagger.v3.oas.annotations.Hidden;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.UriUtils;
@@ -14,6 +15,7 @@ import java.nio.charset.StandardCharsets;
  * 사이트맵 요청을 처리하는 컨트롤러.
  * 고정 페이지 5개와, 등록된 모든 책·장의 읽기 페이지(/read/{책}/{장})를 담아 요청 때 생성한다.
  */
+@Hidden
 @Controller
 @RequiredArgsConstructor
 public class SitemapController {
