@@ -20,6 +20,9 @@
 | GET | `/api/books` | 데이터가 존재하는 책 목록 (정경 순서) |
 | GET | `/api/books/{book}/chapters` | 해당 책의 장 번호 목록 |
 | GET | `/api/books/{book}/chapters/{chapter}` | 해당 장의 전체 절 목록 |
+| GET | `/api/search` | 본문에 검색어가 들어간 구절 검색 (`q`, `book`, `limit`, `offset`) |
+
+> **운영시간**: 08:00 ~ 22:00 (KST). 운영시간 외에는 응답이 지연되거나 제공되지 않을 수 있습니다.
 
 **📚 전체 문서**: 각 엔드포인트의 상세 사용법과 응답 예시는 [logos-api.com/docs](https://logos-api.com/docs)에서 확인하세요.
 
