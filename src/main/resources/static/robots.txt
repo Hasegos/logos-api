@@ -3,5 +3,6 @@ Allow: /
 Disallow: /api/key/
 Disallow: /actuator/
 Disallow: /read/search
+Disallow: /v3/api-docs
 
 Sitemap: https://logos-api.com/sitemap.xml

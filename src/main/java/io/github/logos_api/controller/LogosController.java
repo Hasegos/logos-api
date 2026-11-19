@@ -2,6 +2,7 @@ package io.github.logos_api.controller;
 
 import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.service.LogosService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
@@ -42,6 +43,7 @@ public class LogosController {
      * @param ref 참조 문자열. 없으면 무작위 구절
      * @return 구절 정보. 참조 형식이 틀리면 400, 해당 구절이 없으면 404
      */
+    @Operation(summary = "구절 조회", description = "ref를 주면 그 참조의 구절을, 주지 않으면 무작위 구절을 돌려줍니다.")
     @GetMapping("/verse")
     public ResponseEntity<?> verse(@RequestParam(required = false) String ref){
         if (ref == null || ref.isBlank()) {
@@ -77,6 +79,7 @@ public class LogosController {
      * @param offset 건너뛸 건수 (기본 0)
      * @return 검색 결과 또는 400 에러 메시지
      */
+    @Operation(summary = "구절 검색", description = "본문에 검색어가 들어간 구절을 정경 순서로 찾습니다.")
     @GetMapping("/search")
     public ResponseEntity<?> search(@RequestParam String q,
                                     @RequestParam(required = false) String book,
@@ -109,6 +112,7 @@ public class LogosController {
      *
      * @return 오늘의 말씀 정보
      */
+    @Operation(summary = "오늘의 말씀", description = "날짜 기준으로 고정된 구절입니다. 같은 날에는 누가 호출해도 같습니다.")
     @GetMapping("/verse/today")
     public ResponseEntity<LogosResponseDTO> today(){
         return ResponseEntity.ok()

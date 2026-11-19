@@ -1,6 +1,7 @@
 package io.github.logos_api.controller;
 
 import io.github.logos_api.service.ApiKeyService;
+import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,12 @@ import java.util.Set;
 
 /**
  * API 키 생성 및 관리를 위한 REST 컨트롤러입니다.
+ * <p>
+ * 홈페이지 버튼으로만 호출하는 내부 경로라 OpenAPI 스펙에서는 제외합니다.
+ * 스펙에 올리면 자동화 스크립트가 키 발급을 긁어가기 쉬워집니다.
+ * </p>
  */
+@Hidden
 @Slf4j
 @RestController
 @RequestMapping("/api/key")
