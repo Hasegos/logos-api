@@ -36,7 +36,7 @@ build/
 .vercel/
 
 ### Internal docs (not for public repo) ###
-docs/
+/docs/
 logs
 .serena
 
