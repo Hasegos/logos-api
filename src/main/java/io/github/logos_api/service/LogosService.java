@@ -290,6 +290,37 @@ public class LogosService {
     }
 
     /**
+     * 지정한 장의 다음 장을 찾습니다. 책의 마지막 장이면 다음 책의 첫 장을 돌려줍니다.
+     * 낭독이 책을 넘어가며 이어지려면 책 순서를 알아야 하는데, 그 순서는 서비스가 가지고 있습니다.
+     *
+     * @param book    현재 책 이름
+     * @param chapter 현재 장 번호
+     * @return 다음 책 이름과 장 번호. 성경의 마지막 장이면 빈 값
+     */
+    public Optional<Map.Entry<String, Integer>> nextChapterOf(String book, int chapter){
+        List<Integer> chapters = getChapters(book);
+        int index = chapters.indexOf(chapter);
+
+        if (index >= 0 && index < chapters.size() - 1) {
+            return Optional.of(Map.entry(book, chapters.get(index + 1)));
+        }
+
+        List<String> books = getAvailableBooks();
+        int bookIndex = books.indexOf(book);
+        if (bookIndex < 0 || bookIndex == books.size() - 1) {
+            return Optional.empty();
+        }
+
+        String nextBook = books.get(bookIndex + 1);
+        List<Integer> nextChapters = getChapters(nextBook);
+        if (nextChapters.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(Map.entry(nextBook, nextChapters.get(0)));
+    }
+
+    /**
      * 데이터가 등록된 책 이름인지 확인합니다.
      *
      * @param book 확인할 책 이름

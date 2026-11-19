@@ -308,3 +308,55 @@
         max-width: none;
     }
 }
+
+.chapter-view__tts-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0 1.4rem;
+}
+
+.chapter-view__tts {
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink-soft);
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+}
+
+.chapter-view__tts:hover {
+    color: var(--violet);
+    border-color: var(--violet);
+}
+
+/* 낭독 중에는 마우스를 올려도 흰 글자를 유지한다. :hover 가 이기면 보라 배경에 보라 글자가 된다. */
+.chapter-view__tts--on,
+.chapter-view__tts--on:hover {
+    background: var(--violet);
+    border-color: var(--violet);
+    color: #FFFFFF;
+}
+
+.chapter-view__tts--on:hover {
+    background: var(--violet-deep);
+    border-color: var(--violet-deep);
+}
+
+/* 낭독 중인 절은 읽은 표시(노랑)와 겹치지 않게 보라 계열로 둔다. */
+.chapter-view__verse--reading,
+.chapter-view__verse--reading:hover {
+    background-color: #EDE4FB;
+}
+
+.chapter-view__tts--reset {
+    font-size: 0.8rem;
+}
+
+.chapter-view__tts-notice {
+    margin: -0.9rem 0 1.4rem;
+    color: var(--violet);
+    font-size: 0.85rem;
+}

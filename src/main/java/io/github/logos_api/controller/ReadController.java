@@ -135,6 +135,11 @@ public class ReadController {
         model.addAttribute("prevChapter", idx > 0 ? chapters.get(idx - 1) : null);
         model.addAttribute("nextChapter", (idx >= 0 && idx < chapters.size() - 1) ? chapters.get(idx + 1) : null);
 
+        logosService.nextChapterOf(book, chapter).ifPresent(next -> {
+            model.addAttribute("nextReadingBook", next.getKey());
+            model.addAttribute("nextReadingChapter", next.getValue());
+        });
+
         return "read/chapter";
     }
 
