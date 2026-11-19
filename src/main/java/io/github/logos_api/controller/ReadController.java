@@ -62,6 +62,34 @@ public class ReadController {
     }
 
     /**
+     * 읽기 진도를 보여주는 페이지입니다.
+     * <p>
+     * 진도 자체는 브라우저에만 저장되므로 서버는 책 순서와 책별 장 수만 내려줍니다.
+     * 개인 기록 화면이라 색인에서 제외합니다.
+     * </p>
+     *
+     * @param model    뷰에 전달할 모델
+     * @param response noindex 헤더를 설정할 응답
+     * @return 읽기 계획 템플릿 뷰 이름
+     */
+    @GetMapping("/plan")
+    public String plan(Model model, HttpServletResponse response){
+        response.setHeader("X-Robots-Tag", "noindex, follow");
+
+        Map<String, List<String>> booksByTestament = logosService.getAvailableBooksByTestament();
+        Map<String, Integer> chapterCounts = new LinkedHashMap<>();
+        booksByTestament.values().forEach(books ->
+                books.forEach(book -> chapterCounts.put(book, logosService.getChapters(book).size()))
+        );
+
+        model.addAttribute("booksByTestament", booksByTestament);
+        model.addAttribute("chapterCounts", chapterCounts);
+        model.addAttribute("totalChapters", chapterCounts.values().stream().mapToInt(Integer::intValue).sum());
+
+        return "read/plan";
+    }
+
+    /**
      * 본문에 검색어가 포함된 구절을 찾아 보여줍니다. 결과를 누르면 해당 장의 그 절로 이동합니다.
      * 검색어 조합이 무한히 늘어나므로 응답에 noindex 헤더를 붙여 색인에서 제외한다.
      *

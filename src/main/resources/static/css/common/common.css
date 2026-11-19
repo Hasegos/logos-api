@@ -115,7 +115,7 @@ a:hover {
         bottom: 0;
         z-index: 95;
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(5, 1fr);
         padding-bottom: env(safe-area-inset-bottom);
         background: var(--card);
         border-top: 1px solid var(--border);
