@@ -224,6 +224,16 @@ public class LogosService {
     }
 
     /**
+     * 데이터가 등록된 책 이름인지 확인합니다.
+     *
+     * @param book 확인할 책 이름
+     * @return 등록된 책이면 true (null이거나 비어 있으면 false)
+     */
+    public boolean isRegisteredBook(String book){
+        return book != null && !book.isBlank() && bibleMap.containsKey(book);
+    }
+
+    /**
      * 데이터가 존재하는 책 목록을 "구약"/"신약"으로 그룹핑하여 반환합니다.
      *
      * @return key가 "구약"/"신약"인 LinkedHashMap (순서 보장)
@@ -274,7 +284,8 @@ public class LogosService {
      * 본문에 검색어가 포함된 구절을 정경 순서로 찾아 페이지 단위로 반환합니다.
      * 전체 구절이 메모리에 있으므로 별도 색인 없이 순차 탐색한다.
      *
-     * 책별 건수(books)는 book 필터와 무관하게 전체 기준으로 센다. 어느 책에 몇 건이 있는지 먼저 보여주기 위해서다.
+     * 책별 건수(books)는 book 필터와 무관하게 전체 기준으로 세고, 건수가 많은 책부터 담는다.
+     * 어느 책을 먼저 볼지 고르는 데 쓰기 때문이다.
      *
      * @param query  검색어 (공백은 앞뒤만 제거하고 그대로 비교한다)
      * @param book   특정 책으로 좁힐 때의 책 이름. null이거나 비어 있으면 전체를 찾는다
@@ -291,8 +302,12 @@ public class LogosService {
                 .sorted(CANONICAL_ORDER)
                 .collect(Collectors.toList());
 
-        Map<String, Integer> booksWithCount = new LinkedHashMap<>();
-        matched.forEach(v -> booksWithCount.merge(v.getBook(), 1, Integer::sum));
+        Map<String, Integer> countByBook = new HashMap<>();
+        matched.forEach(v -> countByBook.merge(v.getBook(), 1, Integer::sum));
+
+        Map<String, Integer> booksWithCount = countByBook.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
 
         List<Logos> hits = allBooks
                 ? matched
