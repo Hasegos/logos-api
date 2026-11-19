@@ -1,5 +1,6 @@
 package io.github.logos_api.controller;
 
+import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
 import io.github.logos_api.service.LogosService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -18,6 +20,7 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 책/장/절을 직접 탐색하며 읽는 "성경 읽기" 페이지를 처리하는 컨트롤러입니다.
@@ -29,6 +32,8 @@ public class ReadController {
 
     private static final String PAGE_CACHE_CONTROL = CacheControl.maxAge(Duration.ofHours(1)).cachePublic().getHeaderValue();
     private static final int DESCRIPTION_SNIPPET_LENGTH = 70;
+    private static final int SEARCH_PAGE_SIZE = 20;
+    private static final int SEARCH_MIN_QUERY_LENGTH = 2;
 
     private final LogosService logosService;
 
@@ -53,6 +58,45 @@ public class ReadController {
         response.setHeader(HttpHeaders.CACHE_CONTROL, PAGE_CACHE_CONTROL);
 
         return "read/read";
+    }
+
+    /**
+     * 본문에 검색어가 포함된 구절을 찾아 보여줍니다. 결과를 누르면 해당 장의 그 절로 이동합니다.
+     * 검색어 조합이 무한히 늘어나므로 응답에 noindex 헤더를 붙여 색인에서 제외한다.
+     *
+     * @param q        검색어. {@value #SEARCH_MIN_QUERY_LENGTH}자 미만이면 안내만 보여준다
+     * @param book     특정 책으로 좁힐 때의 책 이름. 비어 있으면 전체에서 찾는다
+     * @param offset   건너뛸 건수 (한 페이지 {@value #SEARCH_PAGE_SIZE}건)
+     * @param model    뷰에 전달할 모델
+     * @param response noindex 헤더를 설정할 응답
+     * @return 검색 결과 템플릿 뷰 이름
+     */
+    @GetMapping("/search")
+    public String search(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) String book,
+                         @RequestParam(defaultValue = "0") int offset,
+                         Model model,
+                         HttpServletResponse response){
+        response.setHeader("X-Robots-Tag", "noindex, follow");
+
+        String query = q == null ? "" : q.trim();
+        String selectedBook = book == null || book.isBlank() ? "" : book.trim();
+        int safeOffset = Math.max(offset, 0);
+
+        model.addAttribute("query", query);
+        model.addAttribute("selectedBook", selectedBook);
+        model.addAttribute("books", logosService.getAvailableBooks());
+        model.addAttribute("tooShort", query.length() < SEARCH_MIN_QUERY_LENGTH);
+
+        if (query.length() >= SEARCH_MIN_QUERY_LENGTH) {
+            SearchResponseDTO result = logosService.search(query, selectedBook, SEARCH_PAGE_SIZE, safeOffset);
+            model.addAttribute("result", result);
+            model.addAttribute("sortedBooks", sortByCount(result.getBooks()));
+            model.addAttribute("prevOffset", safeOffset - SEARCH_PAGE_SIZE >= 0 ? safeOffset - SEARCH_PAGE_SIZE : null);
+            model.addAttribute("nextOffset", safeOffset + SEARCH_PAGE_SIZE < result.getTotal() ? safeOffset + SEARCH_PAGE_SIZE : null);
+        }
+
+        return "read/search";
     }
 
     /**
@@ -87,6 +131,22 @@ public class ReadController {
         model.addAttribute("nextChapter", (idx >= 0 && idx < chapters.size() - 1) ? chapters.get(idx + 1) : null);
 
         return "read/chapter";
+    }
+
+    /**
+     * 검색어가 나온 책 전체를 건수가 많은 순으로 정렬합니다.
+     * 일부만 보여주면 나머지 책에는 결과가 없는 것으로 오해할 수 있으므로 자르지 않는다.
+     *
+     * @param books 책 이름 -> 건수
+     * @return 건수 내림차순 맵 (입력이 null이면 빈 맵)
+     */
+    private static Map<String, Integer> sortByCount(Map<String, Integer> books) {
+        if (books == null) {
+            return Map.of();
+        }
+        return books.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
 
     /**

@@ -16,3 +16,24 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 });
+
+/**
+ * 모바일 하단 탭에서 현재 보고 있는 메뉴를 표시합니다.
+ * 탭은 모든 페이지가 쓰는 footer 조각에 있어 서버가 현재 메뉴를 모르므로 주소로 판단합니다.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname;
+
+    document.querySelectorAll('.tabbar__item').forEach((item) => {
+        const href = item.getAttribute('href');
+        const active = href === '/read/search'
+            ? path === '/read/search'
+            : href === '/'
+                ? path === '/'
+                : path.startsWith(href) && path !== '/read/search';
+
+        if (active) {
+            item.classList.add('tabbar__item--active');
+        }
+    });
+});
