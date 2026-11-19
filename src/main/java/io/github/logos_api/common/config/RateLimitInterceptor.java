@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
@@ -18,7 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
  * Bucket4j를 사용하여 분당 요청 제한을 초과한 경우 429(Too Many Requests) 에러를 반환합니다.
  * <p>
  * 일반 API 접근 로그는 {@link AccessLogInterceptor}가 경로 제외 여부와 무관하게 전담하여 기록하므로,
- * 이 인터셉터는 속도 제한 판단/거부 로그만 남깁니다.
+ * 이 인터셉터는 속도 제한 판단/거부 로그만 남깁니다. 로그용 MDC(IP, 요청 ID)도 그쪽에서 넣고 지웁니다.
  * </p>
  */
 @Slf4j
@@ -37,7 +36,6 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         String ip = ClientIpResolver.resolve(request);
-        MDC.put("clientIp", ip);
         Bucket bucket = rateLimitService.resolveBucket(ip);
 
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
@@ -59,23 +57,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             response.addHeader("X-RateLimit-Retry-After", String.valueOf(waitForRefill));
             response.getWriter().write("{\"error\": \"Too Many Requests\",\"retry_after_seconds\":"+waitForRefill +"}");
 
-            MDC.clear();
             return false;
         }
     }
 
-    /**
-     * 요청 처리가 완료된 후 실행되는 후처리 메서드입니다.
-     * 현재 쓰레드에 저장된 로그 관리용 MDC(Mapped Diagnostic Context) 정보를 삭제하여 메모리 누수를 방지합니다.
-     *
-     * @param request  HTTP 요청 객체
-     * @param response HTTP 응답 객체
-     * @param handler  실행된 핸들러 객체
-     * @param ex       발생한 예외 (없을 경우 null)
-     * @throws Exception 처리 중 발생할 수 있는 예외
-     */
-    @Override
-    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
-        MDC.clear();
-    }
 }

@@ -36,7 +36,7 @@ build/
 .vercel/
 
 ### Internal docs (not for public repo) ###
-docs/
+/docs/
 logs
 .serena
 
@@ -45,3 +45,7 @@ logs
 CLAUDE.md
 graphify-out/
 .graphifyignore
+# keelkit
+.keel-backup/
+AGENTS.md
+.agents/

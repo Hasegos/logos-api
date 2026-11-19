@@ -3,6 +3,7 @@ package io.github.logos_api.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.logos_api.dto.LogosResponseDTO;
+import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +51,19 @@ public class LogosService {
     );
 
     private static final Pattern VERSE_PATTERN = Pattern.compile("[0-9]+(-[0-9]+)?");
+
+    /**
+     * 책 이름 -> 정경 순서 번호. 검색 결과를 성경 순서대로 정렬하는 데 사용합니다.
+     */
+    private static final Map<String, Integer> BOOK_ORDER = buildBookOrder();
+
+    /**
+     * 검색 결과 정렬 기준: 정경 순서 -> 장 -> 절.
+     */
+    private static final Comparator<Logos> CANONICAL_ORDER =
+            Comparator.<Logos, Integer>comparing(v -> BOOK_ORDER.getOrDefault(v.getBook(), Integer.MAX_VALUE))
+                    .thenComparingInt(v -> Integer.parseInt(v.getChapter()))
+                    .thenComparingInt(v -> verseStart(v.getVerse()));
 
     private Map<String, Map<Integer, List<Logos>>> bibleMap = new HashMap<>();
     private List<Logos> allVerses = new ArrayList<>();
@@ -254,5 +268,64 @@ public class LogosService {
         return verses.stream()
                 .sorted(Comparator.comparingInt(v -> verseStart(v.getVerse())))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 본문에 검색어가 포함된 구절을 정경 순서로 찾아 페이지 단위로 반환합니다.
+     * 전체 구절이 메모리에 있으므로 별도 색인 없이 순차 탐색한다.
+     *
+     * 책별 건수(books)는 book 필터와 무관하게 전체 기준으로 센다. 어느 책에 몇 건이 있는지 먼저 보여주기 위해서다.
+     *
+     * @param query  검색어 (공백은 앞뒤만 제거하고 그대로 비교한다)
+     * @param book   특정 책으로 좁힐 때의 책 이름. null이거나 비어 있으면 전체를 찾는다
+     * @param limit  한 번에 돌려줄 최대 건수
+     * @param offset 건너뛸 건수
+     * @return 전체 일치 건수와 해당 페이지의 구절 목록
+     */
+    public SearchResponseDTO search(String query, String book, int limit, int offset){
+        String needle = query.trim();
+        boolean allBooks = book == null || book.isBlank();
+
+        List<Logos> matched = allVerses.stream()
+                .filter(v -> v.getText() != null && v.getText().contains(needle))
+                .sorted(CANONICAL_ORDER)
+                .collect(Collectors.toList());
+
+        Map<String, Integer> booksWithCount = new LinkedHashMap<>();
+        matched.forEach(v -> booksWithCount.merge(v.getBook(), 1, Integer::sum));
+
+        List<Logos> hits = allBooks
+                ? matched
+                : matched.stream().filter(v -> book.equals(v.getBook())).collect(Collectors.toList());
+
+        List<LogosResponseDTO> page = hits.stream()
+                .skip(offset)
+                .limit(limit)
+                .map(LogosResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return SearchResponseDTO.builder()
+                .books(booksWithCount)
+                .query(needle)
+                .total(hits.size())
+                .offset(offset)
+                .limit(limit)
+                .results(page)
+                .build();
+    }
+
+    /**
+     * 구약 39권 + 신약 27권의 정경 순서를 책 이름 -> 순서 번호 맵으로 만듭니다.
+     *
+     * @return 책 이름을 키로 하는 순서 맵
+     */
+    private static Map<String, Integer> buildBookOrder(){
+        Map<String, Integer> order = new HashMap<>();
+        List<String> canon = new ArrayList<>(OLD_TESTAMENT_ORDER);
+        canon.addAll(NEW_TESTAMENT_ORDER);
+        for (int i = 0; i < canon.size(); i++) {
+            order.put(canon.get(i), i);
+        }
+        return order;
     }
 }
