@@ -205,3 +205,106 @@
     opacity: 1;
     transform: translateX(-50%) translateY(0);
 }
+
+.read-search {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.6rem;
+}
+
+.read-search__input {
+    flex: 1;
+    min-width: 0;
+    padding: 0.6rem 0.8rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 0.95rem;
+}
+
+.read-search__book {
+    flex: 0 0 auto;
+    max-width: 9rem;
+    padding: 0.6rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.read-search__button {
+    padding: 0.6rem 1.1rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    font: inherit;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.search-hit {
+    display: block;
+    padding: 0.8rem 0;
+    border-top: 1px solid var(--border);
+    text-decoration: none;
+    color: inherit;
+}
+
+.search-hit__ref {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 0.25rem;
+}
+
+.search-hit__text {
+    display: block;
+    line-height: 1.7;
+}
+
+.search-books {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+    max-height: 9.5rem;
+    overflow-y: auto;
+}
+
+.search-books__chip {
+    padding: 0.3rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+}
+
+.search-books__chip--active {
+    color: var(--violet);
+    border-color: var(--violet);
+    font-weight: 500;
+}
+
+.search-hit__mark {
+    background-color: #FDE68A;
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 0.1rem;
+}
+
+@media (max-width: 640px) {
+    .read-search {
+        flex-wrap: wrap;
+    }
+
+    .read-search__input {
+        flex: 1 1 100%;
+    }
+
+    .read-search__book {
+        flex: 1 1 auto;
+        max-width: none;
+    }
+}

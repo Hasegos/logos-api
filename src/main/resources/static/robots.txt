@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 Disallow: /api/key/
 Disallow: /actuator/
+Disallow: /read/search
 
 Sitemap: https://logos-api.com/sitemap.xml

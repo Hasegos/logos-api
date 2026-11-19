@@ -30,6 +30,11 @@
             <h1>성경 읽기</h1>
             <p class="read__lead">데이터가 등록된 책만 표시됩니다. 장을 선택하면 해당 장의 전체 절을 볼 수 있습니다.</p>
 
+            <form class="read-search" action="/read/search" method="get">
+                <input class="read-search__input" type="search" name="q" placeholder="구절 검색 (예: 사랑)" minlength="2" required>
+                <button class="read-search__button" type="submit">검색</button>
+            </form>
+
             <div id="continue-reading" class="continue-banner" style="display:none;">
                 <a href="#" class="continue-banner__link">이어서 읽기 →</a>
                 <button type="button" class="continue-banner__reset">초기화</button>
