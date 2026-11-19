@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
+    <!-- 오늘 로그는 logs/<기동일>/<이름>.log 에 쓰고, 날짜가 바뀌면 같은 폴더에서 <이름>.<번호>.log.gz 로 압축한다. -->
+    <timestamp key="bootDate" datePattern="yyyy-MM-dd"/>
+
     <property name="LOG_PATH" value="logs" />
-    <property name="LOG_FORMAT" value="%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%thread] %logger{36} [%X{clientIp}] - %msg%n" />
+    <property name="LOG_FORMAT" value="%d{yyyy-MM-dd HH:mm:ss} [%-5level] [%thread] %logger{36} [%X{clientIp}] [%X{reqId}] - %msg%n" />
+    <property name="TOTAL_SIZE_CAP" value="1GB" />
+    <property name="MAX_FILE_SIZE" value="50MB" />
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -10,13 +15,20 @@
         </encoder>
     </appender>
 
+    <!-- INFO만 남긴다. 경고 이상은 error.log가 맡으므로 같은 줄을 두 번 쓰지 않는다. -->
     <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <file>${LOG_PATH}/${bootDate}/info.log</file>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
         </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/info.log</fileNamePattern>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/info.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             <maxHistory>30</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
             <pattern>${LOG_FORMAT}</pattern>
@@ -24,21 +36,75 @@
     </appender>
 
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${bootDate}/error.log</file>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>WARN</level>
         </filter>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/error.log</fileNamePattern>
-            <maxHistory>60</maxHistory> </rollingPolicy>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/error.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>60</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
         <encoder>
             <pattern>${LOG_FORMAT}</pattern>
         </encoder>
     </appender>
 
-    <appender name="ACCESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/access.log</fileNamePattern>
+    <appender name="API_ACCESS_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${bootDate}/api-access.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/api-access.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
             <maxHistory>30</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_FORMAT}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 사람으로 보이는 방문. 실제 이용 현황을 보는 파일이라 가장 오래 남긴다. -->
+    <appender name="PAGE_HUMAN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${bootDate}/page-human.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/page-human.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_FORMAT}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 검색엔진과 스캐너. 양이 가장 많고 오래 볼 일이 없다. -->
+    <appender name="PAGE_BOT_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${bootDate}/page-bot.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/page-bot.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>7</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <pattern>${LOG_FORMAT}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- 우리가 만든 요청(스냅샷 굽기). 직전 배포만 확인하면 되므로 짧게 남긴다. -->
+    <appender name="PAGE_SELF_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/${bootDate}/page-self.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/%d{yyyy-MM-dd}/page-self.%i.log.gz</fileNamePattern>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>3</maxHistory>
+            <totalSizeCap>${TOTAL_SIZE_CAP}</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
         </rollingPolicy>
         <encoder>
             <pattern>${LOG_FORMAT}</pattern>
@@ -53,9 +119,21 @@
 
     <logger name="io.github.logos_api" level="DEBUG" />
 
-    <logger name="io.github.logos_api.access" level="INFO" additivity="false">
-        <appender-ref ref="STDOUT"/>
-        <appender-ref ref="ACCESS_FILE"/>
+    <!-- 접근 로그는 파일에만 남긴다. 콘솔로 보내면 systemd journal에 같은 줄이 또 쌓인다. -->
+    <logger name="io.github.logos_api.access.api" level="INFO" additivity="false">
+        <appender-ref ref="API_ACCESS_FILE"/>
+    </logger>
+
+    <logger name="io.github.logos_api.access.page.human" level="INFO" additivity="false">
+        <appender-ref ref="PAGE_HUMAN_FILE"/>
+    </logger>
+
+    <logger name="io.github.logos_api.access.page.bot" level="INFO" additivity="false">
+        <appender-ref ref="PAGE_BOT_FILE"/>
+    </logger>
+
+    <logger name="io.github.logos_api.access.page.self" level="INFO" additivity="false">
+        <appender-ref ref="PAGE_SELF_FILE"/>
     </logger>
 
 </configuration>

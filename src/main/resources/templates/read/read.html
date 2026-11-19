@@ -5,7 +5,7 @@
         pageTitle='개역개정 성경 읽기 - Logos API',
         pageDescription='책과 장을 직접 선택해 원하는 성경 구절을 읽을 수 있습니다.',
         canonicalUrl='https://logos-api.com/read',
-        pageCssPath='/css/page/read.css')}"></th:block>
+        pageCssPath='/css/page/read.css', ogImage=null)}"></th:block>
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -29,6 +29,18 @@
         <div class="read">
             <h1>성경 읽기</h1>
             <p class="read__lead">데이터가 등록된 책만 표시됩니다. 장을 선택하면 해당 장의 전체 절을 볼 수 있습니다.</p>
+
+            <a id="plan-banner" class="plan-banner" href="/read/plan" style="display:none;">
+                <span class="plan-banner__text">읽기 진도</span>
+                <span class="plan-banner__bar"><span id="plan-banner-fill" class="plan-banner__fill"></span></span>
+                <span id="plan-banner-value" class="plan-banner__value">0%</span>
+                <span id="plan-banner-today" class="plan-banner__today" hidden></span>
+            </a>
+
+            <form class="read-search" action="/read/search" method="get">
+                <input class="read-search__input" type="search" name="q" placeholder="구절 검색 (예: 사랑)" minlength="2" required>
+                <button class="read-search__button" type="submit">검색</button>
+            </form>
 
             <div id="continue-reading" class="continue-banner" style="display:none;">
                 <a href="#" class="continue-banner__link">이어서 읽기 →</a>

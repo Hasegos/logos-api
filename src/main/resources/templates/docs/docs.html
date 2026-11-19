@@ -5,7 +5,7 @@
         pageTitle='Logos API 문서 - 성경 구절 API 사용법',
         pageDescription='Logos API 인증 방법, 요청/응답 형식, curl・JavaScript・Java 예제와 속도 제한 정책을 안내합니다.',
         canonicalUrl='https://logos-api.com/docs',
-        pageCssPath='/css/page/docs.css')}"></th:block>
+        pageCssPath='/css/page/docs.css', ogImage=null)}"></th:block>
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -40,11 +40,13 @@
                 <a class="toc__link" href="#overview" data-section="overview">1. API 개요</a>
                 <a class="toc__link" href="#key" data-section="key">2. 키 발급</a>
                 <a class="toc__link" href="#auth" data-section="auth">3. 인증 방법</a>
-                <a class="toc__link" href="#random" data-section="random">4. 랜덤 구절</a>
+                <a class="toc__link" href="#random" data-section="random">4. 랜덤 · 참조 조회</a>
                 <a class="toc__link" href="#today" data-section="today">5. 오늘의 말씀</a>
                 <a class="toc__link" href="#browse" data-section="browse">6. 책·장·절 조회</a>
-                <a class="toc__link" href="#rate" data-section="rate">7. 속도 제한</a>
-                <a class="toc__link" href="#license" data-section="license">8. 라이선스</a>
+                <a class="toc__link" href="#search" data-section="search">7. 구절 검색</a>
+                <a class="toc__link" href="#errors" data-section="errors">8. 오류 응답</a>
+                <a class="toc__link" href="#rate" data-section="rate">9. 속도 제한</a>
+                <a class="toc__link" href="#license" data-section="license">10. 라이선스</a>
             </nav>
 
             <div class="docs">
@@ -53,11 +55,15 @@
 
                 <section class="docs__section" id="overview" data-section="overview">
                     <h2>1. API 개요</h2>
-                    <table class="docs__table">
-                        <tr><th>Base URL</th><td><code>https://logos-api.com</code></td></tr>
-                        <tr><th>형식</th><td>JSON</td></tr>
-                        <tr><th>이용 조건</th><td>무료 · 비상업적 이용</td></tr>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <tr><th>Base URL</th><td><code>https://logos-api.com</code></td></tr>
+                            <tr><th>형식</th><td>JSON</td></tr>
+                        <tr><th>기계용 스펙</th><td><code>/v3/api-docs</code> (OpenAPI 3.1). Postman 이나 코드 생성기에서 주소만 넣으면 엔드포인트가 한 번에 들어옵니다</td></tr>
+                            <tr><th>이용 조건</th><td>무료 · 비상업적 이용</td></tr>
+                            <tr><th>운영시간</th><td>08:00 ~ 22:00 (KST) · 운영시간 외에는 응답이 지연되거나 제공되지 않을 수 있습니다</td></tr>
+                        </table>
+                    </div>
                 </section>
 
                 <section class="docs__section" id="key" data-section="key">
@@ -72,19 +78,48 @@
                 <section class="docs__section" id="auth" data-section="auth">
                     <h2>3. 인증 방법</h2>
                     <p>모든 요청에는 아래 헤더가 필요합니다.</p>
-                    <table class="docs__table">
-                        <thead>
-                        <tr><th>Key</th><th>Value</th></tr>
-                        </thead>
-                        <tbody>
-                        <tr><td><code>X-API-KEY</code></td><td>발급받은 UUID</td></tr>
-                        </tbody>
-                    </table>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>Key</th><th>Value</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>X-API-KEY</code></td><td>발급받은 UUID</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </section>
 
                 <section class="docs__section" id="random" data-section="random">
-                    <h2>4. 랜덤 구절 조회</h2>
-                    <pre><code>GET /api/verse</code></pre>
+                    <h2>4. 랜덤 구절 · 참조 조회</h2>
+                    <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse</code></div>
+                    <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse?ref=요3:16</code></div>
+
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>파라미터</th><th>필수</th><th>설명</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>ref</code></td><td>아니오</td><td>참조 표기. 없으면 무작위 구절을 돌려줍니다</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>표기</th><th>뜻</th><th>응답</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>요3:16</code></td><td>요한복음 3장 16절 (약어)</td><td>구절 1개</td></tr>
+                            <tr><td><code>요한복음 3:16</code></td><td>정식 이름도 됩니다</td><td>구절 1개</td></tr>
+                            <tr><td><code>요3:16-18</code></td><td>16절부터 18절까지</td><td>배열</td></tr>
+                            <tr><td><code>요3</code></td><td>3장 전체</td><td>배열</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="docs__note">약어는 <code>창</code> <code>출</code> <code>삼상</code> <code>고전</code> <code>살후</code> <code>요일</code>처럼 통용되는 66권 표기를 씁니다. 형식을 읽을 수 없으면 400, 해당 구절이 없으면 404로 응답합니다. 참조 조회 응답은 내용이 고정이라 하루 캐싱되고, 무작위 구절은 3초만 캐싱됩니다.</p>
 
                     <h3>curl</h3>
                     <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse</code></pre>
@@ -121,9 +156,10 @@
                 </section>
 
                 <section class="docs__section" id="today" data-section="today">
-                    <h2>5. 오늘의 말씀 조회 <span class="badge badge--new">신규</span></h2>
+                    <h2>5. 오늘의 말씀 조회</h2>
                     <p>매일 자정 기준으로 고정된 한 구절을 반환합니다. 같은 날엔 누가 호출해도 같은 구절이 나옵니다.</p>
-                    <pre><code>GET /api/verse/today</code></pre>
+                    <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse/today</code></div>
+                    <p class="docs__note">파라미터가 없습니다. 같은 날에는 누가 호출해도 같은 구절을 돌려줍니다.</p>
 
                     <h3>curl</h3>
                     <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse/today</code></pre>
@@ -140,21 +176,33 @@
                 </section>
 
                 <section class="docs__section" id="browse" data-section="browse">
-                    <h2>6. 책 · 장 · 절 조회 <span class="badge badge--new">신규</span></h2>
+                    <h2>6. 책 · 장 · 절 조회</h2>
                     <p>특정 책과 장을 지정해 구조적으로 탐색할 수 있습니다.</p>
 
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>경로 파라미터</th><th>설명</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>book</code></td><td>책 이름. 정식 이름만 받습니다 (예: <code>요한복음</code>). 등록되지 않은 책이면 빈 배열</td></tr>
+                            <tr><td><code>chapter</code></td><td>장 번호. 숫자가 아니면 400, 없는 장이면 빈 배열</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
                     <h3>책 목록</h3>
-                    <pre><code>GET /api/books</code></pre>
+                    <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books</code></div>
                     <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books</code></pre>
                     <pre><code>["창세기", "사도행전", "..."]</code></pre>
 
                     <h3>장 목록</h3>
-                    <pre><code>GET /api/books/{book}/chapters</code></pre>
+                    <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters</code></div>
                     <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters</code></pre>
                     <pre><code>[1, 2, 3, 4, 5]</code></pre>
 
                     <h3>절 목록</h3>
-                    <pre><code>GET /api/books/{book}/chapters/{chapter}</code></pre>
+                    <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters/{chapter}</code></div>
                     <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters/1</code></pre>
                     <pre><code>[
       {"verse": "1", "text": "..."},
@@ -163,17 +211,90 @@
                     <p class="docs__note">JavaScript・Java 호출 방식은 위 랜덤 구절 예제와 동일합니다 — URL만 바꾸면 됩니다.</p>
                 </section>
 
+                <section class="docs__section" id="search" data-section="search">
+                    <h2>7. 구절 검색</h2>
+                    <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/search?q=사랑&amp;book=요한1서&amp;limit=20&amp;offset=0</code></div>
+
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>파라미터</th><th>필수</th><th>설명</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>q</code></td><td>예</td><td>검색어. 2자 이상 100자 이하. 본문에 그대로 포함된 구절을 찾습니다</td></tr>
+                            <tr><td><code>book</code></td><td>아니오</td><td>특정 책으로 좁힙니다. 등록되지 않은 책 이름은 400</td></tr>
+                            <tr><td><code>limit</code></td><td>아니오</td><td>한 번에 받을 건수. 기본 20, 최대 50</td></tr>
+                            <tr><td><code>offset</code></td><td>아니오</td><td>건너뛸 건수. 기본 0</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>curl</h3>
+                    <pre><code>curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/search?q=%EC%82%AC%EB%9E%91&amp;limit=2"</code></pre>
+
+                    <h3>응답</h3>
+                    <pre><code>{
+      "query": "사랑",
+      "total": 557,
+      "offset": 0,
+      "limit": 2,
+      "books": { "창세기": 13, "시편": 32, "요한1서": 30 },
+      "results": [
+        {
+          "book": "창세기",
+          "chapter": "22",
+          "verse": "2",
+          "text": "여호와께서 이르시되 네 아들 네 사랑하는 독자 이삭을 데리고 ...",
+          "reference": "창세기 22:2"
+        }
+      ]
+    }</code></pre>
+                    <p class="docs__note"><code>books</code>는 책마다 검색어가 몇 번 나오는지를 건수가 많은 순으로 담습니다. <code>book</code> 필터와 무관하게 항상 전체 기준이라, 어느 책을 볼지 고르는 데 쓸 수 있습니다. 결과는 정경 순서(창세기 → 요한계시록) · 장 · 절 순으로 정렬됩니다. 웹에서는 <a href="/read/search">구절 검색 페이지</a>로 바로 쓸 수 있습니다.</p>
+                </section>
+
+                <section class="docs__section" id="errors" data-section="errors">
+                    <h2>8. 오류 응답</h2>
+                    <p>오류는 모두 JSON으로 돌려주며 <code>error</code> 키를 공통으로 담습니다.</p>
+
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <thead>
+                            <tr><th>상태</th><th>언제</th><th>응답</th></tr>
+                            </thead>
+                            <tbody>
+                            <tr><td><code>400</code></td><td>검색어가 2~100자가 아님, 등록되지 않은 책 이름, 참조 형식을 읽을 수 없음, 장 번호가 숫자가 아님</td><td><code>{"error": "Bad Request", "message": "..."}</code></td></tr>
+                            <tr><td><code>401</code></td><td><code>X-API-KEY</code> 헤더가 없거나 폐기된 키</td><td><code>{"error": "API Key is missing"}</code> / <code>{"error": "Invalid API Key"}</code></td></tr>
+                            <tr><td><code>404</code></td><td>참조가 가리키는 구절이 없음, 없는 주소</td><td><code>{"error": "Not Found", "message": "..."}</code></td></tr>
+                            <tr><td><code>429</code></td><td>요청이 너무 잦거나(9번) 키 발급 일일 한도 초과</td><td><code>{"error": "Too Many Requests", "retry_after_seconds": 42}</code></td></tr>
+                            <tr><td><code>500</code></td><td>서버 오류</td><td><code>{"error": "Internal Server Error"}</code></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3>예시</h3>
+                    <pre><code>curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/verse?ref=요한복음"
+
+    HTTP/1.1 400 Bad Request
+    {
+      "error": "Bad Request",
+      "message": "참조 형식을 읽을 수 없습니다. 예: 요3:16, 요한복음 3:16-18, 요3"
+    }</code></pre>
+                    <p class="docs__note">429 응답에는 <code>X-RateLimit-Retry-After</code> 헤더로 다시 시도할 수 있는 시간(초)이 함께 옵니다. 정상 응답에는 <code>X-Rate-Limit-Remaining</code> 으로 남은 요청 수가 옵니다.</p>
+                </section>
+
                 <section class="docs__section" id="rate" data-section="rate">
-                    <h2>7. 속도 제한 정책</h2>
-                    <table class="docs__table">
-                        <tr><th>키 발급</th><td>동일 IP 기준 하루 10회</td></tr>
-                        <tr><th>API 호출</th><td>과도한 트래픽은 서버 단에서 제한됩니다</td></tr>
-                        <tr><th>캐싱</th><td>랜덤 구절 조회는 3초간 브라우저 캐싱 적용</td></tr>
-                    </table>
+                    <h2>9. 속도 제한 정책</h2>
+                    <div class="docs__table-wrap">
+                        <table class="docs__table">
+                            <tr><th>키 발급</th><td>동일 IP 기준 하루 10회</td></tr>
+                            <tr><th>API 호출</th><td>과도한 트래픽은 서버 단에서 제한됩니다</td></tr>
+                            <tr><th>캐싱</th><td>랜덤 구절 조회는 3초간 브라우저 캐싱 적용</td></tr>
+                        </table>
+                    </div>
                 </section>
 
                 <section class="docs__section" id="license" data-section="license">
-                    <h2>8. 라이선스 및 데이터 고지</h2>
+                    <h2>10. 라이선스 및 데이터 고지</h2>
                     <p>성경 텍스트는 개역개정(KRV) 판을 기반으로 하며, 저작권은 대한성서공회 등 해당 권리자에게 있습니다. 교육 및 개인 묵상 목적으로만 사용해 주세요. 자세한 내용은
                         <a href="https://github.com/Hasegos/logos-api" target="_blank" rel="noopener noreferrer">GitHub 저장소</a>의 LICENSE를 참고하세요.
                     </p>

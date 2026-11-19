@@ -1,5 +1,7 @@
 package io.github.logos_api.common.exception;
 
+import io.github.logos_api.common.config.ClientIpResolver;
+import io.github.logos_api.common.config.LogSanitizer;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,8 @@ public class GlobalExceptionHandler {
 
     private static final String API_PREFIX = "/api/";
 
+
+
     /**
      * 요청 URI가 API 경로인지 판별한다.
      *
@@ -40,7 +44,9 @@ public class GlobalExceptionHandler {
     /**
      * 존재하지 않는 경로 접근 시 발생하는 예외를 처리한다. (404)
      * <p>
-     * 클라이언트 요청 오류이므로 {@code warn} 레벨로 기록한다.
+     * 봇의 취약점 스캔으로도 흔히 발생하므로 {@code info} 레벨로 기록한다.
+     * {@code warn}으로 남기면 error.log가 스캐너 요청으로 덮여 실제 장애가 묻힌다.
+     * 어떤 IP가 무엇을 긁었는지는 이 줄과 page-access.log의 {@code status=404}로 확인한다.
      * API 경로: JSON 에러 응답 반환
      * 그 외 경로: 에러 페이지 렌더링
      * </p>
@@ -53,7 +59,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler({NoHandlerFoundException.class, NoResourceFoundException.class})
     public Object handleNotFound(HttpServletRequest  request, Exception e, Model model) {
-        log.warn("[404] URI: {}", request.getRequestURI());
+        log.info("[404] ip={} uri={} ua={}", ClientIpResolver.resolve(request), LogSanitizer.sanitize(request.getRequestURI()), LogSanitizer.userAgent(request));
         if (isApiRequest(request)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", "Not Found", "path", request.getRequestURI()));
@@ -82,7 +88,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public Object handleTypeMismatch(HttpServletRequest request, MethodArgumentTypeMismatchException e, Model model) {
-        log.warn("[400] 잘못된 요청 파라미터 - URI: {}, 파라미터명: {}", request.getRequestURI(), e.getName());
+        log.warn("[400] 잘못된 요청 파라미터 - ip={} uri={} 파라미터명={}", ClientIpResolver.resolve(request), LogSanitizer.sanitize(request.getRequestURI()), e.getName());
         if (isApiRequest(request)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "Bad Request", "path", request.getRequestURI()));
@@ -109,7 +115,7 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Exception.class)
     public Object handleUnexpected(HttpServletRequest request, Exception ex, Model model) {
-        log.error("[500] Unexpected error. URI: {}", request.getRequestURI(), ex);
+        log.error("[500] Unexpected error. ip={} uri={}", ClientIpResolver.resolve(request), LogSanitizer.sanitize(request.getRequestURI()), ex);
         if (isApiRequest(request)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Internal Server Error"));

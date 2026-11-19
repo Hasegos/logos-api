@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle=|구절 검색 - Logos API|,
+        pageDescription='개역개정 성경 본문에서 단어가 들어간 구절을 찾습니다.',
+        canonicalUrl='https://logos-api.com/read/search',
+        pageCssPath='/css/page/read.css', ogImage=null)}"></th:block>
+    <meta name="robots" content="noindex, follow">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header(current='search')}"></div>
+
+    <main class="page-main page-main--wide">
+        <div class="read" th:attr="data-query=${query}">
+            <a href="/read" class="chapter-view__back">← 성경 읽기로</a>
+            <h1>구절 검색</h1>
+
+            <form class="read-search" action="/read/search" method="get">
+                <input class="read-search__input" type="search" name="q" th:value="${query}"
+                       placeholder="구절 검색 (예: 사랑)" minlength="2" required>
+                <select class="read-search__book" name="book" aria-label="책 선택">
+                    <option value="" th:selected="${selectedBook == ''}">전체</option>
+                    <option th:each="b : ${books}" th:value="${b}" th:text="${b}"
+                            th:selected="${b == selectedBook}">창세기</option>
+                </select>
+                <button class="read-search__button" type="submit">검색</button>
+            </form>
+
+            <p class="read__lead" th:if="${tooShort}">검색어를 2자 이상 입력해 주세요.</p>
+
+            <th:block th:unless="${tooShort}">
+                <p class="read__lead" th:if="${result.total == 0}"
+                   th:text="|'${query}'이(가) 들어간 구절이 없습니다.|">결과 없음</p>
+
+                <th:block th:if="${result.total > 0}">
+                    <p class="read__lead"
+                       th:text="|'${query}' 검색 결과 ${result.total}건 중 ${result.offset + 1}~${result.offset + result.results.size()}번째|">결과</p>
+
+                    <div class="search-books">
+                        <a class="search-books__chip"
+                           th:classappend="${selectedBook == ''} ? 'search-books__chip--active'"
+                           th:href="@{/read/search(q=${query})}">전체</a>
+                        <a class="search-books__chip" th:each="entry : ${result.books}"
+                           th:classappend="${entry.key == selectedBook} ? 'search-books__chip--active'"
+                           th:href="@{/read/search(q=${query},book=${entry.key})}"
+                           th:text="|${entry.key} ${entry.value}|">창세기 3</a>
+                    </div>
+
+                    <a class="search-hit" th:each="v : ${result.results}"
+                       th:href="@{'/read/' + ${v.book} + '/' + ${v.chapter} + '#v' + ${v.verse}}">
+                        <span class="search-hit__ref" th:text="${v.reference}">요한복음 3:16</span>
+                        <span class="search-hit__text" th:text="${v.text}">본문</span>
+                    </a>
+
+                    <div class="chapter-view__nav">
+                        <a th:if="${prevOffset != null}" th:href="@{/read/search(q=${query},book=${selectedBook},offset=${prevOffset})}">← 이전</a>
+                        <span th:unless="${prevOffset != null}"></span>
+                        <a th:if="${nextOffset != null}" th:href="@{/read/search(q=${query},book=${selectedBook},offset=${nextOffset})}">다음 →</a>
+                    </div>
+                </th:block>
+            </th:block>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/search.js}"></script>
+</body>
+</html>

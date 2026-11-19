@@ -1,5 +1,6 @@
 package io.github.logos_api.common.config;
 
+import io.github.logos_api.common.config.LogSanitizer;
 import io.github.logos_api.repository.ApiKeyRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,24 +34,18 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
         String apikey = request.getHeader("X-API-KEY");
 
         if(apikey == null || apikey.isBlank()){
-            log.warn("[Unauthorized] API Key is missing. URI: {}", sanitize(request.getRequestURI()));
+            log.warn("[Unauthorized] API Key is missing. URI: {}", LogSanitizer.sanitize(request.getRequestURI()));
             return fail(response, "API Key is missing", HttpStatus.UNAUTHORIZED);
         }
 
-        if(!apiKeyRepository.existsByApiKey(apikey)){
-            log.warn("[Unauthorized] Invalid API Key: {}. URI: {}", sanitize(apikey), sanitize(request.getRequestURI()));
+        if(!apiKeyRepository.existsByKeyHash(ApiKeyHasher.hash(apikey))){
+            log.warn("[Unauthorized] Invalid API Key: {}. URI: {}", LogSanitizer.mask(apikey), LogSanitizer.sanitize(request.getRequestURI()));
             return fail(response, "Invalid API Key", HttpStatus.UNAUTHORIZED);
         }
 
         return true;
     }
 
-    /**
-     * 로그 위조(개행 삽입 등)를 막기 위해 제어문자를 치환합니다.
-     */
-    private static String sanitize(String value) {
-        return value == null ? null : value.replaceAll("[\r\n\t]", "_");
-    }
 
     /**
      * API 인증 실패 시 클라이언트에게 에러 응답을 전송합니다.

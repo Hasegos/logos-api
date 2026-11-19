@@ -2,6 +2,7 @@ package io.github.logos_api.controller;
 
 import io.github.logos_api.dto.ChapterVerseResponseDTO;
 import io.github.logos_api.service.LogosService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,6 +27,7 @@ public class BibleController {
      *
      * @return 책 이름 목록
      */
+    @Operation(summary = "책 목록", description = "데이터가 등록된 책을 정경 순서로 돌려줍니다.")
     @GetMapping
     public List<String> books() {
         return logosService.getAvailableBooks();
@@ -37,6 +39,7 @@ public class BibleController {
      * @param book 책 이름
      * @return 장 번호 목록
      */
+    @Operation(summary = "장 목록", description = "지정한 책에 있는 장 번호를 돌려줍니다.")
     @GetMapping("/{book}/chapters")
     public List<Integer> chapters(@PathVariable String book){
         return logosService.getChapters(book);
@@ -49,6 +52,7 @@ public class BibleController {
      * @param chapter 장 번호
      * @return 절 목록 (절 번호 + 본문)
      */
+    @Operation(summary = "장 본문", description = "지정한 장의 절 번호와 본문을 돌려줍니다.")
     @GetMapping("/{book}/chapters/{chapter}")
     public List<ChapterVerseResponseDTO> verses(@PathVariable String book,
                                                @PathVariable int chapter){

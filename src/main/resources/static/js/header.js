@@ -16,3 +16,24 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     });
 });
+
+/**
+ * 모바일 하단 탭에서 현재 보고 있는 메뉴를 표시합니다.
+ * 탭은 모든 페이지가 쓰는 footer 조각에 있어 서버가 현재 메뉴를 모르므로 주소로 판단합니다.
+ */
+document.addEventListener('DOMContentLoaded', () => {
+    const path = window.location.pathname;
+
+    document.querySelectorAll('.tabbar__item').forEach((item) => {
+        const href = item.getAttribute('href');
+        // /read/search 와 /read/plan 은 /read 로 시작하므로 정확히 비교해야 한다.
+        const exactOnly = ['/', '/read/search', '/read/plan'];
+        const active = exactOnly.includes(href)
+            ? path === href
+            : path.startsWith(href) && !exactOnly.includes(path);
+
+        if (active) {
+            item.classList.add('tabbar__item--active');
+        }
+    });
+});

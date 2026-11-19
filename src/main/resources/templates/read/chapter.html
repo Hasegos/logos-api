@@ -5,7 +5,8 @@
         pageTitle=|${book} ${chapter}장 개역개정 읽기 - Logos API|,
         pageDescription=${description},
         canonicalUrl=|https://logos-api.com/read/${book}/${chapter}|,
-        pageCssPath='/css/page/read.css')}"></th:block>
+        pageCssPath='/css/page/read.css',
+        ogImage=|https://logos-api.com/og/read/${book}/${chapter}.png|)}"></th:block>
     <script type="application/ld+json" th:inline="javascript">
         {
             "@context": "https://schema.org",
@@ -30,9 +31,16 @@
     <div th:replace="~{fragments/header :: header(current='read')}"></div>
 
     <main class="page-main page-main--wide">
-        <div class="read" th:attr="data-book=${book},data-chapter=${chapter}">
+        <div class="read" th:attr="data-book=${book},data-chapter=${chapter},data-next-book=${nextReadingBook},data-next-chapter=${nextReadingChapter}">
             <a th:href="@{'/read#book-' + ${book}}" class="chapter-view__back" th:text="|← ${book} 목록으로|">← 목록으로</a>
             <h1 th:text="|${book} ${chapter}장|">사도행전 1장</h1>
+
+            <div class="chapter-view__tts-bar">
+                <button type="button" id="tts-toggle" class="chapter-view__tts">
+                    <span id="tts-label">▶ 낭독 듣기</span>
+                </button>
+                <button type="button" id="tts-reset" class="chapter-view__tts chapter-view__tts--reset" hidden>↺ 처음부터</button>
+            </div>
 
             <p class="chapter-view__verse" th:each="v : ${verses}" th:id="'v' + ${v.verse}">
                 <span class="chapter-view__verse-num" th:text="${v.verse}">1</span><span th:text="${v.text}">본문</span>
@@ -49,5 +57,6 @@
     <div th:replace="~{fragments/footer :: footer}"></div>
 
     <script th:src="@{/js/read.js}"></script>
+    <script th:src="@{/js/tts.js}"></script>
 </body>
 </html>

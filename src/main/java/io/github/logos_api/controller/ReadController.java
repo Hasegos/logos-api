@@ -1,5 +1,7 @@
 package io.github.logos_api.controller;
 
+import io.github.logos_api.dto.LogosResponseDTO;
+import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
 import io.github.logos_api.service.LogosService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -11,8 +13,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -29,6 +33,8 @@ public class ReadController {
 
     private static final String PAGE_CACHE_CONTROL = CacheControl.maxAge(Duration.ofHours(1)).cachePublic().getHeaderValue();
     private static final int DESCRIPTION_SNIPPET_LENGTH = 70;
+    private static final int SEARCH_PAGE_SIZE = 20;
+    private static final int SEARCH_MIN_QUERY_LENGTH = 2;
 
     private final LogosService logosService;
 
@@ -53,6 +59,77 @@ public class ReadController {
         response.setHeader(HttpHeaders.CACHE_CONTROL, PAGE_CACHE_CONTROL);
 
         return "read/read";
+    }
+
+    /**
+     * 읽기 진도를 보여주는 페이지입니다.
+     * <p>
+     * 진도 자체는 브라우저에만 저장되므로 서버는 책 순서와 책별 장 수만 내려줍니다.
+     * 개인 기록 화면이라 색인에서 제외합니다.
+     * </p>
+     *
+     * @param model    뷰에 전달할 모델
+     * @param response noindex 헤더를 설정할 응답
+     * @return 읽기 계획 템플릿 뷰 이름
+     */
+    @GetMapping("/plan")
+    public String plan(Model model, HttpServletResponse response){
+        response.setHeader("X-Robots-Tag", "noindex, follow");
+
+        Map<String, List<String>> booksByTestament = logosService.getAvailableBooksByTestament();
+        Map<String, Integer> chapterCounts = new LinkedHashMap<>();
+        booksByTestament.values().forEach(books ->
+                books.forEach(book -> chapterCounts.put(book, logosService.getChapters(book).size()))
+        );
+
+        model.addAttribute("booksByTestament", booksByTestament);
+        model.addAttribute("chapterCounts", chapterCounts);
+        model.addAttribute("totalChapters", chapterCounts.values().stream().mapToInt(Integer::intValue).sum());
+
+        return "read/plan";
+    }
+
+    /**
+     * 본문에 검색어가 포함된 구절을 찾아 보여줍니다. 결과를 누르면 해당 장의 그 절로 이동합니다.
+     * 검색어 조합이 무한히 늘어나므로 응답에 noindex 헤더를 붙여 색인에서 제외한다.
+     *
+     * @param q        검색어. {@value #SEARCH_MIN_QUERY_LENGTH}자 미만이면 안내만 보여준다
+     * @param book     특정 책으로 좁힐 때의 책 이름. 비어 있으면 전체에서 찾는다
+     * @param offset   건너뛸 건수 (한 페이지 {@value #SEARCH_PAGE_SIZE}건)
+     * @param model    뷰에 전달할 모델
+     * @param response noindex 헤더를 설정할 응답
+     * @return 검색 결과 템플릿 뷰 이름
+     */
+    @GetMapping("/search")
+    public String search(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) String book,
+                         @RequestParam(defaultValue = "0") int offset,
+                         Model model,
+                         HttpServletResponse response){
+        response.setHeader("X-Robots-Tag", "noindex, follow");
+
+        String query = q == null ? "" : q.trim();
+        String selectedBook = book == null || book.isBlank() ? "" : book.trim();
+
+        String referenceUrl = referenceRedirect(query);
+        if (referenceUrl != null) {
+            return "redirect:" + referenceUrl;
+        }
+        int safeOffset = Math.max(offset, 0);
+
+        model.addAttribute("query", query);
+        model.addAttribute("selectedBook", selectedBook);
+        model.addAttribute("books", logosService.getAvailableBooks());
+        model.addAttribute("tooShort", query.length() < SEARCH_MIN_QUERY_LENGTH);
+
+        if (query.length() >= SEARCH_MIN_QUERY_LENGTH) {
+            SearchResponseDTO result = logosService.search(query, selectedBook, SEARCH_PAGE_SIZE, safeOffset);
+            model.addAttribute("result", result);
+            model.addAttribute("prevOffset", safeOffset - SEARCH_PAGE_SIZE >= 0 ? safeOffset - SEARCH_PAGE_SIZE : null);
+            model.addAttribute("nextOffset", safeOffset + SEARCH_PAGE_SIZE < result.getTotal() ? safeOffset + SEARCH_PAGE_SIZE : null);
+        }
+
+        return "read/search";
     }
 
     /**
@@ -86,7 +163,37 @@ public class ReadController {
         model.addAttribute("prevChapter", idx > 0 ? chapters.get(idx - 1) : null);
         model.addAttribute("nextChapter", (idx >= 0 && idx < chapters.size() - 1) ? chapters.get(idx + 1) : null);
 
+        logosService.nextChapterOf(book, chapter).ifPresent(next -> {
+            model.addAttribute("nextReadingBook", next.getKey());
+            model.addAttribute("nextReadingChapter", next.getValue());
+        });
+
         return "read/chapter";
+    }
+
+    /**
+     * 검색어가 "요3:16" 같은 참조 표기이고 그 구절이 있으면 보낼 주소를 만듭니다.
+     * 참조를 아는 사람은 검색 결과 목록이 아니라 본문으로 바로 가려 하기 때문입니다.
+     *
+     * @param query 검색창에 들어온 문자열
+     * @return 보낼 주소. 참조가 아니거나 해당 구절이 없으면 null
+     */
+    private String referenceRedirect(String query) {
+        if (!logosService.isReadableReference(query)) {
+            return null;
+        }
+
+        List<LogosResponseDTO> verses = logosService.findByReference(query);
+        if (verses.isEmpty()) {
+            return null;
+        }
+
+        LogosResponseDTO first = verses.get(0);
+        return UriComponentsBuilder.fromPath("/read/{book}/{chapter}")
+                .fragment("v" + first.getVerse())
+                .buildAndExpand(first.getBook(), first.getChapter())
+                .encode()
+                .toUriString();
     }
 
     /**

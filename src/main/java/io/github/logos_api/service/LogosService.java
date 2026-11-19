@@ -2,10 +2,13 @@ package io.github.logos_api.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.logos_api.common.BibleReference;
 import io.github.logos_api.dto.LogosResponseDTO;
+import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -51,7 +54,21 @@ public class LogosService {
 
     private static final Pattern VERSE_PATTERN = Pattern.compile("[0-9]+(-[0-9]+)?");
 
+    /**
+     * 책 이름 -> 정경 순서 번호. 검색 결과를 성경 순서대로 정렬하는 데 사용합니다.
+     */
+    private static final Map<String, Integer> BOOK_ORDER = buildBookOrder();
+
+    /**
+     * 검색 결과 정렬 기준: 정경 순서 -> 장 -> 절.
+     */
+    private static final Comparator<Logos> CANONICAL_ORDER =
+            Comparator.<Logos, Integer>comparing(v -> BOOK_ORDER.getOrDefault(v.getBook(), Integer.MAX_VALUE))
+                    .thenComparingInt(v -> Integer.parseInt(v.getChapter()))
+                    .thenComparingInt(v -> verseStart(v.getVerse()));
+
     private Map<String, Map<Integer, List<Logos>>> bibleMap = new HashMap<>();
+    private Map<String, String> bookByAbbrev = Map.of();
     private List<Logos> allVerses = new ArrayList<>();
     private int totalVerseCount;
     private final Random random = new Random();
@@ -67,8 +84,15 @@ public class LogosService {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
 
+        try (InputStream abbrevStream = new ClassPathResource("bible/abbrev.json").getInputStream()) {
+            bookByAbbrev = objectMapper.readValue(abbrevStream, new TypeReference<Map<String, String>>() {});
+        } catch (IOException e) {
+            log.error("책 약어 표를 읽지 못했습니다. 참조 조회에서 약어를 쓸 수 없습니다 - {}", e.getMessage());
+        }
+
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] resources = resolver.getResources("classpath:bible/**/*.json");
+        // 책 폴더 아래의 장 파일만 읽는다. bible/abbrev.json 같은 보조 파일은 걸리지 않는다.
+        Resource[] resources = resolver.getResources("classpath:bible/*/*.json");
 
         for (Resource resource : resources){
             try (InputStream is = resource.getInputStream()){
@@ -210,6 +234,104 @@ public class LogosService {
     }
 
     /**
+     * "요3:16", "요한복음 3:16-18", "요3" 같은 참조 표기로 구절을 찾습니다.
+     * 약어와 정식 이름을 모두 받고, 절을 지정하지 않으면 장 전체를 돌려줍니다.
+     *
+     * @param reference 참조 문자열
+     * @return 찾은 구절 목록. 형식이 틀렸거나 없는 참조이면 빈 목록
+     */
+    public List<LogosResponseDTO> findByReference(String reference){
+        return BibleReference.parse(reference)
+                .map(this::versesOf)
+                .orElseGet(List::of);
+    }
+
+    /**
+     * 참조 표기가 읽을 수 있는 형식인지 확인합니다. 해당 구절이 있는지까지는 보지 않습니다.
+     *
+     * @param reference 참조 문자열
+     * @return 형식이 맞으면 true
+     */
+    public boolean isReadableReference(String reference){
+        return BibleReference.parse(reference).isPresent();
+    }
+
+    /**
+     * 참조가 가리키는 절을 찾습니다. 책 이름은 정식 이름을 먼저 보고 없으면 약어 표로 해석합니다.
+     *
+     * @param reference 나눠 담긴 참조
+     * @return 참조에 들어가는 절 목록 (없으면 빈 목록)
+     */
+    private List<LogosResponseDTO> versesOf(BibleReference reference){
+        String book = bibleMap.containsKey(reference.getBook())
+                ? reference.getBook()
+                : bookByAbbrev.get(reference.getBook());
+
+        if (book == null) {
+            return List.of();
+        }
+
+        return getVerses(book, reference.getChapter()).stream()
+                .filter(v -> reference.contains(verseStart(v.getVerse())))
+                .map(LogosResponseDTO::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 참조가 가리키는 책의 정식 이름을 돌려줍니다. 웹에서 해당 장으로 보낼 때 씁니다.
+     *
+     * @param reference 참조 문자열
+     * @return 정식 책 이름. 읽을 수 없거나 등록되지 않은 책이면 빈 값
+     */
+    public Optional<String> resolveBookName(String reference){
+        return BibleReference.parse(reference)
+                .map(BibleReference::getBook)
+                .map(book -> bibleMap.containsKey(book) ? book : bookByAbbrev.get(book))
+                .filter(Objects::nonNull);
+    }
+
+    /**
+     * 지정한 장의 다음 장을 찾습니다. 책의 마지막 장이면 다음 책의 첫 장을 돌려줍니다.
+     * 낭독이 책을 넘어가며 이어지려면 책 순서를 알아야 하는데, 그 순서는 서비스가 가지고 있습니다.
+     *
+     * @param book    현재 책 이름
+     * @param chapter 현재 장 번호
+     * @return 다음 책 이름과 장 번호. 성경의 마지막 장이면 빈 값
+     */
+    public Optional<Map.Entry<String, Integer>> nextChapterOf(String book, int chapter){
+        List<Integer> chapters = getChapters(book);
+        int index = chapters.indexOf(chapter);
+
+        if (index >= 0 && index < chapters.size() - 1) {
+            return Optional.of(Map.entry(book, chapters.get(index + 1)));
+        }
+
+        List<String> books = getAvailableBooks();
+        int bookIndex = books.indexOf(book);
+        if (bookIndex < 0 || bookIndex == books.size() - 1) {
+            return Optional.empty();
+        }
+
+        String nextBook = books.get(bookIndex + 1);
+        List<Integer> nextChapters = getChapters(nextBook);
+        if (nextChapters.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return Optional.of(Map.entry(nextBook, nextChapters.get(0)));
+    }
+
+    /**
+     * 데이터가 등록된 책 이름인지 확인합니다.
+     *
+     * @param book 확인할 책 이름
+     * @return 등록된 책이면 true (null이거나 비어 있으면 false)
+     */
+    public boolean isRegisteredBook(String book){
+        return book != null && !book.isBlank() && bibleMap.containsKey(book);
+    }
+
+    /**
      * 데이터가 존재하는 책 목록을 "구약"/"신약"으로 그룹핑하여 반환합니다.
      *
      * @return key가 "구약"/"신약"인 LinkedHashMap (순서 보장)
@@ -254,5 +376,69 @@ public class LogosService {
         return verses.stream()
                 .sorted(Comparator.comparingInt(v -> verseStart(v.getVerse())))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 본문에 검색어가 포함된 구절을 정경 순서로 찾아 페이지 단위로 반환합니다.
+     * 전체 구절이 메모리에 있으므로 별도 색인 없이 순차 탐색한다.
+     *
+     * 책별 건수(books)는 book 필터와 무관하게 전체 기준으로 세고, 건수가 많은 책부터 담는다.
+     * 어느 책을 먼저 볼지 고르는 데 쓰기 때문이다.
+     *
+     * @param query  검색어 (공백은 앞뒤만 제거하고 그대로 비교한다)
+     * @param book   특정 책으로 좁힐 때의 책 이름. null이거나 비어 있으면 전체를 찾는다
+     * @param limit  한 번에 돌려줄 최대 건수
+     * @param offset 건너뛸 건수
+     * @return 전체 일치 건수와 해당 페이지의 구절 목록
+     */
+    public SearchResponseDTO search(String query, String book, int limit, int offset){
+        String needle = query.trim();
+        boolean allBooks = book == null || book.isBlank();
+
+        List<Logos> matched = allVerses.stream()
+                .filter(v -> v.getText() != null && v.getText().contains(needle))
+                .sorted(CANONICAL_ORDER)
+                .collect(Collectors.toList());
+
+        Map<String, Integer> countByBook = new HashMap<>();
+        matched.forEach(v -> countByBook.merge(v.getBook(), 1, Integer::sum));
+
+        Map<String, Integer> booksWithCount = countByBook.entrySet().stream()
+                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
+
+        List<Logos> hits = allBooks
+                ? matched
+                : matched.stream().filter(v -> book.equals(v.getBook())).collect(Collectors.toList());
+
+        List<LogosResponseDTO> page = hits.stream()
+                .skip(offset)
+                .limit(limit)
+                .map(LogosResponseDTO::from)
+                .collect(Collectors.toList());
+
+        return SearchResponseDTO.builder()
+                .books(booksWithCount)
+                .query(needle)
+                .total(hits.size())
+                .offset(offset)
+                .limit(limit)
+                .results(page)
+                .build();
+    }
+
+    /**
+     * 구약 39권 + 신약 27권의 정경 순서를 책 이름 -> 순서 번호 맵으로 만듭니다.
+     *
+     * @return 책 이름을 키로 하는 순서 맵
+     */
+    private static Map<String, Integer> buildBookOrder(){
+        Map<String, Integer> order = new HashMap<>();
+        List<String> canon = new ArrayList<>(OLD_TESTAMENT_ORDER);
+        canon.addAll(NEW_TESTAMENT_ORDER);
+        for (int i = 0; i < canon.size(); i++) {
+            order.put(canon.get(i), i);
+        }
+        return order;
     }
 }

@@ -15,11 +15,16 @@
 
 | Method | 경로 | 설명 |
 |---|---|---|
-| GET | `/api/verse` | 무작위 구절 조회 |
+| GET | `/api/verse` | 무작위 구절 조회 (`?ref=요3:16` 으로 참조 조회) |
 | GET | `/api/verse/today` | 오늘의 말씀(날짜 기준 고정) 조회 |
 | GET | `/api/books` | 데이터가 존재하는 책 목록 (정경 순서) |
 | GET | `/api/books/{book}/chapters` | 해당 책의 장 번호 목록 |
 | GET | `/api/books/{book}/chapters/{chapter}` | 해당 장의 전체 절 목록 |
+| GET | `/api/search` | 본문에 검색어가 들어간 구절 검색 (`q`, `book`, `limit`, `offset`) |
+
+> **운영시간**: 08:00 ~ 22:00 (KST). 운영시간 외에는 응답이 지연되거나 제공되지 않을 수 있습니다.
+
+**🧩 OpenAPI 스펙**: [logos-api.com/v3/api-docs](https://logos-api.com/v3/api-docs) — Postman·코드 생성기에서 바로 가져올 수 있습니다.
 
 **📚 전체 문서**: 각 엔드포인트의 상세 사용법과 응답 예시는 [logos-api.com/docs](https://logos-api.com/docs)에서 확인하세요.
 
@@ -125,21 +130,6 @@ public class LogosApiTest {
 > `/api/verse/today`, `/api/books` 계열도 호출 방식은 동일합니다 — 위 예제에서 URL만 바꾸면 됩니다.
 
 더 많은 예제와 상세 정책은 [API 문서](https://logos-api.com/docs)를 참고하세요.
-
-## 🤝 기여하기
-
-새로운 성경 구절을 추가하여 프로젝트에 기여하고 싶으시면 아래 절차를 따라주세요:
-
-1. 이 리포지토리를 Fork 합니다.
-2. `src/main/resources/bible/{책}/{장}.json` 파일에 아래 형식으로 성경 말씀을 추가합니다:
-
-```JSON
-{"book":"책(서)", "chapter":"장(章)", "verse":"절(節)", "text":"본문/말씀"}
-```
-
-3. 변경 사항을 Commit한 후 Pull Request를 보냅니다.
-
-책/장/절 번호가 숫자가 아니거나 형식이 어긋난 항목은 서버 구동 시 자동으로 검증되어 제외되니, PR 전에 형식을 한 번 확인해 주세요.
 
 ## 🛠️ 기술 스택
 

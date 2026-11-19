@@ -5,7 +5,7 @@
         pageTitle='개인정보처리방침 - Logos API',
         pageDescription='Logos API 웹사이트 및 API 서비스의 개인정보처리방침입니다.',
         canonicalUrl='https://logos-api.com/privacy',
-        pageCssPath='/css/page/policy.css')}"></th:block>
+        pageCssPath='/css/page/policy.css', ogImage=null)}"></th:block>
 </head>
 <body>
     <div th:replace="~{fragments/header :: header(current='')}"></div>
@@ -50,9 +50,14 @@
                         <td>재발급 시까지 보관 (별도 요청 없이는 자동 만료되지 않음)</td>
                     </tr>
                     <tr>
-                        <td>API 호출 시 IP 주소, 요청 경로, 브라우저 정보(User-Agent), 인증 방식</td>
+                        <td>서비스 이용 시 IP 주소, 요청 경로, 브라우저 정보(User-Agent), 인증 방식 (웹 페이지 방문과 API 호출 모두)</td>
                         <td>서비스 안정성 확보, 부정 이용 방지, 오류 및 보안 모니터링</td>
                         <td>수집일로부터 30일</td>
+                    </tr>
+                    <tr>
+                        <td>오류 발생 기록(IP 주소, 요청 경로, 오류 내용)</td>
+                        <td>장애 원인 분석, 보안 사고 대응</td>
+                        <td>수집일로부터 60일</td>
                     </tr>
                     <tr>
                         <td>웹사이트 이용 중 브라우저 저장소(localStorage)에 저장되는 마지막 읽은 위치, 읽은 장 목록</td>
@@ -93,7 +98,7 @@
                 <ul class="policy-page__list">
                     <li>서비스의 모든 통신 구간에 HTTPS(SSL/TLS) 암호화를 적용합니다.</li>
                     <li>Cloudflare를 통해 DDoS 공격, 악성 봇 등 외부 위협으로부터 서버를 보호합니다.</li>
-                    <li>접속 로그는 서비스 운영에 필요한 최소한의 항목만 수집하며, 보유 기간 경과 시 자동으로 파기됩니다.</li>
+                    <li>접속 로그는 서비스 운영에 필요한 최소한의 항목만 수집하며, 보유 기간(접속 로그 30일, 오류 기록 60일)이 지나면 자동으로 파기됩니다.</li>
                 </ul>
             </section>
 

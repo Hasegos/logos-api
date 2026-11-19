@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle='읽기 진도 - Logos API',
+        pageDescription='성경을 어디까지 읽었는지 책별로 확인하고 다음 읽을 장으로 바로 갑니다.',
+        canonicalUrl='https://logos-api.com/read/plan',
+        pageCssPath='/css/page/read.css', ogImage=null)}"></th:block>
+    <meta name="robots" content="noindex, follow">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header(current='plan')}"></div>
+
+    <main class="page-main page-main--wide">
+        <div class="read" id="plan" th:attr="data-total=${totalChapters}">
+            <a href="/read" class="chapter-view__back">← 성경 읽기로</a>
+            <h1>읽기 진도</h1>
+            <p class="read__lead">읽은 기록은 이 브라우저에만 저장됩니다. 서버로 보내지 않습니다.</p>
+
+            <div class="plan-summary">
+                <div class="plan-summary__bar">
+                    <span id="plan-fill" class="plan-summary__fill"></span>
+                </div>
+                <p class="plan-summary__text">
+                    <strong id="plan-read">0</strong> / <span th:text="${totalChapters}">1189</span>장
+                    (<span id="plan-percent">0.00</span>%)
+                    · 구약 <span id="plan-old">0 / 0</span>
+                    · 신약 <span id="plan-new">0 / 0</span>
+                </p>
+            </div>
+
+            <div class="plan-order">
+                <span class="plan-order__label">읽는 순서</span>
+                <button type="button" class="plan-order__option" data-order="canon">통독</button>
+                <button type="button" class="plan-order__option" data-order="newFirst">신약 먼저</button>
+            </div>
+
+            <div class="plan-order">
+                <span class="plan-order__label">목표</span>
+                <button type="button" class="plan-order__option" data-goal="365">1년 1독</button>
+                <button type="button" class="plan-order__option" data-goal="100">100일</button>
+                <button type="button" class="plan-order__option" data-goal="custom">직접 입력</button>
+                <button type="button" class="plan-order__option" data-goal="none">목표 없음</button>
+            </div>
+
+            <div id="plan-goal" class="plan-goal" hidden>
+                <p class="plan-goal__line">
+                    <strong id="plan-goal-date">-</strong>까지 <strong id="plan-goal-daily">0</strong>장씩
+                    · 남은 기간 <span id="plan-goal-left">0</span>일
+                </p>
+                <p class="plan-goal__line">
+                    오늘 <strong id="plan-today">0</strong> / <span id="plan-today-goal">0</span>장
+                    <span class="plan-goal__bar"><span id="plan-today-fill" class="plan-goal__fill"></span></span>
+                </p>
+                <p class="plan-goal__line plan-goal__line--sub">
+                    <span id="plan-streak">0일 연속</span>
+                    · <span id="plan-forecast">최근 기록이 쌓이면 완독 예상일을 알려 드립니다</span>
+                </p>
+            </div>
+
+            <a id="plan-next" class="plan-next" href="/read">다음 읽을 장 →</a>
+
+            <div class="plan-tools">
+                <button type="button" id="plan-hide-done" class="plan-order__option">다 읽은 책 숨기기</button>
+            </div>
+
+            <div th:each="entry : ${booksByTestament}">
+                <div class="book-list__testament" th:text="${entry.key}">구약</div>
+
+                <div class="plan-book" th:each="book : ${entry.value}"
+                     th:attr="data-book=${book},data-chapters=${chapterCounts.get(book)},data-testament=${entry.key}">
+                    <a class="plan-book__name" th:href="@{'/read#book-' + ${book}}" th:text="${book}">창세기</a>
+                    <span class="plan-book__bar"><span class="plan-book__fill"></span></span>
+                    <span class="plan-book__count">0 / <span th:text="${chapterCounts.get(book)}">50</span></span>
+                </div>
+            </div>
+
+            <div class="plan-reset-bar">
+                <button type="button" id="plan-reset" class="chapter-view__tts chapter-view__tts--reset">↺ 진도 초기화</button>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/read.js}"></script>
+    <script th:src="@{/js/plan.js}"></script>
+</body>
+</html>
