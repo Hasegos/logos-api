@@ -23,7 +23,7 @@ public class WebConfig implements WebMvcConfigurer {
     /**
      * 애플리케이션 인터셉터 체인을 설정합니다.
      * 0순위: Host 헤더 검증 (전체 경로 - 위조된 Host는 가장 먼저 차단)
-     * 1순위: 접근 로그 기록 (제외 경로 없음 - 뒤 인터셉터가 거부해도 항상 기록되어야 하므로)
+     * 1순위: 접근 로그 기록 (정적 자원과 actuator만 제외. 뒤 인터셉터가 거부해도 항상 기록되어야 하므로)
      * 2순위: API 키 검증 (단, 키 발급 경로는 제외)
      * 3순위: 속도 제한 적용 (단, 구절 조회 경로는 제외)
      *
@@ -36,7 +36,9 @@ public class WebConfig implements WebMvcConfigurer {
                 .order(0);
 
         registry.addInterceptor(accessLogInterceptor)
-                .addPathPatterns("/api/**")
+                .addPathPatterns("/**")
+                .excludePathPatterns("/css/**", "/js/**", "/img/**", "/fonts/**",
+                        "/favicon.ico", "/robots.txt", "/ads.txt", "/actuator/**")
                 .order(1);
 
         registry.addInterceptor(apiKeyInterceptor)
