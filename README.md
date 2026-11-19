@@ -15,7 +15,7 @@
 
 | Method | 경로 | 설명 |
 |---|---|---|
-| GET | `/api/verse` | 무작위 구절 조회 |
+| GET | `/api/verse` | 무작위 구절 조회 (`?ref=요3:16` 으로 참조 조회) |
 | GET | `/api/verse/today` | 오늘의 말씀(날짜 기준 고정) 조회 |
 | GET | `/api/books` | 데이터가 존재하는 책 목록 (정경 순서) |
 | GET | `/api/books/{book}/chapters` | 해당 책의 장 번호 목록 |

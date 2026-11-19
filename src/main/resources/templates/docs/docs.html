@@ -85,8 +85,31 @@
                 </section>
 
                 <section class="docs__section" id="random" data-section="random">
-                    <h2>4. 랜덤 구절 조회</h2>
-                    <pre><code>GET /api/verse</code></pre>
+                    <h2>4. 랜덤 구절 · 참조 조회</h2>
+                    <pre><code>GET /api/verse
+GET /api/verse?ref=요3:16</code></pre>
+
+                    <table class="docs__table">
+                        <thead>
+                        <tr><th>파라미터</th><th>필수</th><th>설명</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><code>ref</code></td><td>아니오</td><td>참조 표기. 없으면 무작위 구절을 돌려줍니다</td></tr>
+                        </tbody>
+                    </table>
+
+                    <table class="docs__table">
+                        <thead>
+                        <tr><th>표기</th><th>뜻</th><th>응답</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><code>요3:16</code></td><td>요한복음 3장 16절 (약어)</td><td>구절 1개</td></tr>
+                        <tr><td><code>요한복음 3:16</code></td><td>정식 이름도 됩니다</td><td>구절 1개</td></tr>
+                        <tr><td><code>요3:16-18</code></td><td>16절부터 18절까지</td><td>배열</td></tr>
+                        <tr><td><code>요3</code></td><td>3장 전체</td><td>배열</td></tr>
+                        </tbody>
+                    </table>
+                    <p class="docs__note">약어는 <code>창</code> <code>출</code> <code>삼상</code> <code>고전</code> <code>살후</code> <code>요일</code>처럼 통용되는 66권 표기를 씁니다. 형식을 읽을 수 없으면 400, 해당 구절이 없으면 404로 응답합니다. 참조 조회 응답은 내용이 고정이라 하루 캐싱되고, 무작위 구절은 3초만 캐싱됩니다.</p>
 
                     <h3>curl</h3>
                     <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse</code></pre>

@@ -4,6 +4,7 @@ import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.service.LogosService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -30,16 +32,39 @@ public class LogosController {
     private final LogosService logosService;
 
     /**
-     * 무작위 성경 구절을 하나 반환합니다.
-     * 브라우저 캐시 설정을 통해 3초 동안의 캐싱을 권장합니다.
+     * 성경 구절을 반환합니다. {@code ref}를 주면 그 참조의 구절을, 주지 않으면 무작위 구절을 돌려줍니다.
+     * <p>
+     * {@code ref}는 "요3:16", "요한복음 3:16-18", "요3"처럼 쓰고 약어와 정식 이름을 모두 받습니다.
+     * 절을 지정하지 않으면 그 장 전체를 배열로 돌려줍니다.
+     * 무작위 구절은 매번 달라지므로 3초만 캐싱하고, 참조 조회는 내용이 고정이라 하루 캐싱합니다.
+     * </p>
      *
-     * @return 랜덤 성경 구절 정보
+     * @param ref 참조 문자열. 없으면 무작위 구절
+     * @return 구절 정보. 참조 형식이 틀리면 400, 해당 구절이 없으면 404
      */
     @GetMapping("/verse")
-    public ResponseEntity<LogosResponseDTO> random(){
+    public ResponseEntity<?> verse(@RequestParam(required = false) String ref){
+        if (ref == null || ref.isBlank()) {
+            return ResponseEntity.ok()
+                    .cacheControl(CacheControl.maxAge(Duration.ofSeconds(3)).cachePublic())
+                    .body(logosService.getRandomVerse());
+        }
+
+        if (!logosService.isReadableReference(ref)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Bad Request",
+                            "message", "참조 형식을 읽을 수 없습니다. 예: 요3:16, 요한복음 3:16-18, 요3"));
+        }
+
+        List<LogosResponseDTO> verses = logosService.findByReference(ref);
+        if (verses.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Not Found", "message", "해당 참조의 구절이 없습니다."));
+        }
+
         return ResponseEntity.ok()
-                .cacheControl(CacheControl.maxAge(Duration.ofSeconds(3)).cachePublic())
-                .body(logosService.getRandomVerse());
+                .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePublic())
+                .body(verses.size() == 1 ? verses.get(0) : verses);
     }
 
     /**
