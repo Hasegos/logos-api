@@ -20,7 +20,6 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 책/장/절을 직접 탐색하며 읽는 "성경 읽기" 페이지를 처리하는 컨트롤러입니다.
@@ -91,7 +90,6 @@ public class ReadController {
         if (query.length() >= SEARCH_MIN_QUERY_LENGTH) {
             SearchResponseDTO result = logosService.search(query, selectedBook, SEARCH_PAGE_SIZE, safeOffset);
             model.addAttribute("result", result);
-            model.addAttribute("sortedBooks", sortByCount(result.getBooks()));
             model.addAttribute("prevOffset", safeOffset - SEARCH_PAGE_SIZE >= 0 ? safeOffset - SEARCH_PAGE_SIZE : null);
             model.addAttribute("nextOffset", safeOffset + SEARCH_PAGE_SIZE < result.getTotal() ? safeOffset + SEARCH_PAGE_SIZE : null);
         }
@@ -131,22 +129,6 @@ public class ReadController {
         model.addAttribute("nextChapter", (idx >= 0 && idx < chapters.size() - 1) ? chapters.get(idx + 1) : null);
 
         return "read/chapter";
-    }
-
-    /**
-     * 검색어가 나온 책 전체를 건수가 많은 순으로 정렬합니다.
-     * 일부만 보여주면 나머지 책에는 결과가 없는 것으로 오해할 수 있으므로 자르지 않는다.
-     *
-     * @param books 책 이름 -> 건수
-     * @return 건수 내림차순 맵 (입력이 null이면 빈 맵)
-     */
-    private static Map<String, Integer> sortByCount(Map<String, Integer> books) {
-        if (books == null) {
-            return Map.of();
-        }
-        return books.entrySet().stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> a, LinkedHashMap::new));
     }
 
     /**

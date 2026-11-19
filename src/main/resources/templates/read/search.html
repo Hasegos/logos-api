@@ -41,7 +41,7 @@
                         <a class="search-books__chip"
                            th:classappend="${selectedBook == ''} ? 'search-books__chip--active'"
                            th:href="@{/read/search(q=${query})}">전체</a>
-                        <a class="search-books__chip" th:each="entry : ${sortedBooks}"
+                        <a class="search-books__chip" th:each="entry : ${result.books}"
                            th:classappend="${entry.key == selectedBook} ? 'search-books__chip--active'"
                            th:href="@{/read/search(q=${query},book=${entry.key})}"
                            th:text="|${entry.key} ${entry.value}|">창세기 3</a>

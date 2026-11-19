@@ -65,7 +65,7 @@ public class LogosController {
                             "message", "검색어는 " + MIN_QUERY_LENGTH + "자 이상 " + MAX_QUERY_LENGTH + "자 이하여야 합니다."));
         }
 
-        if (book != null && !book.isBlank() && !logosService.getAvailableBooks().contains(book)) {
+        if (book != null && !book.isBlank() && !logosService.isRegisteredBook(book)) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Bad Request", "message", "등록되지 않은 책 이름입니다."));
         }
