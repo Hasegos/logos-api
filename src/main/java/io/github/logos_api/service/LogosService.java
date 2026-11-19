@@ -84,14 +84,15 @@ public class LogosService {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
 
-        try (InputStream abbrevStream = new ClassPathResource("bible-abbrev.json").getInputStream()) {
+        try (InputStream abbrevStream = new ClassPathResource("bible/abbrev.json").getInputStream()) {
             bookByAbbrev = objectMapper.readValue(abbrevStream, new TypeReference<Map<String, String>>() {});
         } catch (IOException e) {
             log.error("책 약어 표를 읽지 못했습니다. 참조 조회에서 약어를 쓸 수 없습니다 - {}", e.getMessage());
         }
 
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        Resource[] resources = resolver.getResources("classpath:bible/**/*.json");
+        // 책 폴더 아래의 장 파일만 읽는다. bible/abbrev.json 같은 보조 파일은 걸리지 않는다.
+        Resource[] resources = resolver.getResources("classpath:bible/*/*.json");
 
         for (Resource resource : resources){
             try (InputStream is = resource.getInputStream()){
