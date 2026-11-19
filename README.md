@@ -131,21 +131,6 @@ public class LogosApiTest {
 
 더 많은 예제와 상세 정책은 [API 문서](https://logos-api.com/docs)를 참고하세요.
 
-## 🤝 기여하기
-
-새로운 성경 구절을 추가하여 프로젝트에 기여하고 싶으시면 아래 절차를 따라주세요:
-
-1. 이 리포지토리를 Fork 합니다.
-2. `src/main/resources/bible/{책}/{장}.json` 파일에 아래 형식으로 성경 말씀을 추가합니다:
-
-```JSON
-{"book":"책(서)", "chapter":"장(章)", "verse":"절(節)", "text":"본문/말씀"}
-```
-
-3. 변경 사항을 Commit한 후 Pull Request를 보냅니다.
-
-책/장/절 번호가 숫자가 아니거나 형식이 어긋난 항목은 서버 구동 시 자동으로 검증되어 제외되니, PR 전에 형식을 한 번 확인해 주세요.
-
 ## 🛠️ 기술 스택
 
 + **Backend**: Spring Boot 3.x
