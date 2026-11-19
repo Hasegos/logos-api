@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 public class LogSanitizer {
 
     private static final int MAX_UA_LENGTH = 200;
+    private static final int SECRET_PREFIX_LENGTH = 8;
 
     private LogSanitizer(){
     }
@@ -24,6 +25,27 @@ public class LogSanitizer {
      */
     public static String sanitize(String value) {
         return value == null ? null : value.replaceAll("[\r\n\t]", "_");
+    }
+
+    /**
+     * 비밀값을 앞부분만 남기고 가립니다.
+     * <p>
+     * 거부된 키라도 그대로 남기면, 같은 키가 다른 서버에서는 유효하거나 한 글자만 틀린 값일 수 있습니다.
+     * 로그는 보관 기간이 길고 공유되기 쉬우므로 앞 {@value #SECRET_PREFIX_LENGTH}자와 길이만 남깁니다.
+     * </p>
+     *
+     * @param secret 가릴 값
+     * @return 예: "941f4f5c…(32자)"
+     */
+    public static String mask(String secret) {
+        if (secret == null || secret.isBlank()) {
+            return "(없음)";
+        }
+        String cleaned = sanitize(secret);
+        if (cleaned.length() <= SECRET_PREFIX_LENGTH) {
+            return "…(" + cleaned.length() + "자)";
+        }
+        return cleaned.substring(0, SECRET_PREFIX_LENGTH) + "…(" + cleaned.length() + "자)";
     }
 
     /**
