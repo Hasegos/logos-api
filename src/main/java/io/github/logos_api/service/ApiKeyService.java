@@ -1,5 +1,6 @@
 package io.github.logos_api.service;
 
+import io.github.logos_api.common.config.ApiKeyHasher;
 import io.github.logos_api.common.config.ClientIpResolver;
 import io.github.logos_api.model.ApiKey;
 import io.github.logos_api.model.ApiKeyLog;
@@ -35,6 +36,8 @@ public class ApiKeyService {
      * 하루 최대 10회까지만 발급이 가능하며, 기존에 해당 IP로 발급된 키는 삭제됩니다.
      *
      * @param clientIp 키를 발급받을 클라이언트의 IP 주소
+     * 저장은 해시로만 하므로, 이 메서드가 돌려주는 원문은 호출한 쪽에서 사용자에게 한 번 보여 준 뒤 버립니다.
+     *
      * @return 생성된 UUID 기반의 새로운 API 키 문자열
      * @throws RuntimeException 하루 발급 제한(10회)을 초과한 경우 발생
      */
@@ -57,7 +60,7 @@ public class ApiKeyService {
         String newKey = UUID.randomUUID().toString().replace("-", "");
 
         ApiKey apiKey = new ApiKey();
-        apiKey.setApiKey(newKey);
+        apiKey.setKeyHash(ApiKeyHasher.hash(newKey));
         apiKey.setIssuedIp(clientIp);
         apiKeyRepository.save(apiKey);
 

@@ -13,12 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 public interface ApiKeyRepository extends JpaRepository<ApiKey, Long> {
 
     /**
-     * 데이터베이스에 해당 API 키가 존재하는지 여부를 확인합니다.
+     * 해당 해시를 가진 API 키가 있는지 확인합니다.
+     * 키 원문은 저장하지 않으므로 요청으로 받은 키를 같은 방식으로 해시해 비교합니다.
      *
-     * @param key 검증할 API 키 문자열
+     * @param keyHash 검증할 키의 SHA-256 해시
      * @return 키가 존재하면 true, 존재하지 않으면 false 반환
      */
-    boolean existsByApiKey(String key);
+    boolean existsByKeyHash(String keyHash);
 
     /**
      * 특정 IP 주소로 발급된 기존 API 키를 삭제합니다.

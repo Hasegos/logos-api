@@ -38,7 +38,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
             return fail(response, "API Key is missing", HttpStatus.UNAUTHORIZED);
         }
 
-        if(!apiKeyRepository.existsByApiKey(apikey)){
+        if(!apiKeyRepository.existsByKeyHash(ApiKeyHasher.hash(apikey))){
             log.warn("[Unauthorized] Invalid API Key: {}. URI: {}", LogSanitizer.mask(apikey), LogSanitizer.sanitize(request.getRequestURI()));
             return fail(response, "Invalid API Key", HttpStatus.UNAUTHORIZED);
         }
