@@ -1,8 +1,26 @@
-<footer th:fragment="footer" class="site-footer">
-    <p>
-        &copy; 2025 Su Ho Son. All rights reserved. ·
-        <a href="/terms" class="site-footer__link">이용약관</a> ·
-        <a href="/privacy" class="site-footer__link">개인정보처리방침</a> ·
-        <a href="https://github.com/Hasegos/logos-api/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" class="site-footer__link">License</a>
-    </p>
-</footer>
+<th:block th:fragment="footer">
+    <footer class="site-footer">
+        <p>
+            &copy; 2025 Su Ho Son. All rights reserved. ·
+            <a href="/terms" class="site-footer__link">이용약관</a> ·
+            <a href="/privacy" class="site-footer__link">개인정보처리방침</a> ·
+            <a href="https://github.com/Hasegos/logos-api/blob/master/LICENSE" target="_blank" rel="noopener noreferrer" class="site-footer__link">License</a>
+        </p>
+        <p class="site-footer__hours">API 운영시간 08:00 ~ 22:00 (KST)</p>
+    </footer>
+
+    <nav class="tabbar" aria-label="모바일 메뉴">
+        <a class="tabbar__item" href="/">
+            <span class="tabbar__icon">🏠</span><span class="tabbar__text">홈</span>
+        </a>
+        <a class="tabbar__item" href="/read">
+            <span class="tabbar__icon">📖</span><span class="tabbar__text">성경 읽기</span>
+        </a>
+        <a class="tabbar__item" href="/read/search">
+            <span class="tabbar__icon">🔍</span><span class="tabbar__text">구절 검색</span>
+        </a>
+        <a class="tabbar__item" href="/docs">
+            <span class="tabbar__icon">📘</span><span class="tabbar__text">API 문서</span>
+        </a>
+    </nav>
+</th:block>

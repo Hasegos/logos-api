@@ -6,6 +6,7 @@
     <nav id="site-header-nav" class="site-header__nav">
         <a href="/" th:classappend="${current == 'home'} ? 'site-header__link--active'">홈</a>
         <a href="/read" th:classappend="${current == 'read'} ? 'site-header__link--active'">성경 읽기</a>
+        <a href="/read/search" th:classappend="${current == 'search'} ? 'site-header__link--active'">구절 검색</a>
         <a href="/docs" th:classappend="${current == 'docs'} ? 'site-header__link--active'">API 문서</a>
         <a href="https://github.com/Hasegos/logos-api" target="_blank" rel="noopener noreferrer">GitHub</a>
     </nav>
