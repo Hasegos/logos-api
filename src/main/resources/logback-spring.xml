@@ -1,14 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 
-    <!--
-      오늘 로그는 logs/<기동일>/<이름>.log 에 쓰고, 날짜가 바뀌면 그 폴더 안에서
-      <이름>.<번호>.log.gz 로 압축된다. 기동할 때마다 보관 기간이 지난 것을 지운다.
-
-      ${bootDate}는 JVM이 뜬 날짜로 한 번 정해진다. 이 서버는 08:00~22:00만 운영해
-      자정을 넘기지 않으므로 문제가 없다. 24시간 가동으로 바꾸면 활성 파일이
-      기동한 날짜 폴더에 계속 쌓이므로, <file>을 logs/<이름>.log 로 되돌려야 한다.
-    -->
+    <!-- 오늘 로그는 logs/<기동일>/<이름>.log 에 쓰고, 날짜가 바뀌면 같은 폴더에서 <이름>.<번호>.log.gz 로 압축한다. -->
     <timestamp key="bootDate" datePattern="yyyy-MM-dd"/>
 
     <property name="LOG_PATH" value="logs" />
