@@ -213,8 +213,11 @@ code {
 
 .code-block {
     position: relative;
+    /* 복사 버튼이 항상 보이므로 그 자리를 비워 둔다. 안 그러면 글자가 버튼 아래로 들어간다. */
+    padding-right: 4.2rem;
 }
 
+/* 복사 버튼은 항상 보인다. 마우스를 올렸을 때만 나오면 터치 기기에서는 찾을 수 없다. */
 .code-block__copy-btn {
     position: absolute;
     top: 0.5rem;
@@ -227,17 +230,7 @@ code {
     font-size: 0.75rem;
     cursor: pointer;
     font-family: sans-serif;
-    opacity: 0;
-    transition: opacity 0.15s ease;
-}
-
-.code-block:hover .code-block__copy-btn,
-.code-block:focus-within .code-block__copy-btn {
-    opacity: 1;
-}
-
-.code-block__copy-btn--active {
-    opacity: 1;
+    transition: background-color 0.15s ease;
 }
 
 .code-block__copy-btn:hover {
@@ -246,10 +239,4 @@ code {
 
 .code-block__copy-btn:disabled {
     cursor: default;
-}
-
-@media (hover: none) {
-    .code-block__copy-btn {
-        opacity: 1;
-    }
 }

@@ -1,6 +1,9 @@
+/** 복사 버튼이 만드는 엔드포인트 주소의 앞부분 */
+const LOGOS_API_BASE_URL = 'https://logos-api.com';
+
 /**
- * 페이지 내 모든 코드 블록(pre)에 복사 버튼을 자동으로 부착합니다.
- * 이미 버튼이 붙어있는 pre는 중복 처리하지 않습니다.
+ * 페이지 내 모든 코드 블록(pre)과 엔드포인트 카드에 복사 버튼을 자동으로 부착합니다.
+ * 이미 버튼이 붙어있는 요소는 중복 처리하지 않습니다.
  */
 document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('pre').forEach((pre) => {
@@ -29,6 +32,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
         pre.appendChild(button);
     });
+
+    document.querySelectorAll('.endpoint').forEach((endpoint) => {
+        if (endpoint.querySelector('.code-block__copy-btn')) return;
+
+        const pathEl = endpoint.querySelector('.endpoint__path');
+        if (!pathEl) return;
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'code-block__copy-btn';
+        button.textContent = '복사';
+        button.setAttribute('aria-label', '요청 주소 복사');
+
+        /**
+         * 복사 버튼 클릭 시 운영 주소를 앞에 붙인 전체 URL을 클립보드에 복사합니다.
+         * 경로만 복사하면 호출에 바로 쓸 수 없어 주소를 합쳐서 넣습니다.
+         */
+        button.addEventListener('click', () => {
+            const url = LOGOS_API_BASE_URL + pathEl.innerText.trim();
+
+            navigator.clipboard.writeText(url)
+                .then(() => showFeedback(button, '복사됨!'))
+                .catch(() => showFeedback(button, '복사 실패'));
+        });
+
+        endpoint.appendChild(button);
+    });
 });
 
 /**
@@ -43,10 +73,8 @@ function showFeedback(button, message) {
     const original = button.textContent;
     button.textContent = message;
     button.disabled = true;
-    button.classList.add('code-block__copy-btn--active');
     setTimeout(() => {
         button.textContent = original;
         button.disabled = false;
-        button.classList.remove('code-block__copy-btn--active');
     }, 1500);
 }
