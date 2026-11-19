@@ -1,5 +1,6 @@
 package io.github.logos_api.controller;
 
+import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
 import io.github.logos_api.service.LogosService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
 import java.util.LinkedHashMap;
@@ -80,6 +82,11 @@ public class ReadController {
 
         String query = q == null ? "" : q.trim();
         String selectedBook = book == null || book.isBlank() ? "" : book.trim();
+
+        String referenceUrl = referenceRedirect(query);
+        if (referenceUrl != null) {
+            return "redirect:" + referenceUrl;
+        }
         int safeOffset = Math.max(offset, 0);
 
         model.addAttribute("query", query);
@@ -129,6 +136,31 @@ public class ReadController {
         model.addAttribute("nextChapter", (idx >= 0 && idx < chapters.size() - 1) ? chapters.get(idx + 1) : null);
 
         return "read/chapter";
+    }
+
+    /**
+     * 검색어가 "요3:16" 같은 참조 표기이고 그 구절이 있으면 보낼 주소를 만듭니다.
+     * 참조를 아는 사람은 검색 결과 목록이 아니라 본문으로 바로 가려 하기 때문입니다.
+     *
+     * @param query 검색창에 들어온 문자열
+     * @return 보낼 주소. 참조가 아니거나 해당 구절이 없으면 null
+     */
+    private String referenceRedirect(String query) {
+        if (!logosService.isReadableReference(query)) {
+            return null;
+        }
+
+        List<LogosResponseDTO> verses = logosService.findByReference(query);
+        if (verses.isEmpty()) {
+            return null;
+        }
+
+        LogosResponseDTO first = verses.get(0);
+        return UriComponentsBuilder.fromPath("/read/{book}/{chapter}")
+                .fragment("v" + first.getVerse())
+                .buildAndExpand(first.getBook(), first.getChapter())
+                .encode()
+                .toUriString();
     }
 
     /**

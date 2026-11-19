@@ -2,11 +2,13 @@ package io.github.logos_api.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.github.logos_api.common.BibleReference;
 import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -66,6 +68,7 @@ public class LogosService {
                     .thenComparingInt(v -> verseStart(v.getVerse()));
 
     private Map<String, Map<Integer, List<Logos>>> bibleMap = new HashMap<>();
+    private Map<String, String> bookByAbbrev = Map.of();
     private List<Logos> allVerses = new ArrayList<>();
     private int totalVerseCount;
     private final Random random = new Random();
@@ -80,6 +83,12 @@ public class LogosService {
     public void init() throws IOException{
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.configure(JsonReadFeature.ALLOW_UNESCAPED_CONTROL_CHARS.mappedFeature(), true);
+
+        try (InputStream abbrevStream = new ClassPathResource("bible-abbrev.json").getInputStream()) {
+            bookByAbbrev = objectMapper.readValue(abbrevStream, new TypeReference<Map<String, String>>() {});
+        } catch (IOException e) {
+            log.error("책 약어 표를 읽지 못했습니다. 참조 조회에서 약어를 쓸 수 없습니다 - {}", e.getMessage());
+        }
 
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         Resource[] resources = resolver.getResources("classpath:bible/**/*.json");
@@ -221,6 +230,63 @@ public class LogosService {
         OLD_TESTAMENT_ORDER.stream().filter(bibleMap::containsKey).forEach(books::add);
         NEW_TESTAMENT_ORDER.stream().filter(bibleMap::containsKey).forEach(books::add);
         return books;
+    }
+
+    /**
+     * "요3:16", "요한복음 3:16-18", "요3" 같은 참조 표기로 구절을 찾습니다.
+     * 약어와 정식 이름을 모두 받고, 절을 지정하지 않으면 장 전체를 돌려줍니다.
+     *
+     * @param reference 참조 문자열
+     * @return 찾은 구절 목록. 형식이 틀렸거나 없는 참조이면 빈 목록
+     */
+    public List<LogosResponseDTO> findByReference(String reference){
+        return BibleReference.parse(reference)
+                .map(this::versesOf)
+                .orElseGet(List::of);
+    }
+
+    /**
+     * 참조 표기가 읽을 수 있는 형식인지 확인합니다. 해당 구절이 있는지까지는 보지 않습니다.
+     *
+     * @param reference 참조 문자열
+     * @return 형식이 맞으면 true
+     */
+    public boolean isReadableReference(String reference){
+        return BibleReference.parse(reference).isPresent();
+    }
+
+    /**
+     * 참조가 가리키는 절을 찾습니다. 책 이름은 정식 이름을 먼저 보고 없으면 약어 표로 해석합니다.
+     *
+     * @param reference 나눠 담긴 참조
+     * @return 참조에 들어가는 절 목록 (없으면 빈 목록)
+     */
+    private List<LogosResponseDTO> versesOf(BibleReference reference){
+        String book = bibleMap.containsKey(reference.getBook())
+                ? reference.getBook()
+                : bookByAbbrev.get(reference.getBook());
+
+        if (book == null) {
+            return List.of();
+        }
+
+        return getVerses(book, reference.getChapter()).stream()
+                .filter(v -> reference.contains(verseStart(v.getVerse())))
+                .map(LogosResponseDTO::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 참조가 가리키는 책의 정식 이름을 돌려줍니다. 웹에서 해당 장으로 보낼 때 씁니다.
+     *
+     * @param reference 참조 문자열
+     * @return 정식 책 이름. 읽을 수 없거나 등록되지 않은 책이면 빈 값
+     */
+    public Optional<String> resolveBookName(String reference){
+        return BibleReference.parse(reference)
+                .map(BibleReference::getBook)
+                .map(book -> bibleMap.containsKey(book) ? book : bookByAbbrev.get(book))
+                .filter(Objects::nonNull);
     }
 
     /**
