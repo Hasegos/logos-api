@@ -52,6 +52,11 @@ public class LogosService {
             "유다서", "요한계시록"
     );
 
+    /**
+     * 장 페이지 설명에 넣을 본문 조각의 최대 길이입니다.
+     */
+    private static final int DESCRIPTION_SNIPPET_LENGTH = 70;
+
     private static final Pattern VERSE_PATTERN = Pattern.compile("[0-9]+(-[0-9]+)?");
 
     /**
@@ -319,6 +324,42 @@ public class LogosService {
         }
 
         return Optional.of(Map.entry(nextBook, nextChapters.get(0)));
+    }
+
+    /**
+     * 장 페이지의 설명 문구를 만듭니다. 장마다 다른 문장이어야 검색 결과에서 구별됩니다.
+     *
+     * @param book    책 이름
+     * @param chapter 장 번호
+     * @return "창세기 1장 본문. 태초에 하나님이…" 형태의 문구. 장이 없으면 책과 장 번호만
+     */
+    public String describeChapter(String book, int chapter){
+        List<Logos> verses = getVerses(book, chapter);
+        String first = verses.isEmpty() || verses.get(0).getText() == null
+                ? ""
+                : verses.get(0).getText().strip();
+
+        return (book + " " + chapter + "장 본문. " + snippet(first)).strip();
+    }
+
+    /**
+     * 설명에 쓸 본문 조각을 만듭니다.
+     * 글자 수로만 자르면 단어 중간에서 끊겨 어색하므로, 한도 안의 마지막 공백까지만 남깁니다.
+     *
+     * @param text 자를 본문
+     * @return {@value #DESCRIPTION_SNIPPET_LENGTH}자 이하의 조각. 잘렸으면 말줄임표를 붙인다
+     */
+    private String snippet(String text){
+        if (text.length() <= DESCRIPTION_SNIPPET_LENGTH) {
+            return text;
+        }
+
+        String cut = text.substring(0, DESCRIPTION_SNIPPET_LENGTH);
+        int lastSpace = cut.lastIndexOf(' ');
+        if (lastSpace > DESCRIPTION_SNIPPET_LENGTH / 2) {
+            cut = cut.substring(0, lastSpace);
+        }
+        return cut.strip() + "…";
     }
 
     /**
