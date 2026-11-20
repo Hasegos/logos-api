@@ -21,6 +21,11 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class ApiKeyInterceptor implements HandlerInterceptor {
 
+    /**
+     * 401을 받은 쪽이 키를 다시 받을 수 있는 곳입니다.
+     */
+    private static final String REISSUE_HINT = "Issue a new key at https://logos-api.com";
+
     private final ApiKeyRepository apiKeyRepository;
 
     /**
@@ -50,6 +55,10 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     /**
      * API 인증 실패 시 클라이언트에게 에러 응답을 전송합니다.
      * 응답 상태 코드와 JSON 형식의 에러 메시지를 설정한 후 인터셉터 실행을 중단합니다.
+     * <p>
+     * 키를 잃어버렸거나 폐기된 키를 쓰는 쪽은 401만 받으면 돌아올 길을 모르고 같은 요청을 반복합니다.
+     * 어디서 다시 받는지를 {@code hint}로 같이 내려 재발급으로 이어지게 합니다.
+     * </p>
      *
      * @param response HTTP 응답 객체
      * @param message JSON 에러 응답에 포함될 메시지
@@ -60,7 +69,7 @@ public class ApiKeyInterceptor implements HandlerInterceptor {
     private boolean fail(HttpServletResponse response, String message, HttpStatus status) throws IOException {
         response.setStatus(status.value());
         response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"error\": \"" + message + "\"}");
+        response.getWriter().write("{\"error\": \"" + message + "\", \"hint\": \"" + REISSUE_HINT + "\"}");
 
         return false;
     }
