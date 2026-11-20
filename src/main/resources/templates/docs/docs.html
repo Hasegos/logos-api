@@ -211,6 +211,7 @@
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters</code></div>
                     <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters</code></pre>
                     <pre><code class="language-json">[1, 2, 3, 4, 5]</code></pre>
+                    <p class="docs__note">등록되지 않은 책 이름이면 404와 함께 어디서 책 목록을 볼 수 있는지 안내합니다.</p>
 
                     <h3>절 목록</h3>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters/{chapter}</code></div>
@@ -219,6 +220,7 @@
   {"verse": "1", "text": "..."},
   {"verse": "2", "text": "..."}
 ]</code></pre>
+                    <p class="docs__note">없는 책이나 장이면 404와 함께 어디서 장 번호를 볼 수 있는지 안내합니다.</p>
                 </section>
 
                 <section class="docs__section" id="search" data-section="search">

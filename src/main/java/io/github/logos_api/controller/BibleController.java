@@ -13,6 +13,10 @@ import java.util.List;
 
 /**
  * 책/장/절 단위 구조적 탐색을 위한 REST 컨트롤러입니다.
+ * <p>
+ * 없는 책이나 장인지는 {@link LogosService}가 판정해 예외로 알리고,
+ * 상태 코드와 응답 형태는 전역 예외 처리기가 정합니다.
+ * </p>
  */
 @RestController
 @RequestMapping("/api/books")
@@ -36,12 +40,12 @@ public class BibleController {
      * 지정한 책에 존재하는 장 번호 목록을 반환합니다.
      *
      * @param book 책 이름
-     * @return 장 번호 목록
+     * @return 장 번호 목록. 등록되지 않은 책이면 404
      */
     @Operation(summary = "장 목록", description = "지정한 책에 있는 장 번호를 돌려줍니다.")
     @GetMapping("/{book}/chapters")
     public List<Integer> chapters(@PathVariable String book){
-        return logosService.getChapters(book);
+        return logosService.requireChapters(book);
     }
 
     /**
@@ -49,12 +53,12 @@ public class BibleController {
      *
      * @param book    책 이름
      * @param chapter 장 번호
-     * @return 절 목록 (절 번호 + 본문)
+     * @return 절 목록 (절 번호 + 본문). 등록되지 않은 책이거나 없는 장이면 404
      */
     @Operation(summary = "장 본문", description = "지정한 장의 절 번호와 본문을 돌려줍니다.")
     @GetMapping("/{book}/chapters/{chapter}")
     public List<ChapterVerseResponseDTO> verses(@PathVariable String book,
-                                               @PathVariable int chapter){
-        return logosService.getChapterVerses(book, chapter);
+                                                @PathVariable int chapter){
+        return logosService.requireChapterVerses(book, chapter);
     }
 }
