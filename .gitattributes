@@ -1,2 +1,5 @@
 /mvnw text eol=lf
 *.cmd text eol=crlf
+# 받아 온 파일은 바이트를 그대로 둔다. 줄바꿈이 바뀌면 배포처가 공개한 해시와 달라져 검증할 수 없다.
+src/main/resources/static/js/vendor/** -text
+src/main/resources/static/css/vendor/** -text

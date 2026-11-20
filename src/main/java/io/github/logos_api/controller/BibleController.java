@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 책/장/절 단위 구조적 탐색을 위한 REST 컨트롤러입니다.
@@ -56,8 +55,6 @@ public class BibleController {
     @GetMapping("/{book}/chapters/{chapter}")
     public List<ChapterVerseResponseDTO> verses(@PathVariable String book,
                                                @PathVariable int chapter){
-        return logosService.getVerses(book, chapter).stream()
-                .map(ChapterVerseResponseDTO::from)
-                .collect(Collectors.toList());
+        return logosService.getChapterVerses(book, chapter);
     }
 }
