@@ -71,6 +71,35 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 요청한 자원이 없을 때를 처리한다. (404)
+     * <p>
+     * 어떤 자원이 왜 없는지는 판정한 서비스가 메시지로 알려주므로 그대로 내보낸다.
+     * 주소 자체가 없는 경우와 달리 호출한 쪽이 고칠 수 있는 입력 오류이므로,
+     * 다음에 볼 곳을 담은 메시지를 그대로 전달하는 것이 핵심이다.
+     * API 경로: JSON 에러 응답 반환
+     * 그 외 경로: 에러 페이지 렌더링
+     * </p>
+     *
+     * @param request HTTP 요청 객체
+     * @param e       발생한 예외
+     * @param model   에러 정보를 뷰에 전달하기 위한 모델
+     * @return API 요청 시 JSON 응답, 그 외 에러 뷰 이름
+     */
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public Object handleResourceNotFound(HttpServletRequest request, ResourceNotFoundException e, Model model) {
+        log.info("[404] ip={} uri={} 사유={}", ClientIpResolver.resolve(request), LogSanitizer.sanitize(request.getRequestURI()), e.getMessage());
+        if (isApiRequest(request)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Not Found", "message", e.getMessage()));
+        }
+        model.addAttribute("status", 404);
+        model.addAttribute("title", "페이지를 찾을 수 없습니다");
+        model.addAttribute("message", e.getMessage());
+        return "error/error";
+    }
+
+    /**
      * 경로 변수/파라미터의 타입이 맞지 않는 경우를 처리한다. (400)
      * <p>
      * 예: {@code /read/창세기/abc}처럼 장 번호 자리에 숫자가 아닌 값이 들어온 경우.
