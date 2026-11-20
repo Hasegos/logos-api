@@ -6,7 +6,14 @@
         pageDescription=${description},
         canonicalUrl=|https://logos-api.com/read/${book}/${chapter}|,
         pageCssPath='/css/page/read.css',
-        ogImage=|https://logos-api.com/og/read/${book}/${chapter}.png|)}"></th:block>
+        ogImage=|https://logos-api.com/og/read/${book}/${chapter}.png|,
+        ogType='article')}"></th:block>
+
+    <meta property="article:section" th:content="${book}">
+    <link th:if="${prevChapter != null}" rel="prev"
+          th:href="@{'/read/' + ${book} + '/' + ${prevChapter}}">
+    <link th:if="${nextChapter != null}" rel="next"
+          th:href="@{'/read/' + ${book} + '/' + ${nextChapter}}">
     <script type="application/ld+json" th:inline="javascript">
         {
             "@context": "https://schema.org",
@@ -24,6 +31,18 @@
                 "@type": "Book",
                 "name": [[${book}]]
             }
+        }
+    </script>
+    <script type="application/ld+json" th:inline="javascript">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "홈", "item": "https://logos-api.com/"},
+                {"@type": "ListItem", "position": 2, "name": "성경 읽기", "item": "https://logos-api.com/read"},
+                {"@type": "ListItem", "position": 3, "name": [[${book}]], "item": [[${'https://logos-api.com/read#book-' + book}]]},
+                {"@type": "ListItem", "position": 4, "name": [[${chapter + '장'}]]}
+            ]
         }
     </script>
 </head>

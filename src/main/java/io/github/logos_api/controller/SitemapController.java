@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.util.UriUtils;
 
+import java.time.LocalDate;
+
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -23,6 +25,12 @@ public class SitemapController {
     private static final String BASE_URL = "https://logos-api.com";
     private static final String CHANGE_FREQ_WEEKLY = "weekly";
     private static final String CHANGE_FREQ_YEARLY = "yearly";
+
+    /**
+     * 본문과 화면은 배포할 때만 바뀌므로, 애플리케이션이 뜬 날짜를 마지막 수정일로 쓴다.
+     * 크롤러가 변경 여부를 판단할 수 있어야 1,189개 장 페이지를 다시 훑는 주기가 짧아진다.
+     */
+    private static final String LAST_MODIFIED = LocalDate.now().toString();
 
     private final LogosService logosService;
 
@@ -63,6 +71,7 @@ public class SitemapController {
     private String url(String loc, String changefreq, String priority) {
         return "<url>"
                 + "<loc>" + escapeXml(loc) + "</loc>"
+                + "<lastmod>" + LAST_MODIFIED + "</lastmod>"
                 + "<changefreq>" + changefreq + "</changefreq>"
                 + "<priority>" + priority + "</priority>"
                 + "</url>";

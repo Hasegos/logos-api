@@ -1,4 +1,4 @@
-<th:block th:fragment="head(pageTitle, pageDescription, canonicalUrl, pageCssPath, ogImage)">
+<th:block th:fragment="head(pageTitle, pageDescription, canonicalUrl, pageCssPath, ogImage, ogType)">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="naver-site-verification" content="9aa1d0e2573451ab28cbf8329a797e445c6b622f">
@@ -9,7 +9,6 @@
             crossorigin="anonymous"></script>
 
     <!-- SEO -->
-    <meta name="keywords" content="성경 API, Bible API, 성경 구절, 개역개정, 무료 API">
     <meta name="description" th:content="${pageDescription}">
 
     <!-- Canonical -->
@@ -17,7 +16,7 @@
 
     <!-- OG -->
     <meta property="og:site_name" content="Logos API">
-    <meta property="og:type" content="website">
+    <meta property="og:type" th:content="${ogType} ?: 'website'">
     <meta property="og:title" th:content="${pageTitle}">
     <meta property="og:description" th:content="${pageDescription}">
     <meta property="og:url" th:content="${canonicalUrl}">

@@ -206,9 +206,26 @@ public class ReadController {
      */
     static String chapterDescription(String book, int chapter, List<Logos> verses) {
         String first = verses.get(0).getText() == null ? "" : verses.get(0).getText().strip();
-        String snippet = first.length() > DESCRIPTION_SNIPPET_LENGTH
-                ? first.substring(0, DESCRIPTION_SNIPPET_LENGTH) + "…"
-                : first;
-        return (book + " " + chapter + "장 본문. " + snippet).strip();
+        return (book + " " + chapter + "장 본문. " + snippet(first)).strip();
+    }
+
+    /**
+     * 검색 결과에 보일 본문 조각을 만든다.
+     * 글자 수로만 자르면 단어 중간에서 끊겨 어색하므로, 한도 안의 마지막 공백까지만 남긴다.
+     *
+     * @param text 자를 본문
+     * @return {@value #DESCRIPTION_SNIPPET_LENGTH}자 이하의 조각. 잘렸으면 말줄임표를 붙인다
+     */
+    private static String snippet(String text) {
+        if (text.length() <= DESCRIPTION_SNIPPET_LENGTH) {
+            return text;
+        }
+
+        String cut = text.substring(0, DESCRIPTION_SNIPPET_LENGTH);
+        int lastSpace = cut.lastIndexOf(' ');
+        if (lastSpace > DESCRIPTION_SNIPPET_LENGTH / 2) {
+            cut = cut.substring(0, lastSpace);
+        }
+        return cut.strip() + "…";
     }
 }
