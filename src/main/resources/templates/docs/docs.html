@@ -5,7 +5,7 @@
         pageTitle='Logos API 문서 - 성경 구절 API 사용법',
         pageDescription='Logos API 인증 방법, 요청/응답 형식, curl・JavaScript・Java 예제와 속도 제한 정책을 안내합니다.',
         canonicalUrl='https://logos-api.com/docs',
-        pageCssPath='/css/page/docs.css', ogImage=null)}"></th:block>
+        pageCssPath='/css/page/docs.css', ogImage=null, ogType=null)}"></th:block>
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -27,6 +27,16 @@
                         "text": "개인/교육/연구 목적의 비상업적 사용은 무료입니다."
                     }
                 }
+            ]
+        }
+    </script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "홈", "item": "https://logos-api.com/"},
+                {"@type": "ListItem", "position": 2, "name": "API 문서"}
             ]
         }
     </script>
