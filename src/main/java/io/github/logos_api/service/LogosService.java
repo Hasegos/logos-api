@@ -3,6 +3,7 @@ package io.github.logos_api.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.logos_api.common.BibleReference;
+import io.github.logos_api.dto.ChapterVerseResponseDTO;
 import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
@@ -51,6 +52,12 @@ public class LogosService {
             "야고보서", "베드로전서", "베드로후서", "요한1서", "요한2서", "요한3서",
             "유다서", "요한계시록"
     );
+
+    /**
+     * 장 페이지 설명에 넣을 본문 조각의 최대 길이입니다.
+     * 검색 결과에 보이는 설명이 대략 155자까지라, 책 이름과 장 번호를 앞에 붙이고도 남는 만큼을 본문으로 채웁니다.
+     */
+    private static final int DESCRIPTION_SNIPPET_LENGTH = 120;
 
     private static final Pattern VERSE_PATTERN = Pattern.compile("[0-9]+(-[0-9]+)?");
 
@@ -319,6 +326,100 @@ public class LogosService {
         }
 
         return Optional.of(Map.entry(nextBook, nextChapters.get(0)));
+    }
+
+    /**
+     * 지정한 장의 절을 응답 형태로 돌려줍니다.
+     *
+     * @param book    책 이름
+     * @param chapter 장 번호
+     * @return 절 번호와 본문 목록
+     */
+    public List<ChapterVerseResponseDTO> getChapterVerses(String book, int chapter){
+        return getVerses(book, chapter).stream()
+                .map(ChapterVerseResponseDTO::from)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * 책마다 장이 몇 개인지 정경 순서로 돌려줍니다.
+     *
+     * @return 책 이름 -> 장 수
+     */
+    public Map<String, Integer> getChapterCounts(){
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        getAvailableBooks().forEach(book -> counts.put(book, getChapters(book).size()));
+        return counts;
+    }
+
+    /**
+     * 책마다 장 번호 목록을 정경 순서로 돌려줍니다.
+     *
+     * @return 책 이름 -> 장 번호 목록
+     */
+    public Map<String, List<Integer>> getChaptersByBook(){
+        Map<String, List<Integer>> chapters = new LinkedHashMap<>();
+        getAvailableBooks().forEach(book -> chapters.put(book, getChapters(book)));
+        return chapters;
+    }
+
+    /**
+     * 등록된 전체 장 수를 돌려줍니다. 읽기 진도의 분모로 씁니다.
+     *
+     * @return 전체 장 수
+     */
+    public int getTotalChapterCount(){
+        return getAvailableBooks().stream().mapToInt(book -> getChapters(book).size()).sum();
+    }
+
+    /**
+     * 장 페이지의 설명 문구를 만듭니다. 장마다 다른 문장이어야 검색 결과에서 구별됩니다.
+     *
+     * @param book    책 이름
+     * @param chapter 장 번호
+     * 첫 절이 짧으면 다음 절을 이어 붙여 검색 결과에 보이는 만큼을 채웁니다.
+     *
+     * @return "창세기 1장 본문. 태초에 하나님이…" 형태의 문구. 장이 없으면 책과 장 번호만
+     */
+    public String describeChapter(String book, int chapter){
+        StringBuilder body = new StringBuilder();
+
+        for (Logos verse : getVerses(book, chapter)) {
+            if (verse.getText() == null || verse.getText().isBlank()) {
+                continue;
+            }
+            if (body.length() > 0) {
+                body.append(' ');
+            }
+            body.append(verse.getText().strip());
+
+            // 첫 절이 짧으면 설명이 한 줄도 안 되므로 한도를 넘길 때까지 다음 절을 이어 붙인다.
+            if (body.length() >= DESCRIPTION_SNIPPET_LENGTH) {
+                break;
+            }
+        }
+
+        return (book + " " + chapter + "장 본문. " + snippet(body.toString())).strip();
+    }
+
+    /**
+     * 설명에 쓸 본문 조각을 만듭니다.
+     * 글자 수로만 자르면 단어 중간에서 끊겨 어색하므로, 한도 안의 마지막 공백까지만 남깁니다.
+     *
+     * @param text 자를 본문
+     * @return {@value #DESCRIPTION_SNIPPET_LENGTH}자 이하의 조각. 잘렸으면 말줄임표를 붙인다
+     */
+    private String snippet(String text){
+        if (text.length() <= DESCRIPTION_SNIPPET_LENGTH) {
+            return text;
+        }
+
+        String cut = text.substring(0, DESCRIPTION_SNIPPET_LENGTH);
+        int lastSpace = cut.lastIndexOf(' ');
+        if (lastSpace > DESCRIPTION_SNIPPET_LENGTH / 2) {
+            cut = cut.substring(0, lastSpace);
+        }
+        return cut.strip() + "…";
     }
 
     /**

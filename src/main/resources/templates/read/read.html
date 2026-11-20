@@ -2,10 +2,10 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: head(
-        pageTitle='개역개정 성경 읽기 - Logos API',
-        pageDescription='책과 장을 직접 선택해 원하는 성경 구절을 읽을 수 있습니다.',
+        pageTitle='개역개정 성경 읽기 - 66권 1,189장 전문 | Logos API',
+        pageDescription='개역개정 성경 66권 1,189장을 책과 장별로 읽습니다. 구절 검색과 참조 조회, 읽기 진도 기록을 함께 제공합니다.',
         canonicalUrl='https://logos-api.com/read',
-        pageCssPath='/css/page/read.css', ogImage=null)}"></th:block>
+        pageCssPath='/css/page/read.css', ogImage=null, ogType=null)}"></th:block>
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -19,6 +19,16 @@
                 "name": "Logos API",
                 "url": "https://logos-api.com/"
             }
+        }
+    </script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "홈", "item": "https://logos-api.com/"},
+                {"@type": "ListItem", "position": 2, "name": "성경 읽기"}
+            ]
         }
     </script>
 </head>

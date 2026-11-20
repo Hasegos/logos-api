@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle='성경 API 자바 연동 - 개역개정 구절 조회 예제 | Logos API',
+        pageDescription='자바에서 무료 성경 API를 쓰는 방법. HttpClient 와 Spring RestClient 로 랜덤 구절, 오늘의 말씀, 구절 검색, 참조 조회(요3:16)를 호출하는 예제와 오류 처리를 담았습니다.',
+        canonicalUrl='https://logos-api.com/docs/java',
+        pageCssPath='/css/page/docs.css', ogImage=null, ogType=null)}"></th:block>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "홈", "item": "https://logos-api.com/"},
+                {"@type": "ListItem", "position": 2, "name": "API 문서", "item": "https://logos-api.com/docs"},
+                {"@type": "ListItem", "position": 3, "name": "자바 연동"}
+            ]
+        }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/vendor/highlight-theme.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header(current='docs')}"></div>
+
+    <main class="page-main page-main--wide">
+        <div class="docs">
+            <a href="/docs" class="chapter-view__back">← API 문서로</a>
+            <h1>자바에서 성경 API 쓰기</h1>
+            <p class="docs__lead">개역개정 성경 구절을 자바에서 불러오는 방법입니다. JDK 11부터 들어간 <code>HttpClient</code> 만으로 되고, 스프링에서는 <code>RestClient</code> 가 더 짧습니다.</p>
+
+            <section class="docs__section">
+                <h2>1. 준비</h2>
+                <p><a href="/">메인 페이지</a>에서 API 키를 발급받습니다. 모든 요청에 <code>X-API-KEY</code> 헤더로 넣습니다. 의존성은 없어도 됩니다.</p>
+            </section>
+
+            <section class="docs__section">
+                <h2>2. 구절 하나 가져오기</h2>
+                <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse</code></div>
+                <pre><code class="language-java">import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
+
+public class LogosClient {
+
+    private static final String BASE_URL = "https://logos-api.com";
+    private static final String API_KEY = "발급받은_키";
+
+    private final HttpClient client = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(5))
+            .build();
+
+    public String randomVerse() throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(BASE_URL + "/api/verse"))
+                .header("X-API-KEY", API_KEY)
+                .GET()
+                .build();
+
+        HttpResponse&lt;String&gt; response =
+                client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new IllegalStateException("호출 실패: " + response.statusCode());
+        }
+        return response.body();
+    }
+}</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>3. 스프링에서는 RestClient</h2>
+                <pre><code class="language-java">import org.springframework.web.client.RestClient;
+
+@Service
+public class BibleService {
+
+    private final RestClient restClient = RestClient.builder()
+            .baseUrl("https://logos-api.com")
+            .defaultHeader("X-API-KEY", "발급받은_키")
+            .build();
+
+    public VerseResponse today() {
+        return restClient.get()
+                .uri("/api/verse/today")
+                .retrieve()
+                .body(VerseResponse.class);
+    }
+
+    public VerseResponse byReference(String ref) {
+        return restClient.get()
+                .uri(builder -> builder.path("/api/verse").queryParam("ref", ref).build())
+                .retrieve()
+                .body(VerseResponse.class);
+    }
+}
+
+public record VerseResponse(String book, String chapter, String verse,
+                            String text, String reference) {
+}</code></pre>
+                <p class="docs__note"><code>ref</code> 에 절 범위(<code>요3:16-18</code>)나 장 전체(<code>시23</code>)를 주면 응답이 배열이므로 <code>List&lt;VerseResponse&gt;</code> 로 받습니다.</p>
+            </section>
+
+            <section class="docs__section">
+                <h2>4. 구절 검색</h2>
+                <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/search?q=사랑&amp;limit=20&amp;offset=0</code></div>
+                <pre><code class="language-java">public SearchResponse search(String keyword, int limit, int offset) {
+    return restClient.get()
+            .uri(builder -> builder.path("/api/search")
+                    .queryParam("q", keyword)
+                    .queryParam("limit", limit)
+                    .queryParam("offset", offset)
+                    .build())
+            .retrieve()
+            .body(SearchResponse.class);
+}
+
+public record SearchResponse(String query, int total, int offset, int limit,
+                             Map&lt;String, Integer&gt; books,
+                             List&lt;VerseResponse&gt; results) {
+}</code></pre>
+                <p><code>books</code> 는 책마다 몇 건인지를 건수가 많은 순으로 담습니다. 책 필터와 무관하게 전체 기준입니다.</p>
+            </section>
+
+            <section class="docs__section">
+                <h2>5. 책 · 장 · 절 훑기</h2>
+                <pre><code class="language-java">List&lt;String&gt; books = restClient.get()
+        .uri("/api/books")
+        .retrieve()
+        .body(new ParameterizedTypeReference&lt;&gt;() {});
+
+List&lt;Integer&gt; chapters = restClient.get()
+        .uri("/api/books/{book}/chapters", "요한복음")
+        .retrieve()
+        .body(new ParameterizedTypeReference&lt;&gt;() {});
+
+List&lt;ChapterVerse&gt; verses = restClient.get()
+        .uri("/api/books/{book}/chapters/{chapter}", "요한복음", 3)
+        .retrieve()
+        .body(new ParameterizedTypeReference&lt;&gt;() {});
+
+public record ChapterVerse(String verse, String text) {
+}</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>6. 오류와 속도 제한</h2>
+                <div class="docs__table-wrap">
+                    <table class="docs__table">
+                        <thead>
+                        <tr><th>상태</th><th>뜻</th><th>대응</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><code>401</code></td><td>키가 없거나 폐기됨</td><td>메인 페이지에서 재발급</td></tr>
+                        <tr><td><code>400</code></td><td>검색어가 2자 미만, 참조 형식 오류</td><td>입력값 확인</td></tr>
+                        <tr><td><code>404</code></td><td>해당 구절 없음</td><td>참조 확인</td></tr>
+                        <tr><td><code>429</code></td><td>요청이 너무 잦음 (IP당 분당 60회)</td><td><code>X-RateLimit-Retry-After</code> 초만큼 대기</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <pre><code class="language-java">restClient.get()
+        .uri("/api/verse")
+        .retrieve()
+        .onStatus(status -> status.value() == 429, (request, response) -> {
+            String retryAfter = response.getHeaders().getFirst("X-RateLimit-Retry-After");
+            throw new IllegalStateException(retryAfter + "초 뒤에 다시 시도하세요");
+        })
+        .body(VerseResponse.class);</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>7. 다른 언어</h2>
+                <p>
+                    <a href="/docs/python">파이썬 연동</a> ·
+                    <a href="/docs/javascript">자바스크립트 연동</a> ·
+                    <a href="/docs">전체 문서</a>
+                </p>
+                <p class="docs__note">기계가 읽는 스펙은 <code>/v3/api-docs</code> 에 있습니다. OpenAPI 스펙으로 클라이언트 코드를 생성할 수도 있습니다. 운영시간은 08:00 ~ 22:00 (KST)입니다.</p>
+            </section>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/vendor/highlight.min.js}"></script>
+    <script th:src="@{/js/highlight-init.js}"></script>
+    <script th:src="@{/js/copy-code.js}"></script>
+</body>
+</html>

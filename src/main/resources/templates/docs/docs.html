@@ -2,10 +2,10 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/head :: head(
-        pageTitle='Logos API 문서 - 성경 구절 API 사용법',
-        pageDescription='Logos API 인증 방법, 요청/응답 형식, curl・JavaScript・Java 예제와 속도 제한 정책을 안내합니다.',
+        pageTitle='성경 API 문서 - 개역개정 구절 조회·검색 사용법 | Logos API',
+        pageDescription='무료 성경 API 레퍼런스. 엔드포인트와 파라미터, 응답 형식, X-API-KEY 인증, 오류 응답과 속도 제한을 curl 예제와 함께 정리했습니다. 자바 · 자바스크립트 · 파이썬 연동 가이드도 제공합니다.',
         canonicalUrl='https://logos-api.com/docs',
-        pageCssPath='/css/page/docs.css', ogImage=null)}"></th:block>
+        pageCssPath='/css/page/docs.css', ogImage=null, ogType=null)}"></th:block>
     <script type="application/ld+json">
         {
             "@context": "https://schema.org",
@@ -30,6 +30,17 @@
             ]
         }
     </script>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "홈", "item": "https://logos-api.com/"},
+                {"@type": "ListItem", "position": 2, "name": "API 문서"}
+            ]
+        }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/vendor/highlight-theme.css}">
 </head>
 <body>
     <div th:replace="~{fragments/header :: header(current='docs')}"></div>
@@ -47,11 +58,32 @@
                 <a class="toc__link" href="#errors" data-section="errors">8. 오류 응답</a>
                 <a class="toc__link" href="#rate" data-section="rate">9. 속도 제한</a>
                 <a class="toc__link" href="#license" data-section="license">10. 라이선스</a>
+
+                <span class="toc__group">언어별 예제</span>
+                <a class="toc__link" href="/docs/java">자바</a>
+                <a class="toc__link" href="/docs/javascript">자바스크립트</a>
+                <a class="toc__link" href="/docs/python">파이썬</a>
             </nav>
 
             <div class="docs">
                 <h1>Logos API 문서</h1>
-                <p class="docs__lead">개역개정 성경 구절을 무료로 제공하는 REST API입니다.</p>
+                <p class="docs__lead">개역개정 성경 구절을 무료로 제공하는 REST API입니다. 이 문서는 엔드포인트와 파라미터, 응답과 오류를 다루는 레퍼런스이고 예제는 curl 로 보여 줍니다. 쓰는 언어로 된 전체 코드는 아래 연동 가이드에 있습니다.</p>
+
+                <p class="docs__langs-label">언어별 연동 가이드</p>
+                <div class="docs__langs">
+                    <a class="docs__lang" href="/docs/java">
+                        <span class="docs__lang-name">자바</span>
+                        <span class="docs__lang-desc">HttpClient · 스프링 RestClient</span>
+                    </a>
+                    <a class="docs__lang" href="/docs/javascript">
+                        <span class="docs__lang-name">자바스크립트</span>
+                        <span class="docs__lang-desc">fetch · Node.js 중계</span>
+                    </a>
+                    <a class="docs__lang" href="/docs/python">
+                        <span class="docs__lang-name">파이썬</span>
+                        <span class="docs__lang-desc">requests · 재시도 처리</span>
+                    </a>
+                </div>
 
                 <section class="docs__section" id="overview" data-section="overview">
                     <h2>1. API 개요</h2>
@@ -122,37 +154,17 @@
                     <p class="docs__note">약어는 <code>창</code> <code>출</code> <code>삼상</code> <code>고전</code> <code>살후</code> <code>요일</code>처럼 통용되는 66권 표기를 씁니다. 형식을 읽을 수 없으면 400, 해당 구절이 없으면 404로 응답합니다. 참조 조회 응답은 내용이 고정이라 하루 캐싱되고, 무작위 구절은 3초만 캐싱됩니다.</p>
 
                     <h3>curl</h3>
-                    <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse</code></pre>
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse</code></pre>
 
-                    <h3>JavaScript</h3>
-                    <pre><code>const apiKey = 'your_api_key_here';
-
-    fetch('https://logos-api.com/api/verse', {
-        method: 'GET',
-        headers: { 'X-API-KEY': apiKey }
-    })
-    .then(res => res.json())
-    .then(data => console.log(data.text));</code></pre>
-
-                    <h3>Java</h3>
-                    <pre><code>HttpClient client = HttpClient.newHttpClient();
-    HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create("https://logos-api.com/api/verse"))
-            .header("X-API-KEY", "your_api_key_here")
-            .GET()
-            .build();
-
-    HttpResponse&lt;String&gt; response =
-            client.send(request, HttpResponse.BodyHandlers.ofString());</code></pre>
 
                     <h3>응답</h3>
-                    <pre><code>{
-      "book": "골로새서",
-      "chapter": "3",
-      "verse": "23",
-      "text": "무엇을 하든지 마음을 다하여 주께 하듯 하고 사람에게 하듯 하지 말라",
-      "reference": "골로새서 3:23"
-    }</code></pre>
+                    <pre><code class="language-json">{
+  "book": "골로새서",
+  "chapter": "3",
+  "verse": "23",
+  "text": "무엇을 하든지 마음을 다하여 주께 하듯 하고 사람에게 하듯 하지 말라",
+  "reference": "골로새서 3:23"
+}</code></pre>
                 </section>
 
                 <section class="docs__section" id="today" data-section="today">
@@ -162,17 +174,16 @@
                     <p class="docs__note">파라미터가 없습니다. 같은 날에는 누가 호출해도 같은 구절을 돌려줍니다.</p>
 
                     <h3>curl</h3>
-                    <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse/today</code></pre>
-                    <p class="docs__note">JavaScript・Java 호출 방식은 위 랜덤 구절 예제와 동일합니다 — URL만 <code>/api/verse/today</code>로 바꾸면 됩니다.</p>
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/verse/today</code></pre>
 
                     <h3>응답</h3>
-                    <pre><code>{
-      "book": "시편",
-      "chapter": "23",
-      "verse": "1",
-      "text": "여호와는 나의 목자시니 내게 부족함이 없으리로다",
-      "reference": "시편 23:1"
-    }</code></pre>
+                    <pre><code class="language-json">{
+  "book": "시편",
+  "chapter": "23",
+  "verse": "1",
+  "text": "여호와는 나의 목자시니 내게 부족함이 없으리로다",
+  "reference": "시편 23:1"
+}</code></pre>
                 </section>
 
                 <section class="docs__section" id="browse" data-section="browse">
@@ -193,22 +204,21 @@
 
                     <h3>책 목록</h3>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books</code></div>
-                    <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books</code></pre>
-                    <pre><code>["창세기", "사도행전", "..."]</code></pre>
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books</code></pre>
+                    <pre><code class="language-json">["창세기", "사도행전", "..."]</code></pre>
 
                     <h3>장 목록</h3>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters</code></div>
-                    <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters</code></pre>
-                    <pre><code>[1, 2, 3, 4, 5]</code></pre>
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters</code></pre>
+                    <pre><code class="language-json">[1, 2, 3, 4, 5]</code></pre>
 
                     <h3>절 목록</h3>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters/{chapter}</code></div>
-                    <pre><code>curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters/1</code></pre>
-                    <pre><code>[
-      {"verse": "1", "text": "..."},
-      {"verse": "2", "text": "..."}
-    ]</code></pre>
-                    <p class="docs__note">JavaScript・Java 호출 방식은 위 랜덤 구절 예제와 동일합니다 — URL만 바꾸면 됩니다.</p>
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters/1</code></pre>
+                    <pre><code class="language-json">[
+  {"verse": "1", "text": "..."},
+  {"verse": "2", "text": "..."}
+]</code></pre>
                 </section>
 
                 <section class="docs__section" id="search" data-section="search">
@@ -230,25 +240,25 @@
                     </div>
 
                     <h3>curl</h3>
-                    <pre><code>curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/search?q=%EC%82%AC%EB%9E%91&amp;limit=2"</code></pre>
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/search?q=%EC%82%AC%EB%9E%91&amp;limit=2"</code></pre>
 
                     <h3>응답</h3>
-                    <pre><code>{
-      "query": "사랑",
-      "total": 557,
-      "offset": 0,
-      "limit": 2,
-      "books": { "창세기": 13, "시편": 32, "요한1서": 30 },
-      "results": [
-        {
-          "book": "창세기",
-          "chapter": "22",
-          "verse": "2",
-          "text": "여호와께서 이르시되 네 아들 네 사랑하는 독자 이삭을 데리고 ...",
-          "reference": "창세기 22:2"
-        }
-      ]
-    }</code></pre>
+                    <pre><code class="language-json">{
+  "query": "사랑",
+  "total": 557,
+  "offset": 0,
+  "limit": 2,
+  "books": { "창세기": 13, "시편": 32, "요한1서": 30 },
+  "results": [
+    {
+      "book": "창세기",
+      "chapter": "22",
+      "verse": "2",
+      "text": "여호와께서 이르시되 네 아들 네 사랑하는 독자 이삭을 데리고 ...",
+      "reference": "창세기 22:2"
+    }
+  ]
+}</code></pre>
                     <p class="docs__note"><code>books</code>는 책마다 검색어가 몇 번 나오는지를 건수가 많은 순으로 담습니다. <code>book</code> 필터와 무관하게 항상 전체 기준이라, 어느 책을 볼지 고르는 데 쓸 수 있습니다. 결과는 정경 순서(창세기 → 요한계시록) · 장 · 절 순으로 정렬됩니다. 웹에서는 <a href="/read/search">구절 검색 페이지</a>로 바로 쓸 수 있습니다.</p>
                 </section>
 
@@ -272,13 +282,13 @@
                     </div>
 
                     <h3>예시</h3>
-                    <pre><code>curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/verse?ref=요한복음"
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/verse?ref=요한복음"
 
-    HTTP/1.1 400 Bad Request
-    {
-      "error": "Bad Request",
-      "message": "참조 형식을 읽을 수 없습니다. 예: 요3:16, 요한복음 3:16-18, 요3"
-    }</code></pre>
+HTTP/1.1 400 Bad Request
+{
+  "error": "Bad Request",
+  "message": "참조 형식을 읽을 수 없습니다. 예: 요3:16, 요한복음 3:16-18, 요3"
+}</code></pre>
                     <p class="docs__note">429 응답에는 <code>X-RateLimit-Retry-After</code> 헤더로 다시 시도할 수 있는 시간(초)이 함께 옵니다. 정상 응답에는 <code>X-Rate-Limit-Remaining</code> 으로 남은 요청 수가 옵니다.</p>
                 </section>
 
@@ -305,6 +315,8 @@
 
     <div th:replace="~{fragments/footer :: footer}"></div>
 
+    <script th:src="@{/js/vendor/highlight.min.js}"></script>
+    <script th:src="@{/js/highlight-init.js}"></script>
     <script th:src="@{/js/copy-code.js}"></script>
     <script th:src="@{/js/docs.js}"></script>
 </body>

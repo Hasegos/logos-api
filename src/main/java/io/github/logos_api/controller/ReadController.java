@@ -19,9 +19,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 책/장/절을 직접 탐색하며 읽는 "성경 읽기" 페이지를 처리하는 컨트롤러입니다.
@@ -32,7 +30,6 @@ import java.util.Map;
 public class ReadController {
 
     private static final String PAGE_CACHE_CONTROL = CacheControl.maxAge(Duration.ofHours(1)).cachePublic().getHeaderValue();
-    private static final int DESCRIPTION_SNIPPET_LENGTH = 70;
     private static final int SEARCH_PAGE_SIZE = 20;
     private static final int SEARCH_MIN_QUERY_LENGTH = 2;
 
@@ -49,13 +46,8 @@ public class ReadController {
      */
     @GetMapping
     public String list(Model model, HttpServletResponse response){
-        Map<String, List<String>> bookByTestament = logosService.getAvailableBooksByTestament();
-        Map<String, List<Integer>> chaptersByBook = new LinkedHashMap<>();
-        bookByTestament.values().forEach(books ->
-                books.forEach(book -> chaptersByBook.put(book, logosService.getChapters(book)))
-        );
-        model.addAttribute("booksByTestament", bookByTestament);
-        model.addAttribute("chaptersByBook", chaptersByBook);
+        model.addAttribute("booksByTestament", logosService.getAvailableBooksByTestament());
+        model.addAttribute("chaptersByBook", logosService.getChaptersByBook());
         response.setHeader(HttpHeaders.CACHE_CONTROL, PAGE_CACHE_CONTROL);
 
         return "read/read";
@@ -76,15 +68,9 @@ public class ReadController {
     public String plan(Model model, HttpServletResponse response){
         response.setHeader("X-Robots-Tag", "noindex, follow");
 
-        Map<String, List<String>> booksByTestament = logosService.getAvailableBooksByTestament();
-        Map<String, Integer> chapterCounts = new LinkedHashMap<>();
-        booksByTestament.values().forEach(books ->
-                books.forEach(book -> chapterCounts.put(book, logosService.getChapters(book).size()))
-        );
-
-        model.addAttribute("booksByTestament", booksByTestament);
-        model.addAttribute("chapterCounts", chapterCounts);
-        model.addAttribute("totalChapters", chapterCounts.values().stream().mapToInt(Integer::intValue).sum());
+        model.addAttribute("booksByTestament", logosService.getAvailableBooksByTestament());
+        model.addAttribute("chapterCounts", logosService.getChapterCounts());
+        model.addAttribute("totalChapters", logosService.getTotalChapterCount());
 
         return "read/plan";
     }
@@ -159,7 +145,7 @@ public class ReadController {
         model.addAttribute("book", book);
         model.addAttribute("chapter", chapter);
         model.addAttribute("verses", verses);
-        model.addAttribute("description", chapterDescription(book, chapter, verses));
+        model.addAttribute("description", logosService.describeChapter(book, chapter));
         model.addAttribute("prevChapter", idx > 0 ? chapters.get(idx - 1) : null);
         model.addAttribute("nextChapter", (idx >= 0 && idx < chapters.size() - 1) ? chapters.get(idx + 1) : null);
 
@@ -196,19 +182,5 @@ public class ReadController {
                 .toUriString();
     }
 
-    /**
-     * 장 페이지의 meta description을 만든다. 첫 절의 앞 {@value #DESCRIPTION_SNIPPET_LENGTH}자를 붙이고, 더 길면 말줄임표로 끝낸다.
-     *
-     * @param book    책 이름
-     * @param chapter 장 번호
-     * @param verses  절 번호 순으로 정렬된 비어 있지 않은 절 목록
-     * @return 장마다 다른 description 문장
-     */
-    static String chapterDescription(String book, int chapter, List<Logos> verses) {
-        String first = verses.get(0).getText() == null ? "" : verses.get(0).getText().strip();
-        String snippet = first.length() > DESCRIPTION_SNIPPET_LENGTH
-                ? first.substring(0, DESCRIPTION_SNIPPET_LENGTH) + "…"
-                : first;
-        return (book + " " + chapter + "장 본문. " + snippet).strip();
-    }
+
 }
