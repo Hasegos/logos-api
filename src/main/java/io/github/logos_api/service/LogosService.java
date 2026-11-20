@@ -459,6 +459,21 @@ public class LogosService {
     }
 
     /**
+     * 데이터가 등록된 책의 실재하는 장 번호인지 확인합니다.
+     * <p>
+     * 없는 장을 빈 목록으로 돌려주면 호출한 쪽은 장 번호를 잘못 쓴 것인지 본문이 비어 있는 것인지
+     * 구분하지 못하므로, 응답을 나누려면 먼저 여기서 판정합니다.
+     * </p>
+     *
+     * @param book    책 이름
+     * @param chapter 장 번호
+     * @return 그 책에 해당 장이 있으면 true
+     */
+    public boolean isRegisteredChapter(String book, int chapter){
+        return getChapters(book).contains(chapter);
+    }
+
+    /**
      * 지정한 책의 특정 장에 속한 전체 절을 절 번호 순으로 반환합니다.
      *
      * @param book    책 이름
