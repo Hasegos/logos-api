@@ -42,6 +42,9 @@ public class SitemapService {
         sb.append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">");
         sb.append(url(BASE_URL + "/", CHANGE_FREQ_WEEKLY, "1.0"));
         sb.append(url(BASE_URL + "/docs", CHANGE_FREQ_WEEKLY, "0.8"));
+        sb.append(url(BASE_URL + "/docs/java", CHANGE_FREQ_WEEKLY, "0.8"));
+        sb.append(url(BASE_URL + "/docs/javascript", CHANGE_FREQ_WEEKLY, "0.8"));
+        sb.append(url(BASE_URL + "/docs/python", CHANGE_FREQ_WEEKLY, "0.8"));
         sb.append(url(BASE_URL + "/read", CHANGE_FREQ_WEEKLY, "0.7"));
         sb.append(url(BASE_URL + "/terms", CHANGE_FREQ_YEARLY, "0.3"));
         sb.append(url(BASE_URL + "/privacy", CHANGE_FREQ_YEARLY, "0.3"));

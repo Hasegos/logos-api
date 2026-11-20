@@ -200,3 +200,76 @@
         padding: 0.45rem 0.5rem;
     }
 }
+
+/* 목차 안의 묶음 제목. 언어별 예제처럼 다른 주소로 가는 묶음을 구분한다. */
+.toc__group {
+    display: block;
+    margin: 0.9rem 0 0.2rem;
+    padding: 0 0.6rem;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--border);
+    padding-top: 0.8rem;
+}
+
+.docs__langs-label {
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--ink);
+}
+
+/* 문서 첫 화면에서 바로 보이는 언어별 예제 입구 */
+.docs__langs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.6rem;
+    margin-bottom: 2rem;
+}
+
+.docs__lang {
+    display: block;
+    padding: 0.8rem 0.9rem;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--card);
+    text-decoration: none;
+}
+
+.docs__lang:hover {
+    border-color: var(--violet);
+}
+
+.docs__lang-name {
+    display: block;
+    color: var(--violet);
+    font-weight: 500;
+    font-size: 0.92rem;
+    margin-bottom: 0.2rem;
+}
+
+.docs__lang-desc {
+    display: block;
+    color: var(--ink-soft);
+    font-size: 0.78rem;
+}
+
+@media (max-width: 640px) {
+    .docs__langs {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* 목차 없이 본문만 있는 문서(언어별 가이드)는 폭을 제한해 한 줄이 너무 길어지지 않게 한다. */
+.page-main--wide > .docs {
+    width: 100%;
+    max-width: 940px;
+    margin: 0 auto;
+}
+
+/* 하이라이터 테마가 코드 영역 배경을 맡으므로 pre 는 테두리만 남긴다. */
+pre code.hljs {
+    padding: 0;
+    background: transparent;
+}
+

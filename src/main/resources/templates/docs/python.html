@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/head :: head(
+        pageTitle='성경 API 파이썬 연동 - 개역개정 구절 조회 예제 | Logos API',
+        pageDescription='파이썬에서 무료 성경 API를 쓰는 방법. requests 로 랜덤 구절, 오늘의 말씀, 구절 검색, 참조 조회(요3:16)를 호출하는 전체 예제와 오류 처리를 담았습니다.',
+        canonicalUrl='https://logos-api.com/docs/python',
+        pageCssPath='/css/page/docs.css', ogImage=null, ogType=null)}"></th:block>
+    <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {"@type": "ListItem", "position": 1, "name": "홈", "item": "https://logos-api.com/"},
+                {"@type": "ListItem", "position": 2, "name": "API 문서", "item": "https://logos-api.com/docs"},
+                {"@type": "ListItem", "position": 3, "name": "파이썬 연동"}
+            ]
+        }
+    </script>
+    <link rel="stylesheet" th:href="@{/css/vendor/highlight-theme.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/header :: header(current='docs')}"></div>
+
+    <main class="page-main page-main--wide">
+        <div class="docs">
+            <a href="/docs" class="chapter-view__back">← API 문서로</a>
+            <h1>파이썬에서 성경 API 쓰기</h1>
+            <p class="docs__lead">개역개정 성경 구절을 파이썬에서 불러오는 방법입니다. 표준 라이브러리만으로도 되고, <code>requests</code> 를 쓰면 더 짧습니다.</p>
+
+            <section class="docs__section">
+                <h2>1. 준비</h2>
+                <p><a href="/">메인 페이지</a>에서 API 키를 발급받습니다. 모든 요청에 <code>X-API-KEY</code> 헤더로 넣습니다.</p>
+                <pre><code class="language-bash">pip install requests</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>2. 구절 하나 가져오기</h2>
+                <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse</code></div>
+                <pre><code class="language-python">import requests
+
+API_KEY = "발급받은_키"
+BASE_URL = "https://logos-api.com"
+
+def random_verse():
+    response = requests.get(
+        f"{BASE_URL}/api/verse",
+        headers={"X-API-KEY": API_KEY},
+        timeout=5,
+    )
+    response.raise_for_status()
+    return response.json()
+
+verse = random_verse()
+print(verse["reference"], verse["text"])</code></pre>
+                <pre><code class="plaintext">요한복음 3:16 하나님이 세상을 이처럼 사랑하사 독생자를 주셨으니 ...</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>3. 오늘의 말씀</h2>
+                <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse/today</code></div>
+                <p>날짜 기준으로 고정됩니다. 같은 날에는 누가 호출해도 같은 구절이라 묵상 알림이나 봇에 쓰기 좋습니다.</p>
+                <pre><code class="language-python">def verse_of_the_day():
+    response = requests.get(
+        f"{BASE_URL}/api/verse/today",
+        headers={"X-API-KEY": API_KEY},
+        timeout=5,
+    )
+    response.raise_for_status()
+    return response.json()</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>4. 참조로 바로 찾기</h2>
+                <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/verse?ref=요3:16</code></div>
+                <p>약어와 정식 이름을 모두 받습니다. 절을 지정하지 않으면 그 장 전체가 배열로 옵니다.</p>
+                <pre><code class="language-python">def by_reference(ref):
+    response = requests.get(
+        f"{BASE_URL}/api/verse",
+        params={"ref": ref},
+        headers={"X-API-KEY": API_KEY},
+        timeout=5,
+    )
+    if response.status_code == 400:
+        raise ValueError("참조 형식을 읽을 수 없습니다: " + ref)
+    if response.status_code == 404:
+        raise LookupError("해당 구절이 없습니다: " + ref)
+    response.raise_for_status()
+    return response.json()
+
+print(by_reference("요3:16"))        # 구절 하나
+print(by_reference("요3:16-18"))     # 세 구절
+print(len(by_reference("시23")))     # 시편 23편 전체 절 수</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>5. 구절 검색</h2>
+                <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/search?q=사랑&amp;limit=20&amp;offset=0</code></div>
+                <p>본문에 검색어가 들어간 구절을 정경 순서로 돌려줍니다. 응답의 <code>books</code> 는 책마다 몇 건인지를 건수가 많은 순으로 담습니다.</p>
+                <pre><code class="language-python">def search(keyword, book=None, limit=20, offset=0):
+    params = {"q": keyword, "limit": limit, "offset": offset}
+    if book:
+        params["book"] = book
+
+    response = requests.get(
+        f"{BASE_URL}/api/search",
+        params=params,
+        headers={"X-API-KEY": API_KEY},
+        timeout=5,
+    )
+    response.raise_for_status()
+    return response.json()
+
+result = search("사랑")
+print(result["total"], "건")
+for verse in result["results"]:
+    print(verse["reference"], verse["text"])</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>6. 책 · 장 · 절 훑기</h2>
+                <pre><code class="language-python">books = requests.get(f"{BASE_URL}/api/books",
+                     headers={"X-API-KEY": API_KEY}).json()
+
+chapters = requests.get(f"{BASE_URL}/api/books/요한복음/chapters",
+                        headers={"X-API-KEY": API_KEY}).json()
+
+verses = requests.get(f"{BASE_URL}/api/books/요한복음/chapters/3",
+                      headers={"X-API-KEY": API_KEY}).json()</code></pre>
+                <p class="docs__note">책 이름은 정식 이름(<code>요한복음</code>)만 받습니다. 약어는 <code>ref</code> 파라미터에서만 됩니다.</p>
+            </section>
+
+            <section class="docs__section">
+                <h2>7. 오류와 속도 제한</h2>
+                <div class="docs__table-wrap">
+                    <table class="docs__table">
+                        <thead>
+                        <tr><th>상태</th><th>뜻</th><th>대응</th></tr>
+                        </thead>
+                        <tbody>
+                        <tr><td><code>401</code></td><td>키가 없거나 폐기됨</td><td>메인 페이지에서 재발급</td></tr>
+                        <tr><td><code>400</code></td><td>검색어가 2자 미만, 참조 형식 오류</td><td>입력값 확인</td></tr>
+                        <tr><td><code>404</code></td><td>해당 구절 없음</td><td>참조 확인</td></tr>
+                        <tr><td><code>429</code></td><td>요청이 너무 잦음 (IP당 분당 60회)</td><td><code>X-RateLimit-Retry-After</code> 초만큼 대기</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <pre><code class="language-python">import time
+
+def call_with_retry(path, params=None, retries=3):
+    for attempt in range(retries):
+        response = requests.get(
+            f"{BASE_URL}{path}",
+            params=params,
+            headers={"X-API-KEY": API_KEY},
+            timeout=5,
+        )
+        if response.status_code != 429:
+            response.raise_for_status()
+            return response.json()
+
+        wait = int(response.headers.get("X-RateLimit-Retry-After", 1))
+        time.sleep(wait)
+    raise RuntimeError("요청 한도를 넘었습니다")</code></pre>
+            </section>
+
+            <section class="docs__section">
+                <h2>8. 다른 언어</h2>
+                <p>
+                    <a href="/docs/java">자바 연동</a> ·
+                    <a href="/docs/javascript">자바스크립트 연동</a> ·
+                    <a href="/docs">전체 문서</a>
+                </p>
+                <p class="docs__note">기계가 읽는 스펙은 <code>/v3/api-docs</code> 에 있습니다. 운영시간은 08:00 ~ 22:00 (KST)입니다.</p>
+            </section>
+        </div>
+    </main>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+
+    <script th:src="@{/js/vendor/highlight.min.js}"></script>
+    <script th:src="@{/js/highlight-init.js}"></script>
+    <script th:src="@{/js/copy-code.js}"></script>
+</body>
+</html>
