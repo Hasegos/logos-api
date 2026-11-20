@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.logos_api.common.BibleReference;
 import io.github.logos_api.dto.ChapterVerseResponseDTO;
+import io.github.logos_api.common.exception.ResourceNotFoundException;
 import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
@@ -459,18 +460,40 @@ public class LogosService {
     }
 
     /**
-     * 데이터가 등록된 책의 실재하는 장 번호인지 확인합니다.
+     * 지정한 책의 장 번호 목록을 돌려주되, 등록되지 않은 책이면 예외를 던집니다.
      * <p>
-     * 없는 장을 빈 목록으로 돌려주면 호출한 쪽은 장 번호를 잘못 쓴 것인지 본문이 비어 있는 것인지
-     * 구분하지 못하므로, 응답을 나누려면 먼저 여기서 판정합니다.
+     * 없는 책을 빈 목록으로 돌려주면 호출한 쪽은 이름을 잘못 쓴 것인지 데이터가 없는 것인지
+     * 구분하지 못합니다. 있는지 없는지는 데이터를 가진 여기서만 알 수 있으므로 여기서 판정합니다.
+     * 화면에서 쓰는 {@link #getChapters(String)}는 빈 목록 그대로가 필요하므로 따로 둡니다.
      * </p>
+     *
+     * @param book 책 이름
+     * @return 장 번호 목록
+     * @throws ResourceNotFoundException 등록되지 않은 책 이름인 경우
+     */
+    public List<Integer> requireChapters(String book){
+        if (!isRegisteredBook(book)) {
+            throw new ResourceNotFoundException("등록되지 않은 책 이름입니다. 책 목록은 /api/books 에서 확인하세요.");
+        }
+        return getChapters(book);
+    }
+
+    /**
+     * 지정한 장의 절 목록을 돌려주되, 없는 책이나 장이면 예외를 던집니다.
      *
      * @param book    책 이름
      * @param chapter 장 번호
-     * @return 그 책에 해당 장이 있으면 true
+     * @return 절 목록 (절 번호 + 본문)
+     * @throws ResourceNotFoundException 등록되지 않은 책이거나 그 책에 없는 장인 경우
      */
-    public boolean isRegisteredChapter(String book, int chapter){
-        return getChapters(book).contains(chapter);
+    public List<ChapterVerseResponseDTO> requireChapterVerses(String book, int chapter){
+        if (!isRegisteredBook(book)) {
+            throw new ResourceNotFoundException("등록되지 않은 책 이름입니다. 책 목록은 /api/books 에서 확인하세요.");
+        }
+        if (!getChapters(book).contains(chapter)) {
+            throw new ResourceNotFoundException("그 책에 없는 장입니다. 장 번호는 /api/books/{책}/chapters 에서 확인하세요.");
+        }
+        return getChapterVerses(book, chapter);
     }
 
     /**
