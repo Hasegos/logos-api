@@ -1,5 +1,6 @@
 package io.github.logos_api.controller;
 
+import io.github.logos_api.dto.ErrorResponseDTO;
 import io.github.logos_api.service.ApiKeyService;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -52,7 +52,7 @@ public class ApiController {
         if (!isSafeOrigin(request)) {
             log.warn("[CSRF 의심] 허용되지 않은 Origin에서 키 발급 요청 - Origin: {}", request.getHeader("Origin"));
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body(Map.of("error", "Forbidden"));
+                    .body(ErrorResponseDTO.of(HttpStatus.FORBIDDEN.getReasonPhrase(), "허용되지 않은 요청입니다."));
         }
 
         String clientIp = apiKeyService.getClientIp(request);
@@ -62,7 +62,7 @@ public class ApiController {
             return ResponseEntity.ok(newKey);
         } catch (RuntimeException e){
             return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(Map.of("error", e.getMessage()));
+                    .body(ErrorResponseDTO.of(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), e.getMessage()));
         }
     }
 

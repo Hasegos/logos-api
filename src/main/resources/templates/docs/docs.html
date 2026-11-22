@@ -211,6 +211,7 @@
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters</code></div>
                     <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters</code></pre>
                     <pre><code class="language-json">[1, 2, 3, 4, 5]</code></pre>
+                    <p class="docs__note">등록되지 않은 책 이름이면 404와 함께 어디서 책 목록을 볼 수 있는지 안내합니다.</p>
 
                     <h3>절 목록</h3>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters/{chapter}</code></div>
@@ -219,6 +220,7 @@
   {"verse": "1", "text": "..."},
   {"verse": "2", "text": "..."}
 ]</code></pre>
+                    <p class="docs__note">없는 책이나 장이면 404와 함께 어디서 장 번호를 볼 수 있는지 안내합니다.</p>
                 </section>
 
                 <section class="docs__section" id="search" data-section="search">
@@ -264,7 +266,9 @@
 
                 <section class="docs__section" id="errors" data-section="errors">
                     <h2>8. 오류 응답</h2>
-                    <p>오류는 모두 JSON으로 돌려주며 <code>error</code> 키를 공통으로 담습니다.</p>
+                    <p>오류는 모두 JSON으로 돌려주며 <code>error</code>와 <code>message</code> 두 키를 공통으로 담습니다.</p>
+                    <pre><code class="language-json">{"error": "Not Found", "message": "등록되지 않은 책 이름입니다. 책 목록은 /api/books 에서 확인하세요."}</code></pre>
+                    <p class="docs__note"><code>error</code>는 HTTP 상태 이름으로 고정이라 분기 기준으로 쓸 수 있습니다. <code>message</code>는 사람이 읽는 안내라 문구가 바뀔 수 있으니 값으로 비교하지 마세요.</p>
 
                     <div class="docs__table-wrap">
                         <table class="docs__table">
@@ -273,10 +277,10 @@
                             </thead>
                             <tbody>
                             <tr><td><code>400</code></td><td>검색어가 2~100자가 아님, 등록되지 않은 책 이름, 참조 형식을 읽을 수 없음, 장 번호가 숫자가 아님</td><td><code>{"error": "Bad Request", "message": "..."}</code></td></tr>
-                            <tr><td><code>401</code></td><td><code>X-API-KEY</code> 헤더가 없거나 폐기된 키</td><td><code>{"error": "API Key is missing"}</code> / <code>{"error": "Invalid API Key"}</code></td></tr>
+                            <tr><td><code>401</code></td><td><code>X-API-KEY</code> 헤더가 없거나 폐기된 키</td><td><code>{"error": "Unauthorized", "message": "..."}</code></td></tr>
                             <tr><td><code>404</code></td><td>참조가 가리키는 구절이 없음, 없는 주소</td><td><code>{"error": "Not Found", "message": "..."}</code></td></tr>
-                            <tr><td><code>429</code></td><td>요청이 너무 잦거나(9번) 키 발급 일일 한도 초과</td><td><code>{"error": "Too Many Requests", "retry_after_seconds": 42}</code></td></tr>
-                            <tr><td><code>500</code></td><td>서버 오류</td><td><code>{"error": "Internal Server Error"}</code></td></tr>
+                            <tr><td><code>429</code></td><td>요청이 너무 잦거나(9번) 키 발급 일일 한도 초과</td><td><code>{"error": "Too Many Requests", "message": "...", "retry_after_seconds": 42}</code></td></tr>
+                            <tr><td><code>500</code></td><td>서버 오류</td><td><code>{"error": "Internal Server Error", "message": "..."}</code></td></tr>
                             </tbody>
                         </table>
                     </div>
