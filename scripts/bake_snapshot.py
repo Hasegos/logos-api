@@ -3,6 +3,7 @@
 사용법: python scripts/bake_snapshot.py [출력 폴더]
 환경변수 SNAPSHOT_BASE로 대상 주소를 바꾼다(기본 https://logos-api.com).
 원본이 아니라 Worker 폴백(X-Served-By 헤더)이 응답한 페이지는 실패로 보고, 하나라도 실패하면 종료 코드 1로 끝난다.
+Cloudflare 속도 제한(429)에 걸리면 차단이 풀릴 때까지 기다렸다 다시 시도한다.
 """
 import os
 import re
@@ -17,7 +18,11 @@ from pathlib import Path
 
 BASE = os.environ.get("SNAPSHOT_BASE", "https://logos-api.com").rstrip("/")
 OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "dist")
-WORKERS = 6
+WORKERS = 3
+REQUEST_GAP = 0.15          # 요청 사이 간격(초). 워커 3개와 합쳐 초당 10건 안쪽으로 유지한다
+RETRIES = 5
+RATE_LIMIT_WAIT = 12        # 429에 Retry-After가 없을 때 쉬는 시간(초)
+RATE_LIMIT_WAIT_MAX = 60    # Retry-After가 너무 길어도 CI가 멈추지 않게 자른다
 MIN_PAGES = 1000
 WAIT_SECONDS = 180
 UA = "logos-snapshot/1.0"
@@ -29,10 +34,17 @@ ROBOTS_MANAGED_RE = re.compile(r"(?s)# As a condition of accessing.*?# END Cloud
 errors: list[str] = []
 
 
+def rate_limit_wait(headers) -> int:
+    """429가 알려 준 대기 시간. 숫자가 아니거나 없으면 기본값을 쓴다."""
+    value = headers.get("Retry-After", "")
+    return min(int(value), RATE_LIMIT_WAIT_MAX) if value.isdigit() else RATE_LIMIT_WAIT
+
+
 def fetch(path: str) -> tuple[int, bytes]:
-    """원본이 응답한 결과만 돌려준다. 폴백 응답이나 네트워크 오류는 세 번 시도하고 실패로 기록한다."""
+    """원본이 응답한 결과만 돌려준다. 폴백 응답, 네트워크 오류, 속도 제한은 다시 시도하고 끝내 안 되면 실패로 기록한다."""
     req = urllib.request.Request(BASE + path, headers={"User-Agent": UA})
-    for attempt in range(3):
+    for attempt in range(RETRIES):
+        time.sleep(REQUEST_GAP)
         try:
             with urllib.request.urlopen(req, timeout=30) as resp:
                 status, headers, body = resp.status, resp.headers, resp.read()
@@ -40,6 +52,9 @@ def fetch(path: str) -> tuple[int, bytes]:
             status, headers, body = exc.code, exc.headers, exc.read()
         except Exception:
             time.sleep(1 + attempt)
+            continue
+        if status == 429:
+            time.sleep(rate_limit_wait(headers))
             continue
         if headers.get("X-Served-By") or status >= 500:
             time.sleep(2 + attempt)
