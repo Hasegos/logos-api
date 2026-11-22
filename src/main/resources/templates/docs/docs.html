@@ -209,13 +209,13 @@
 
                     <h3>장 목록</h3>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters</code></div>
-                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters</code></pre>
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/%EC%82%AC%EB%8F%84%ED%96%89%EC%A0%84/chapters</code></pre>
                     <pre><code class="language-json">[1, 2, 3, 4, 5]</code></pre>
                     <p class="docs__note">등록되지 않은 책 이름이면 404와 함께 어디서 책 목록을 볼 수 있는지 안내합니다.</p>
 
                     <h3>절 목록</h3>
                     <div class="endpoint"><span class="endpoint__method">GET</span><code class="endpoint__path">/api/books/{book}/chapters/{chapter}</code></div>
-                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/사도행전/chapters/1</code></pre>
+                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here" https://logos-api.com/api/books/%EC%82%AC%EB%8F%84%ED%96%89%EC%A0%84/chapters/1</code></pre>
                     <pre><code class="language-json">[
   {"verse": "1", "text": "..."},
   {"verse": "2", "text": "..."}
@@ -286,13 +286,14 @@
                     </div>
 
                     <h3>예시</h3>
-                    <pre><code class="language-bash">curl -H "X-API-KEY: your_api_key_here"       "https://logos-api.com/api/verse?ref=요한복음"
+                    <pre><code class="language-bash">curl -G -H "X-API-KEY: your_api_key_here" --data-urlencode "ref=요한복음" https://logos-api.com/api/verse
 
 HTTP/1.1 400 Bad Request
 {
   "error": "Bad Request",
   "message": "참조 형식을 읽을 수 없습니다. 예: 요3:16, 요한복음 3:16-18, 요3"
 }</code></pre>
+                    <p class="docs__note">주소에 들어가는 한글은 <strong>URL 인코딩</strong>해서 보내세요. 인코딩하지 않은 한글이 섞이면 클라이언트에 따라 서버에 닿기 전에 본문 없는 400으로 막혀 위의 오류 응답을 받지 못할 수 있습니다. curl은 쿼리에 <code>-G --data-urlencode</code> 를 쓰면 알아서 인코딩합니다. 요청 라이브러리(<code>requests</code>, <code>fetch</code>의 <code>URL</code>, <code>RestClient</code>)는 파라미터를 직접 인코딩하므로 연동 가이드의 코드는 그대로 쓰면 됩니다.</p>
                     <p class="docs__note">429 응답에는 <code>X-RateLimit-Retry-After</code> 헤더로 다시 시도할 수 있는 시간(초)이 함께 옵니다. 정상 응답에는 <code>X-Rate-Limit-Remaining</code> 으로 남은 요청 수가 옵니다.</p>
                 </section>
 
