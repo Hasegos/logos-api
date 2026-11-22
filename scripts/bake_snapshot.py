@@ -24,6 +24,9 @@ RETRIES = 5
 RATE_LIMIT_WAIT = 12        # 429에 Retry-After가 없을 때 쉬는 시간(초)
 RATE_LIMIT_WAIT_MAX = 60    # Retry-After가 너무 길어도 CI가 멈추지 않게 자른다
 MIN_PAGES = 1000
+# 사이트맵에는 없지만(색인 제외) 모든 화면의 메뉴가 가리키는 페이지. 서버가 꺼진 시간에 메뉴를 눌러도 404가 되지 않게 굽는다.
+# 검색은 서버가 있어야 하므로 /read/search는 검색 폼만 구워진다.
+MENU_PAGES = ["/read/search", "/read/plan"]
 WAIT_SECONDS = 180
 UA = "logos-snapshot/1.0"
 ASSET_RE = re.compile(r'''(?:href|src)=["'](/[^"'#]+?)["']''')
@@ -125,7 +128,7 @@ def main() -> None:
     print(f"sitemap urls: {len(paths)}")
 
     with ThreadPoolExecutor(WORKERS) as pool:
-        results = list(pool.map(bake_page, paths))
+        results = list(pool.map(bake_page, paths + MENU_PAGES))
     saved = sum(1 for _, body in results if body)
     print(f"pages saved: {saved}")
 
