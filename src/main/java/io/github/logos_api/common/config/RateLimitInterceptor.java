@@ -1,5 +1,6 @@
 package io.github.logos_api.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.ConsumptionProbe;
 import io.github.logos_api.service.RateLimitService;
@@ -11,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.util.Map;
 
 /**
  * 클라이언트 IP 주소를 기반으로 API 요청 횟수를 제한하는 인터셉터입니다.
@@ -26,6 +29,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final RateLimitService rateLimitService;
+    private final ObjectMapper objectMapper;
 
     /**
      * 클라이언트의 요청이 허용된 처리율 이내인지 확인합니다.
@@ -55,7 +59,10 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
             response.setContentType("application/json;charset=UTF-8");
             response.addHeader("X-RateLimit-Retry-After", String.valueOf(waitForRefill));
-            response.getWriter().write("{\"error\": \"Too Many Requests\",\"retry_after_seconds\":"+waitForRefill +"}");
+            objectMapper.writeValue(response.getWriter(), Map.of(
+                    "error", HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(),
+                    "message", "요청이 너무 잦습니다. " + waitForRefill + "초 뒤에 다시 시도하세요.",
+                    "retry_after_seconds", waitForRefill));
 
             return false;
         }

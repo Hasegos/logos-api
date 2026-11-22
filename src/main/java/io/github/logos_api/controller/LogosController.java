@@ -1,5 +1,6 @@
 package io.github.logos_api.controller;
 
+import io.github.logos_api.dto.ErrorResponseDTO;
 import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.service.LogosService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 성경 구절 조회를 담당하는 REST 컨트롤러입니다.
@@ -54,14 +54,15 @@ public class LogosController {
 
         if (!logosService.isReadableReference(ref)) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Bad Request",
-                            "message", "참조 형식을 읽을 수 없습니다. 예: 요3:16, 요한복음 3:16-18, 요3"));
+                    .body(ErrorResponseDTO.of(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                            "참조 형식을 읽을 수 없습니다. 예: 요3:16, 요한복음 3:16-18, 요3"));
         }
 
         List<LogosResponseDTO> verses = logosService.findByReference(ref);
         if (verses.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Not Found", "message", "해당 참조의 구절이 없습니다."));
+                    .body(ErrorResponseDTO.of(HttpStatus.NOT_FOUND.getReasonPhrase(),
+                            "해당 참조의 구절이 없습니다. 책 이름과 장 · 절 번호를 확인하세요."));
         }
 
         return ResponseEntity.ok()
@@ -89,13 +90,14 @@ public class LogosController {
 
         if (query.length() < MIN_QUERY_LENGTH || query.length() > MAX_QUERY_LENGTH) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Bad Request",
-                            "message", "검색어는 " + MIN_QUERY_LENGTH + "자 이상 " + MAX_QUERY_LENGTH + "자 이하여야 합니다."));
+                    .body(ErrorResponseDTO.of(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                            "검색어는 " + MIN_QUERY_LENGTH + "자 이상 " + MAX_QUERY_LENGTH + "자 이하여야 합니다."));
         }
 
         if (book != null && !book.isBlank() && !logosService.isRegisteredBook(book)) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Bad Request", "message", "등록되지 않은 책 이름입니다."));
+                    .body(ErrorResponseDTO.of(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                            "등록되지 않은 책 이름입니다. 책 목록은 /api/books 에서 확인하세요."));
         }
 
         int safeLimit = Math.min(Math.max(limit, 1), MAX_LIMIT);

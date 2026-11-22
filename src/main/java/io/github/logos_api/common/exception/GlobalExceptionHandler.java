@@ -1,6 +1,7 @@
 package io.github.logos_api.common.exception;
 
 import io.github.logos_api.common.config.ClientIpResolver;
+import io.github.logos_api.dto.ErrorResponseDTO;
 import io.github.logos_api.common.config.LogSanitizer;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -13,8 +14,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
-
-import java.util.Map;
 
 /**
  * 애플리케이션 전역 예외를 처리하는 핸들러.
@@ -62,7 +61,8 @@ public class GlobalExceptionHandler {
         log.info("[404] ip={} uri={} ua={}", ClientIpResolver.resolve(request), LogSanitizer.sanitize(request.getRequestURI()), LogSanitizer.userAgent(request));
         if (isApiRequest(request)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Not Found", "path", request.getRequestURI()));
+                    .body(ErrorResponseDTO.of(HttpStatus.NOT_FOUND.getReasonPhrase(),
+                            "요청하신 주소가 없습니다. 사용할 수 있는 경로는 https://logos-api.com/docs 에 있습니다."));
         }
         model.addAttribute("status", 404);
         model.addAttribute("title", "페이지를 찾을 수 없습니다");
@@ -91,7 +91,7 @@ public class GlobalExceptionHandler {
         log.info("[404] ip={} uri={} 사유={}", ClientIpResolver.resolve(request), LogSanitizer.sanitize(request.getRequestURI()), e.getMessage());
         if (isApiRequest(request)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("error", "Not Found", "message", e.getMessage()));
+                    .body(ErrorResponseDTO.of(HttpStatus.NOT_FOUND.getReasonPhrase(), e.getMessage()));
         }
         model.addAttribute("status", 404);
         model.addAttribute("title", "페이지를 찾을 수 없습니다");
@@ -120,7 +120,8 @@ public class GlobalExceptionHandler {
         log.warn("[400] 잘못된 요청 파라미터 - ip={} uri={} 파라미터명={}", ClientIpResolver.resolve(request), LogSanitizer.sanitize(request.getRequestURI()), e.getName());
         if (isApiRequest(request)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "Bad Request", "path", request.getRequestURI()));
+                    .body(ErrorResponseDTO.of(HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                            "요청하신 주소의 형식이 올바르지 않습니다. 장 번호 자리에는 숫자를 넣으세요."));
         }
         model.addAttribute("status", 400);
         model.addAttribute("title", "잘못된 요청입니다");
@@ -147,7 +148,8 @@ public class GlobalExceptionHandler {
         log.error("[500] Unexpected error. ip={} uri={}", ClientIpResolver.resolve(request), LogSanitizer.sanitize(request.getRequestURI()), ex);
         if (isApiRequest(request)) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Internal Server Error"));
+                    .body(ErrorResponseDTO.of(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                            "서버에서 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."));
         }
         model.addAttribute("status", 500);
         model.addAttribute("title", "서버 오류가 발생했습니다");
