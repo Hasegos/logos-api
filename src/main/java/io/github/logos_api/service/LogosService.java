@@ -37,9 +37,6 @@ public class LogosService {
     private static final int MAX_QUERY_LENGTH = 100;
     private static final int MAX_LIMIT = 50;
 
-    /**
-     * 개역개정 기준 구약 39권의 정경 순서. 실제 등록된 책만 걸러내는 기준으로 사용합니다.
-     */
     private static final List<String> OLD_TESTAMENT_ORDER = List.of(
             "창세기", "출애굽기", "레위기", "민수기", "신명기", "여호수아", "사사기", "룻기",
             "사무엘상", "사무엘하", "열왕기상", "열왕기하", "역대상", "역대하", "에스라", "느헤미야",
@@ -48,9 +45,6 @@ public class LogosService {
             "미가", "나훔", "하박국", "스바냐", "학개", "스가랴", "말라기"
     );
 
-    /**
-     * 개역개정 기준 신약 27권의 정경 순서.
-     */
     private static final List<String> NEW_TESTAMENT_ORDER = List.of(
             "마태복음", "마가복음", "누가복음", "요한복음", "사도행전", "로마서", "고린도전서",
             "고린도후서", "갈라디아서", "에베소서", "빌립보서", "골로새서", "데살로니가전서",
@@ -59,22 +53,12 @@ public class LogosService {
             "유다서", "요한계시록"
     );
 
-    /**
-     * 장 페이지 설명에 넣을 본문 조각의 최대 길이입니다.
-     * 검색 결과에 보이는 설명이 대략 155자까지라, 책 이름과 장 번호를 앞에 붙이고도 남는 만큼을 본문으로 채웁니다.
-     */
     private static final int DESCRIPTION_SNIPPET_LENGTH = 120;
 
     private static final Pattern VERSE_PATTERN = Pattern.compile("[0-9]+(-[0-9]+)?");
 
-    /**
-     * 책 이름 -> 정경 순서 번호. 검색 결과를 성경 순서대로 정렬하는 데 사용합니다.
-     */
     private static final Map<String, Integer> BOOK_ORDER = buildBookOrder();
 
-    /**
-     * 검색 결과 정렬 기준: 정경 순서 -> 장 -> 절.
-     */
     private static final Comparator<Logos> CANONICAL_ORDER =
             Comparator.<Logos, Integer>comparing(v -> BOOK_ORDER.getOrDefault(v.getBook(), Integer.MAX_VALUE))
                     .thenComparingInt(v -> Integer.parseInt(v.getChapter()))
@@ -104,7 +88,6 @@ public class LogosService {
         }
 
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        // 책 폴더 아래의 장 파일만 읽는다. bible/abbrev.json 같은 보조 파일은 걸리지 않는다.
         Resource[] resources = resolver.getResources("classpath:bible/*/*.json");
 
         for (Resource resource : resources){
@@ -399,7 +382,6 @@ public class LogosService {
             }
             body.append(verse.getText().strip());
 
-            // 첫 절이 짧으면 설명이 한 줄도 안 되므로 한도를 넘길 때까지 다음 절을 이어 붙인다.
             if (body.length() >= DESCRIPTION_SNIPPET_LENGTH) {
                 break;
             }

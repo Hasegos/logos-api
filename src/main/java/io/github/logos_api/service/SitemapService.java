@@ -22,10 +22,6 @@ public class SitemapService {
     private static final String CHANGE_FREQ_WEEKLY = "weekly";
     private static final String CHANGE_FREQ_YEARLY = "yearly";
 
-    /**
-     * 본문과 화면은 배포할 때만 바뀌므로 애플리케이션이 뜬 날짜를 마지막 수정일로 씁니다.
-     * 크롤러가 변경 여부를 판단할 수 있어야 1,189개 장 페이지를 다시 훑는 주기가 짧아집니다.
-     */
     private static final String LAST_MODIFIED = LocalDate.now().toString();
 
     private final LogosService logosService;

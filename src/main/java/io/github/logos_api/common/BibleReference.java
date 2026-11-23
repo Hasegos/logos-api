@@ -12,10 +12,6 @@ import java.util.regex.Pattern;
  */
 public class BibleReference {
 
-    /**
-     * 뒤에서부터 장 · 절을 떼어내고 남은 앞부분을 책 이름으로 본다.
-     * 책 이름에 숫자가 들어가는 경우(요한1서)가 있어 앞부분을 최소로 잡고 뒤에서 맞춘다.
-     */
     private static final Pattern REFERENCE_PATTERN =
             Pattern.compile("^(?<book>.+?)\\s*(?<chapter>\\d+)(?::(?<from>\\d+)(?:-(?<to>\\d+))?)?$");
 
@@ -24,6 +20,14 @@ public class BibleReference {
     private final Integer fromVerse;
     private final Integer toVerse;
 
+    /**
+     * 나눈 값으로 참조를 만듭니다. {@link #parse(String)}만 호출합니다.
+     *
+     * @param book      책 이름 또는 약어
+     * @param chapter   장 번호
+     * @param fromVerse 시작 절. 장 전체이면 null
+     * @param toVerse   끝 절. 한 절이거나 장 전체이면 null
+     */
     private BibleReference(String book, int chapter, Integer fromVerse, Integer toVerse) {
         this.book = book;
         this.chapter = chapter;
@@ -63,10 +67,20 @@ public class BibleReference {
         return Optional.of(new BibleReference(book, chapter, from, to));
     }
 
+    /**
+     * 참조에 적힌 책 이름을 반환합니다. 정식 이름일 수도, 약어일 수도 있습니다.
+     *
+     * @return 책 이름 또는 약어
+     */
     public String getBook() {
         return book;
     }
 
+    /**
+     * 참조의 장 번호를 반환합니다.
+     *
+     * @return 장 번호
+     */
     public int getChapter() {
         return chapter;
     }
