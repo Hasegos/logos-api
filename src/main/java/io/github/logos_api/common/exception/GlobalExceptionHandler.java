@@ -100,6 +100,22 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 하루 키 발급 한도를 넘은 경우를 처리한다. (429)
+     * <p>
+     * 호출한 쪽이 내일 다시 시도하면 되는 상황이므로 서비스가 정한 안내 문구를 그대로 내보낸다.
+     * 키 발급은 API 경로에서만 일어나므로 JSON으로만 응답한다.
+     * </p>
+     *
+     * @param e 발생한 예외
+     * @return 429 JSON 응답
+     */
+    @ExceptionHandler(KeyIssueLimitExceededException.class)
+    public ResponseEntity<ErrorResponseDTO> handleKeyIssueLimit(KeyIssueLimitExceededException e) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ErrorResponseDTO.of(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), e.getMessage()));
+    }
+
+    /**
      * 경로 변수/파라미터의 타입이 맞지 않는 경우를 처리한다. (400)
      * <p>
      * 예: {@code /read/창세기/abc}처럼 장 번호 자리에 숫자가 아닌 값이 들어온 경우.
