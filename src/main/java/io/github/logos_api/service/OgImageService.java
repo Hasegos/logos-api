@@ -1,5 +1,6 @@
 package io.github.logos_api.service;
 
+import io.github.logos_api.common.exception.ResourceNotFoundException;
 import io.github.logos_api.model.Logos;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -93,8 +94,9 @@ public class OgImageService {
      *
      * @param book    책 이름
      * @param chapter 장 번호
-     * @return PNG 바이트. 해당 장이 없으면 빈 배열
-     * @throws IOException 이미지를 쓰는 중 오류가 난 경우
+     * @return PNG 바이트
+     * @throws ResourceNotFoundException 해당 장이 없는 경우
+     * @throws IOException               이미지를 쓰는 중 오류가 난 경우
      */
     public byte[] render(String book, int chapter) throws IOException {
         String key = book + "/" + chapter;
@@ -103,10 +105,7 @@ public class OgImageService {
             return cached;
         }
 
-        List<Logos> verses = logosService.getVerses(book, chapter);
-        if (verses.isEmpty()) {
-            return new byte[0];
-        }
+        List<Logos> verses = logosService.requireVerses(book, chapter);
 
         BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();
