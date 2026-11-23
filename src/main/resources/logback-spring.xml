@@ -117,7 +117,7 @@
         <appender-ref ref="ERROR_FILE"/>
     </root>
 
-    <logger name="io.github.logos_api" level="DEBUG" />
+    <logger name="io.github.logos_api" level="INFO" />
 
     <!-- 접근 로그는 파일에만 남긴다. 콘솔로 보내면 systemd journal에 같은 줄이 또 쌓인다. -->
     <logger name="io.github.logos_api.access.api" level="INFO" additivity="false">
