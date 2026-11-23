@@ -4,13 +4,11 @@ import io.github.logos_api.service.OgImageService;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -32,17 +30,13 @@ public class OgImageController {
      *
      * @param book    책 이름
      * @param chapter 장 번호
-     * @return PNG 이미지
-     * @throws NoResourceFoundException 해당 장이 없는 경우
-     * @throws IOException              이미지를 그리는 중 오류가 난 경우
+     * @return PNG 이미지. 해당 장이 없으면 404
+     * @throws IOException 이미지를 그리는 중 오류가 난 경우
      */
     @GetMapping(value = "/og/read/{book}/{chapter}.png", produces = MediaType.IMAGE_PNG_VALUE)
     public ResponseEntity<byte[]> chapterImage(@PathVariable String book,
-                                               @PathVariable int chapter) throws NoResourceFoundException, IOException {
+                                               @PathVariable int chapter) throws IOException {
         byte[] image = ogImageService.render(book, chapter);
-        if (image.length == 0) {
-            throw new NoResourceFoundException(HttpMethod.GET, "/og/read/" + book + "/" + chapter + ".png");
-        }
 
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.maxAge(Duration.ofDays(30)).cachePublic())
