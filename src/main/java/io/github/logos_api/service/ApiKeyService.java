@@ -37,6 +37,7 @@ public class ApiKeyService {
     /**
      * 지정된 IP에 대해 새로운 API 키를 발급하거나 갱신합니다.
      * 하루 최대 10회까지만 발급이 가능하며, 기존에 해당 IP로 발급된 키는 삭제됩니다.
+     * IPv6는 앞 64비트가 같은 주소를 한 클라이언트로 보고 세어, 주소를 바꿔 가며 한도를 피할 수 없습니다.
      * 저장은 해시로만 하므로, 이 메서드가 돌려주는 원문은 호출한 쪽에서 사용자에게 한 번 보여 준 뒤 버립니다.
      *
      * @param clientIp 키를 발급받을 클라이언트의 IP 주소
@@ -46,24 +47,25 @@ public class ApiKeyService {
     @Transactional
     public String renewApiKey(String clientIp){
 
+        String ipKey = ClientIpResolver.groupKey(clientIp);
         LocalDateTime startOfToday = LocalDate.now().atStartOfDay();
-        long todayCount = apiKeyLogRepository.countByIssuedIpAndCreatedAtAfter(clientIp, startOfToday);
+        long todayCount = apiKeyLogRepository.countByIssuedIpAndCreatedAtAfter(ipKey, startOfToday);
 
         if(todayCount >= 10){
             log.warn("[Limit Exceeded] IP: {} has already issued {} keys today.", clientIp, todayCount);
             throw new KeyIssueLimitExceededException("하루 발급 제한(10회)을 초과했습니다. 내일 다시 시도해주세요.");
         }
 
-        apiKeyLogRepository.save(new ApiKeyLog(clientIp));
+        apiKeyLogRepository.save(new ApiKeyLog(ipKey));
 
         log.info("Deleting existing keys for IP: {} " ,clientIp);
-        apiKeyRepository.deleteByIssuedIp(clientIp);
+        apiKeyRepository.deleteByIssuedIp(ipKey);
 
         String newKey = UUID.randomUUID().toString().replace("-", "");
 
         ApiKey apiKey = new ApiKey();
         apiKey.setKeyHash(ApiKeyHasher.hash(newKey));
-        apiKey.setIssuedIp(clientIp);
+        apiKey.setIssuedIp(ipKey);
         apiKeyRepository.save(apiKey);
 
         return newKey;

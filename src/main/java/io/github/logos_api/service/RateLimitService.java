@@ -3,11 +3,11 @@ package io.github.logos_api.service;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
+import io.github.logos_api.common.config.ClientIpResolver;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -23,8 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RateLimitService {
 
     private static final int LIMIT_PER_MINUTE = 60;
-    private static final int IPV6_GROUPS = 8;
-    private static final int IPV6_PREFIX_GROUPS = 4;
 
     private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
 
@@ -48,7 +46,7 @@ public class RateLimitService {
      * @return 해당 IP 전용 버킷 객체
      */
     public Bucket resolveBucket(String ip){
-        return cache.computeIfAbsent(clientKey(ip), k -> createNewBucket());
+        return cache.computeIfAbsent(ClientIpResolver.groupKey(ip), k -> createNewBucket());
     }
 
     /**
@@ -58,45 +56,5 @@ public class RateLimitService {
     @Scheduled(fixedRate = 600_000)
     public void evictIdleBuckets(){
         cache.values().removeIf(bucket -> bucket.getAvailableTokens() >= LIMIT_PER_MINUTE);
-    }
-
-    /**
-     * 속도 제한을 셀 단위를 정합니다. IPv4와 알 수 없는 형식은 그대로 쓰고, IPv6는 앞 64비트만 남깁니다.
-     *
-     * @param ip 클라이언트 IP 주소
-     * @return 버킷을 찾을 때 쓸 키
-     */
-    private static String clientKey(String ip){
-        if (ip == null || !ip.contains(":") || ip.contains(".")) {
-            return ip;
-        }
-
-        String address = ip.contains("%") ? ip.substring(0, ip.indexOf('%')) : ip;
-        String[] halves = address.split("::", -1);
-        if (halves.length > 2) {
-            return ip;
-        }
-
-        String[] head = halves[0].isEmpty() ? new String[0] : halves[0].split(":");
-        String[] tail = halves.length == 2 && !halves[1].isEmpty() ? halves[1].split(":") : new String[0];
-        boolean compressed = halves.length == 2;
-        if (compressed ? head.length + tail.length >= IPV6_GROUPS : head.length != IPV6_GROUPS) {
-            return ip;
-        }
-
-        String[] groups = new String[IPV6_GROUPS];
-        Arrays.fill(groups, "0");
-        System.arraycopy(head, 0, groups, 0, head.length);
-        System.arraycopy(tail, 0, groups, IPV6_GROUPS - tail.length, tail.length);
-
-        try {
-            StringBuilder key = new StringBuilder();
-            for (int i = 0; i < IPV6_PREFIX_GROUPS; i++) {
-                key.append(Integer.toHexString(Integer.parseInt(groups[i], 16))).append(':');
-            }
-            return key.append(":/64").toString();
-        } catch (NumberFormatException e) {
-            return ip;
-        }
     }
 }
