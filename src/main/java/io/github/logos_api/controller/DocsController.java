@@ -14,9 +14,6 @@ import java.util.Set;
 @Controller
 public class DocsController {
 
-    /**
-     * 예제를 제공하는 언어 목록입니다. 주소로 템플릿을 고르므로 허용 목록으로 제한합니다.
-     */
     private static final Set<String> SUPPORTED_LANGUAGES = Set.of("java", "javascript", "python");
 
     /**

@@ -13,6 +13,9 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 public class ClientIpResolver {
 
+    /**
+     * 인스턴스를 만들지 않는 유틸리티 클래스입니다.
+     */
     private ClientIpResolver(){
     }
 

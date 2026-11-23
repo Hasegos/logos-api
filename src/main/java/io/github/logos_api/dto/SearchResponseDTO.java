@@ -34,9 +34,6 @@ public class SearchResponseDTO {
     @JsonProperty("results")
     private List<LogosResponseDTO> results;
 
-    /**
-     * 책 이름 -> 그 책에서 검색어가 나온 절 수. book 필터와 무관하게 전체 기준으로 센다.
-     */
     @JsonProperty("books")
     private Map<String, Integer> books;
 }

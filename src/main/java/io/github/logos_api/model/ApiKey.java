@@ -26,9 +26,6 @@ public class ApiKey {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /**
-     * 발급한 키의 SHA-256 해시입니다. 원문은 저장하지 않습니다.
-     */
     @Column(name = "key_hash", nullable = false, unique = true)
     private String keyHash;
 

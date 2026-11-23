@@ -51,11 +51,6 @@ public class OgImageService {
 
     private final LogosService logosService;
 
-    /**
-     * 최근에 그린 이미지를 담아 두는 캐시입니다.
-     * 그림 한 장에 글꼴 렌더링이 들어가 CPU를 쓰므로, 같은 장을 다시 그리지 않습니다.
-     * 장이 1,189개라 전부 담으면 메모리가 커져 최근 {@value #CACHE_SIZE}장만 둡니다.
-     */
     private final Map<String, byte[]> cache = Collections.synchronizedMap(
             new LinkedHashMap<>(CACHE_SIZE, 0.75f, true) {
                 @Override
