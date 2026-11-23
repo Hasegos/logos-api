@@ -97,15 +97,36 @@ def wait_for_origin() -> None:
 
 
 def page_file(path: str) -> Path:
+    """페이지 주소가 저장될 파일 경로를 돌려준다. 루트는 index.html, 나머지는 주소에 .html을 붙인다.
+
+    Args:
+        path: 페이지 주소의 경로 부분
+    Returns:
+        출력 폴더 안의 파일 경로
+    """
     clean = urllib.parse.unquote(path).strip("/")
     return OUT / ("index.html" if not clean else clean + ".html")
 
 
 def asset_file(path: str) -> Path:
+    """정적 자원이 저장될 파일 경로를 돌려준다.
+
+    Args:
+        path: 자원 주소의 경로 부분 (쿼리 문자열 제외)
+    Returns:
+        출력 폴더 안의 파일 경로
+    """
     return OUT / urllib.parse.unquote(path).lstrip("/")
 
 
 def bake_page(path: str) -> tuple[str, bytes]:
+    """페이지 하나를 받아 파일로 저장한다. 200이 아니면 errors에 기록하고 저장하지 않는다.
+
+    Args:
+        path: 페이지 주소의 경로 부분
+    Returns:
+        주소와 저장한 본문. 저장하지 못했으면 빈 바이트
+    """
     status, body = fetch(path)
     if status == 0:
         return path, b""
@@ -118,6 +139,13 @@ def bake_page(path: str) -> tuple[str, bytes]:
 
 
 def bake_asset(path: str) -> bytes:
+    """정적 자원 하나를 받아 파일로 저장한다. 200이 아니면 errors에 기록하고 저장하지 않는다.
+
+    Args:
+        path: 쿼리 문자열을 포함할 수 있는 자원 주소의 경로 부분
+    Returns:
+        저장한 본문. 저장하지 못했으면 빈 바이트
+    """
     status, body = fetch(path)
     if status == 0:
         return b""
@@ -131,6 +159,10 @@ def bake_asset(path: str) -> bytes:
 
 
 def main() -> None:
+    """사이트맵과 메뉴 페이지, 404 페이지, 정적 자원을 차례로 받아 출력 폴더를 만든다.
+
+    하나라도 실패하면 목록을 출력하고 종료 코드 1로 끝난다.
+    """
     wait_for_origin()
     if OUT.exists():
         shutil.rmtree(OUT)

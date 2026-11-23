@@ -1,4 +1,3 @@
-/** 복사 버튼이 만드는 엔드포인트 주소의 앞부분 */
 const LOGOS_API_BASE_URL = 'https://logos-api.com';
 
 /**

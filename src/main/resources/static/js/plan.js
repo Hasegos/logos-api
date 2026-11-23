@@ -8,13 +8,10 @@
         return;
     }
 
-    /** localStorage에 읽는 순서를 저장할 때 쓰는 키 */
     const ORDER_KEY = 'logos:plan-order';
 
-    /** localStorage에 목표(기간과 시작일)를 저장할 때 쓰는 키 */
     const GOAL_KEY = 'logos:plan-goal';
 
-    /** 완독 예상일을 계산할 때 되돌아보는 날 수 */
     const SPEED_WINDOW_DAYS = 7;
 
     const total = Number(root.dataset.total);
@@ -255,7 +252,6 @@
         const percent = total ? readCount / total * 100 : 0;
         document.getElementById('plan-fill').style.width = percent + '%';
         document.getElementById('plan-read').textContent = readCount;
-        // 1,189장 중 한 장이 0.08% 라 소수점을 잘라 내면 읽어도 숫자가 그대로다.
         document.getElementById('plan-percent').textContent = percent.toFixed(2);
         document.getElementById('plan-old').textContent = testament['구약'].done + ' / ' + testament['구약'].total;
         document.getElementById('plan-new').textContent = testament['신약'].done + ' / ' + testament['신약'].total;
@@ -284,8 +280,6 @@
             nextLink.textContent = '성경을 모두 읽었습니다';
         }
     }
-
-
 
     document.querySelectorAll('[data-order]').forEach((button) => {
         button.addEventListener('click', () => {
@@ -320,7 +314,6 @@
     });
 
     document.getElementById('plan-reset').addEventListener('click', () => {
-        // 되돌릴 수 없는 삭제라 한 번 더 묻는다.
         if (!window.confirm('읽은 기록과 날짜별 기록을 모두 지웁니다. 되돌릴 수 없습니다. 초기화할까요?')) {
             return;
         }

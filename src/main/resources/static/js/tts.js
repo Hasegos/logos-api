@@ -12,7 +12,6 @@
         return;
     }
 
-    /** localStorage에 낭독 위치를 저장할 때 쓰는 키 */
     const TTS_KEY = 'logos:tts';
 
     let verseIndex = 0;
@@ -114,7 +113,6 @@
      */
     function speakText(text, onEnd, onStart) {
         const utterance = new SpeechSynthesisUtterance(text);
-        // 참조를 들고 있지 않으면 브라우저가 읽는 도중에 수거해 소리가 끊긴다.
         speaking = utterance;
         utterance.lang = 'ko-KR';
 
@@ -126,7 +124,6 @@
         utterance.onstart = onStart || null;
         utterance.onend = onEnd;
         utterance.onerror = (event) => {
-            // 멈춤 버튼이나 장 교체로 끊긴 것은 오류가 아니다.
             if (event.error === 'interrupted' || event.error === 'canceled') {
                 return;
             }
@@ -134,7 +131,6 @@
             stop();
         };
 
-        // Chrome 은 멈춤 상태가 남아 있으면 speak 를 무시한다.
         synth.resume();
         synth.speak(utterance);
     }
@@ -177,7 +173,6 @@
 
                 current().view.replaceWith(document.importNode(nextView, true));
 
-                // 여기서부터는 실패해도 본문 교체는 끝났으므로 낭독을 멈추지 않는다.
                 try {
                     document.title = parsed.title;
                     history.pushState({}, '', url);
@@ -224,7 +219,6 @@
                 saveState({ book: nextBook, chapter: nextChapter, verseIndex: 0 });
                 render();
 
-                // 장 교체 직후에는 Chrome 의 음성 큐가 멈춘 상태로 남는 경우가 있다.
                 synth.cancel();
                 setTimeout(() => speak(0), 120);
             });
@@ -287,6 +281,5 @@
     }
     render();
 
-    // 페이지를 떠날 때 소리가 남지 않게 한다.
     window.addEventListener('pagehide', () => synth.cancel());
 })();

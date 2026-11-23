@@ -1,10 +1,7 @@
-/** localStorage에 마지막으로 읽은 위치를 저장할 때 사용하는 키 */
 const LOGOS_LAST_READ_KEY = 'logos:last-read';
 
-/** localStorage에 날짜별로 읽은 장 수를 저장할 때 사용하는 키 */
 const LOGOS_READ_LOG_KEY = 'logos:read-log';
 
-/** localStorage에 책별 읽은 장 목록을 저장할 때 사용하는 키 */
 const LOGOS_READ_CHAPTERS_KEY = 'logos:read-chapters';
 
 /**
@@ -207,10 +204,6 @@ function initContinueReadingBanner() {
     link.textContent = `이어서 읽기: ${last.book} ${last.chapter}장 →`;
     banner.style.display = 'flex';
 
-    /**
-     * 초기화 버튼 클릭 시 사용자에게 확인을 받은 뒤,
-     * 저장된 읽기 기록을 삭제하고 배너와 읽은 장 배지를 화면에서도 제거합니다.
-     */
     const resetBtn = banner.querySelector('.continue-banner__reset');
     resetBtn.addEventListener('click', () => {
         const confirmed = window.confirm('읽기 기록을 초기화할까요? 이어서 읽기 위치와 읽은 장 표시가 모두 사라집니다.');
@@ -280,7 +273,6 @@ function initChapterDetailPage() {
         });
     });
 
-    // URL 해시로 특정 절이 지정된 경우, 해당 절을 자동으로 하이라이트하고 스크롤 이동
     if (location.hash) {
         try {
             const target = document.querySelector(location.hash);
@@ -354,7 +346,6 @@ function renderPlanBanner() {
     const read = logosGetReadChapters();
     const readCount = Object.keys(read).reduce((sum, book) => sum + read[book].length, 0);
 
-    // 목표를 세운 사람은 아직 한 장도 안 읽었어도 오늘 분량을 봐야 한다.
     if (readCount === 0 && !logosGetPlanGoal()) return;
 
     const total = document.querySelectorAll('.book-list__chapter').length;

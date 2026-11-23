@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.tabbar__item').forEach((item) => {
         const href = item.getAttribute('href');
-        // /read/search 와 /read/plan 은 /read 로 시작하므로 정확히 비교해야 한다.
         const exactOnly = ['/', '/read/search', '/read/plan'];
         const active = exactOnly.includes(href)
             ? path === href
