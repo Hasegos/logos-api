@@ -53,7 +53,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             return true;
         }
         else{
-            long waitForRefill = probe.getNanosToWaitForRefill() / 1_000_000_000;
+            long waitForRefill = (probe.getNanosToWaitForRefill() + 999_999_999L) / 1_000_000_000L;
             log.warn("[Rate Limit Exceeded] IP: {} is blocked. Retry after {} seconds.", ip, waitForRefill);
 
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
