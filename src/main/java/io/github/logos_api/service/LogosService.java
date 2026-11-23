@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.github.logos_api.common.BibleReference;
 import io.github.logos_api.dto.ChapterVerseResponseDTO;
+import io.github.logos_api.common.exception.BadRequestException;
 import io.github.logos_api.common.exception.ResourceNotFoundException;
 import io.github.logos_api.dto.LogosResponseDTO;
 import io.github.logos_api.dto.SearchResponseDTO;
@@ -32,9 +33,10 @@ import java.util.stream.Collectors;
 @Service
 public class LogosService {
 
-    /**
-     * 개역개정 기준 구약 39권의 정경 순서. 실제 등록된 책만 걸러내는 기준으로 사용합니다.
-     */
+    private static final int MIN_QUERY_LENGTH = 2;
+    private static final int MAX_QUERY_LENGTH = 100;
+    private static final int MAX_LIMIT = 50;
+
     private static final List<String> OLD_TESTAMENT_ORDER = List.of(
             "창세기", "출애굽기", "레위기", "민수기", "신명기", "여호수아", "사사기", "룻기",
             "사무엘상", "사무엘하", "열왕기상", "열왕기하", "역대상", "역대하", "에스라", "느헤미야",
@@ -43,9 +45,6 @@ public class LogosService {
             "미가", "나훔", "하박국", "스바냐", "학개", "스가랴", "말라기"
     );
 
-    /**
-     * 개역개정 기준 신약 27권의 정경 순서.
-     */
     private static final List<String> NEW_TESTAMENT_ORDER = List.of(
             "마태복음", "마가복음", "누가복음", "요한복음", "사도행전", "로마서", "고린도전서",
             "고린도후서", "갈라디아서", "에베소서", "빌립보서", "골로새서", "데살로니가전서",
@@ -54,22 +53,12 @@ public class LogosService {
             "유다서", "요한계시록"
     );
 
-    /**
-     * 장 페이지 설명에 넣을 본문 조각의 최대 길이입니다.
-     * 검색 결과에 보이는 설명이 대략 155자까지라, 책 이름과 장 번호를 앞에 붙이고도 남는 만큼을 본문으로 채웁니다.
-     */
     private static final int DESCRIPTION_SNIPPET_LENGTH = 120;
 
     private static final Pattern VERSE_PATTERN = Pattern.compile("[0-9]+(-[0-9]+)?");
 
-    /**
-     * 책 이름 -> 정경 순서 번호. 검색 결과를 성경 순서대로 정렬하는 데 사용합니다.
-     */
     private static final Map<String, Integer> BOOK_ORDER = buildBookOrder();
 
-    /**
-     * 검색 결과 정렬 기준: 정경 순서 -> 장 -> 절.
-     */
     private static final Comparator<Logos> CANONICAL_ORDER =
             Comparator.<Logos, Integer>comparing(v -> BOOK_ORDER.getOrDefault(v.getBook(), Integer.MAX_VALUE))
                     .thenComparingInt(v -> Integer.parseInt(v.getChapter()))
@@ -99,7 +88,6 @@ public class LogosService {
         }
 
         ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        // 책 폴더 아래의 장 파일만 읽는다. bible/abbrev.json 같은 보조 파일은 걸리지 않는다.
         Resource[] resources = resolver.getResources("classpath:bible/*/*.json");
 
         for (Resource resource : resources){
@@ -394,7 +382,6 @@ public class LogosService {
             }
             body.append(verse.getText().strip());
 
-            // 첫 절이 짧으면 설명이 한 줄도 안 되므로 한도를 넘길 때까지 다음 절을 이어 붙인다.
             if (body.length() >= DESCRIPTION_SNIPPET_LENGTH) {
                 break;
             }
@@ -515,6 +502,85 @@ public class LogosService {
         return verses.stream()
                 .sorted(Comparator.comparingInt(v -> verseStart(v.getVerse())))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 지정한 장의 절 목록을 돌려주되, 비어 있으면 예외를 던집니다. 읽기 페이지가 없는 장을 걸러내는 데 씁니다.
+     *
+     * @param book    책 이름
+     * @param chapter 장 번호
+     * @return 절 목록 (절 번호 순)
+     * @throws ResourceNotFoundException 등록되지 않은 책이거나 그 책에 없는 장인 경우
+     */
+    public List<Logos> requireVerses(String book, int chapter){
+        List<Logos> verses = getVerses(book, chapter);
+        if (verses.isEmpty()) {
+            throw new ResourceNotFoundException("그 책과 장의 본문이 없습니다.");
+        }
+        return verses;
+    }
+
+    /**
+     * 참조 표기로 구절을 찾되, 형식이 틀렸거나 구절이 없으면 예외를 던집니다.
+     *
+     * @param reference 참조 문자열
+     * @return 찾은 구절 목록 (비어 있지 않음)
+     * @throws BadRequestException       참조 형식을 읽을 수 없는 경우
+     * @throws ResourceNotFoundException 형식은 맞지만 해당 구절이 없는 경우
+     */
+    public List<LogosResponseDTO> requireByReference(String reference){
+        if (!isReadableReference(reference)) {
+            throw new BadRequestException("참조 형식을 읽을 수 없습니다. 예: 요3:16, 요한복음 3:16-18, 요3");
+        }
+
+        List<LogosResponseDTO> verses = findByReference(reference);
+        if (verses.isEmpty()) {
+            throw new ResourceNotFoundException("해당 참조의 구절이 없습니다. 책 이름과 장 · 절 번호를 확인하세요.");
+        }
+        return verses;
+    }
+
+    /**
+     * 참조 표기가 가리키는 첫 구절을 찾습니다. 참조가 아니거나 구절이 없으면 빈 값입니다.
+     *
+     * @param reference 참조 문자열
+     * @return 첫 구절
+     */
+    public Optional<LogosResponseDTO> findFirstByReference(String reference){
+        return findByReference(reference).stream().findFirst();
+    }
+
+    /**
+     * 검색을 돌릴 만큼 긴 검색어인지 확인합니다.
+     *
+     * @param query 검색어
+     * @return 앞뒤 공백을 뺀 길이가 최소 길이 이상이면 true
+     */
+    public boolean isSearchable(String query){
+        return query != null && query.trim().length() >= MIN_QUERY_LENGTH;
+    }
+
+    /**
+     * 검색어와 책 이름을 검사한 뒤 검색합니다. limit과 offset은 허용 범위로 맞춥니다. (limit 1~50, offset 0 이상)
+     *
+     * @param query  검색어. 앞뒤 공백을 뺀 길이가 2자 이상 100자 이하여야 한다
+     * @param book   특정 책으로 좁힐 때의 책 이름. 비어 있으면 전체에서 찾는다
+     * @param limit  한 번에 돌려줄 건수
+     * @param offset 건너뛸 건수
+     * @return 검색 결과
+     * @throws BadRequestException 검색어 길이가 범위를 벗어났거나 등록되지 않은 책 이름인 경우
+     */
+    public SearchResponseDTO requireSearch(String query, String book, int limit, int offset){
+        String trimmed = query == null ? "" : query.trim();
+        if (trimmed.length() < MIN_QUERY_LENGTH || trimmed.length() > MAX_QUERY_LENGTH) {
+            throw new BadRequestException("검색어는 " + MIN_QUERY_LENGTH + "자 이상 " + MAX_QUERY_LENGTH + "자 이하여야 합니다.");
+        }
+
+        if (book != null && !book.isBlank() && !isRegisteredBook(book)) {
+            throw new BadRequestException("등록되지 않은 책 이름입니다. 책 목록은 /api/books 에서 확인하세요.");
+        }
+
+        return search(trimmed, book, Math.min(Math.max(limit, 1), MAX_LIMIT), Math.max(offset, 0));
     }
 
     /**

@@ -32,6 +32,11 @@ public class ApiKeyLog {
     @Column(name = "issued_ip")
     private String issuedIp;
 
+    /**
+     * 발급 이력을 만듭니다.
+     *
+     * @param issuedIp 키를 발급받은 클라이언트 IP
+     */
     public ApiKeyLog(String issuedIp){
         this.issuedIp = issuedIp;
     }

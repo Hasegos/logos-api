@@ -1,6 +1,6 @@
 package io.github.logos_api.controller;
 
-import io.github.logos_api.dto.LogosResponseDTO;
+import io.github.logos_api.common.exception.ResourceNotFoundException;
 import io.github.logos_api.dto.SearchResponseDTO;
 import io.github.logos_api.model.Logos;
 import io.github.logos_api.service.LogosService;
@@ -8,14 +8,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.Duration;
@@ -31,7 +29,6 @@ public class ReadController {
 
     private static final String PAGE_CACHE_CONTROL = CacheControl.maxAge(Duration.ofHours(1)).cachePublic().getHeaderValue();
     private static final int SEARCH_PAGE_SIZE = 20;
-    private static final int SEARCH_MIN_QUERY_LENGTH = 2;
 
     private final LogosService logosService;
 
@@ -79,7 +76,7 @@ public class ReadController {
      * 본문에 검색어가 포함된 구절을 찾아 보여줍니다. 결과를 누르면 해당 장의 그 절로 이동합니다.
      * 검색어 조합이 무한히 늘어나므로 응답에 noindex 헤더를 붙여 색인에서 제외한다.
      *
-     * @param q        검색어. {@value #SEARCH_MIN_QUERY_LENGTH}자 미만이면 안내만 보여준다
+     * @param q        검색어. 2자 미만이면 안내만 보여준다
      * @param book     특정 책으로 좁힐 때의 책 이름. 비어 있으면 전체에서 찾는다
      * @param offset   건너뛸 건수 (한 페이지 {@value #SEARCH_PAGE_SIZE}건)
      * @param model    뷰에 전달할 모델
@@ -106,9 +103,9 @@ public class ReadController {
         model.addAttribute("query", query);
         model.addAttribute("selectedBook", selectedBook);
         model.addAttribute("books", logosService.getAvailableBooks());
-        model.addAttribute("tooShort", query.length() < SEARCH_MIN_QUERY_LENGTH);
+        model.addAttribute("tooShort", !logosService.isSearchable(query));
 
-        if (query.length() >= SEARCH_MIN_QUERY_LENGTH) {
+        if (logosService.isSearchable(query)) {
             SearchResponseDTO result = logosService.search(query, selectedBook, SEARCH_PAGE_SIZE, safeOffset);
             model.addAttribute("result", result);
             model.addAttribute("prevOffset", safeOffset - SEARCH_PAGE_SIZE >= 0 ? safeOffset - SEARCH_PAGE_SIZE : null);
@@ -128,16 +125,14 @@ public class ReadController {
      * @param model    뷰에 전달할 모델
      * @param response 캐시 헤더를 설정할 응답
      * @return 장 상세 템플릿 뷰 이름
+     * @throws ResourceNotFoundException 없는 책이거나 장인 경우
      */
     @GetMapping("/{book}/{chapter}")
     public String chapter(@PathVariable String book,
                           @PathVariable int chapter,
                           Model model,
-                          HttpServletResponse response) throws NoResourceFoundException {
-        List<Logos> verses = logosService.getVerses(book, chapter);
-        if (verses.isEmpty()) {
-            throw new NoResourceFoundException(HttpMethod.GET, "/read/" + book + "/" + chapter);
-        }
+                          HttpServletResponse response){
+        List<Logos> verses = logosService.requireVerses(book, chapter);
 
         response.setHeader(HttpHeaders.CACHE_CONTROL, PAGE_CACHE_CONTROL);
         List<Integer> chapters = logosService.getChapters(book);
@@ -165,22 +160,12 @@ public class ReadController {
      * @return 보낼 주소. 참조가 아니거나 해당 구절이 없으면 null
      */
     private String referenceRedirect(String query) {
-        if (!logosService.isReadableReference(query)) {
-            return null;
-        }
-
-        List<LogosResponseDTO> verses = logosService.findByReference(query);
-        if (verses.isEmpty()) {
-            return null;
-        }
-
-        LogosResponseDTO first = verses.get(0);
-        return UriComponentsBuilder.fromPath("/read/{book}/{chapter}")
-                .fragment("v" + first.getVerse())
-                .buildAndExpand(first.getBook(), first.getChapter())
-                .encode()
-                .toUriString();
+        return logosService.findFirstByReference(query)
+                .map(first -> UriComponentsBuilder.fromPath("/read/{book}/{chapter}")
+                        .fragment("v" + first.getVerse())
+                        .buildAndExpand(first.getBook(), first.getChapter())
+                        .encode()
+                        .toUriString())
+                .orElse(null);
     }
-
-
 }

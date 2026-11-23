@@ -25,7 +25,7 @@ public class WebConfig implements WebMvcConfigurer {
      * 0순위: Host 헤더 검증 (전체 경로 - 위조된 Host는 가장 먼저 차단)
      * 1순위: 접근 로그 기록 (정적 자원과 actuator만 제외. 뒤 인터셉터가 거부해도 항상 기록되어야 하므로)
      * 2순위: API 키 검증 (단, 키 발급 경로는 제외)
-     * 3순위: 속도 제한 적용 (단, 구절 조회 경로는 제외)
+     * 3순위: 속도 제한 적용 (API, 공유 이미지, 전체 본문을 훑는 웹 검색)
      *
      * @param registry 인터셉터 등록 레지스트리
      */
@@ -47,7 +47,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .order(2);
 
         registry.addInterceptor(rateLimitInterceptor)
-                .addPathPatterns("/api/**", "/og/**")
+                .addPathPatterns("/api/**", "/og/**", "/read/search")
                 .order(3);
     }
 }

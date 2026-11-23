@@ -27,7 +27,8 @@
                 <button class="read-search__button" type="submit">검색</button>
             </form>
 
-            <p class="read__lead" th:if="${tooShort}">검색어를 2자 이상 입력해 주세요.</p>
+            <p class="read__lead" id="search-too-short" th:if="${tooShort}">검색어를 2자 이상 입력해 주세요.</p>
+            <p class="read__lead" id="search-offline" hidden>지금은 검색을 쓸 수 없습니다. 운영시간은 08:00 ~ 22:00 (KST)입니다.</p>
 
             <th:block th:unless="${tooShort}">
                 <p class="read__lead" th:if="${result.total == 0}"

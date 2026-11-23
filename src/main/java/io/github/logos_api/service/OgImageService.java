@@ -1,5 +1,6 @@
 package io.github.logos_api.service;
 
+import io.github.logos_api.common.exception.ResourceNotFoundException;
 import io.github.logos_api.model.Logos;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -50,11 +51,6 @@ public class OgImageService {
 
     private final LogosService logosService;
 
-    /**
-     * 최근에 그린 이미지를 담아 두는 캐시입니다.
-     * 그림 한 장에 글꼴 렌더링이 들어가 CPU를 쓰므로, 같은 장을 다시 그리지 않습니다.
-     * 장이 1,189개라 전부 담으면 메모리가 커져 최근 {@value #CACHE_SIZE}장만 둡니다.
-     */
     private final Map<String, byte[]> cache = Collections.synchronizedMap(
             new LinkedHashMap<>(CACHE_SIZE, 0.75f, true) {
                 @Override
@@ -93,8 +89,9 @@ public class OgImageService {
      *
      * @param book    책 이름
      * @param chapter 장 번호
-     * @return PNG 바이트. 해당 장이 없으면 빈 배열
-     * @throws IOException 이미지를 쓰는 중 오류가 난 경우
+     * @return PNG 바이트
+     * @throws ResourceNotFoundException 해당 장이 없는 경우
+     * @throws IOException               이미지를 쓰는 중 오류가 난 경우
      */
     public byte[] render(String book, int chapter) throws IOException {
         String key = book + "/" + chapter;
@@ -103,10 +100,7 @@ public class OgImageService {
             return cached;
         }
 
-        List<Logos> verses = logosService.getVerses(book, chapter);
-        if (verses.isEmpty()) {
-            return new byte[0];
-        }
+        List<Logos> verses = logosService.requireVerses(book, chapter);
 
         BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
         Graphics2D graphics = image.createGraphics();

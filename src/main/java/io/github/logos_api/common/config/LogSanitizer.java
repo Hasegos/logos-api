@@ -14,6 +14,9 @@ public class LogSanitizer {
     private static final int MAX_UA_LENGTH = 200;
     private static final int SECRET_PREFIX_LENGTH = 8;
 
+    /**
+     * 인스턴스를 만들지 않는 유틸리티 클래스입니다.
+     */
     private LogSanitizer(){
     }
 

@@ -73,11 +73,8 @@ public class GlobalExceptionHandler {
     /**
      * 요청한 자원이 없을 때를 처리한다. (404)
      * <p>
-     * 어떤 자원이 왜 없는지는 판정한 서비스가 메시지로 알려주므로 그대로 내보낸다.
-     * 주소 자체가 없는 경우와 달리 호출한 쪽이 고칠 수 있는 입력 오류이므로,
-     * 다음에 볼 곳을 담은 메시지를 그대로 전달하는 것이 핵심이다.
-     * API 경로: JSON 에러 응답 반환
-     * 그 외 경로: 에러 페이지 렌더링
+     * API 경로: 판정한 서비스의 안내 문구를 그대로 담은 JSON 에러 응답 반환
+     * 그 외 경로: 사람에게는 서비스 내부 문구 대신 일반 안내를 보여 주는 에러 페이지 렌더링
      * </p>
      *
      * @param request HTTP 요청 객체
@@ -95,8 +92,40 @@ public class GlobalExceptionHandler {
         }
         model.addAttribute("status", 404);
         model.addAttribute("title", "페이지를 찾을 수 없습니다");
-        model.addAttribute("message", e.getMessage());
+        model.addAttribute("message", "요청하신 주소가 없거나 이동되었습니다.");
         return "error/error";
+    }
+
+    /**
+     * 요청 값이 잘못된 경우를 처리한다. (400)
+     * <p>
+     * 호출한 쪽이 고쳐 다시 보낼 수 있으므로 서비스가 정한 안내 문구를 그대로 내보낸다.
+     * 값을 검사하는 곳이 API 경로뿐이라 JSON으로만 응답한다.
+     * </p>
+     *
+     * @param e 발생한 예외
+     * @return 400 JSON 응답
+     */
+    @ExceptionHandler(BadRequestException.class)
+    public ResponseEntity<ErrorResponseDTO> handleBadRequest(BadRequestException e) {
+        return ResponseEntity.badRequest()
+                .body(ErrorResponseDTO.of(HttpStatus.BAD_REQUEST.getReasonPhrase(), e.getMessage()));
+    }
+
+    /**
+     * 하루 키 발급 한도를 넘은 경우를 처리한다. (429)
+     * <p>
+     * 호출한 쪽이 내일 다시 시도하면 되는 상황이므로 서비스가 정한 안내 문구를 그대로 내보낸다.
+     * 키 발급은 API 경로에서만 일어나므로 JSON으로만 응답한다.
+     * </p>
+     *
+     * @param e 발생한 예외
+     * @return 429 JSON 응답
+     */
+    @ExceptionHandler(KeyIssueLimitExceededException.class)
+    public ResponseEntity<ErrorResponseDTO> handleKeyIssueLimit(KeyIssueLimitExceededException e) {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                .body(ErrorResponseDTO.of(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), e.getMessage()));
     }
 
     /**

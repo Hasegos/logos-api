@@ -45,7 +45,7 @@ public class ApiController {
      * </p>
      *
      * @param request 클라이언트 IP 추출 및 Origin 검증을 위한 HTTP 요청 객체
-     * @return 발급된 신규 API 키 또는 에러 메시지
+     * @return 발급된 신규 API 키. 하루 발급 한도를 넘으면 429(전역 예외 처리기가 응답), Origin이 맞지 않으면 403
      */
     @PostMapping("/generate")
     public ResponseEntity<?> generateKey(HttpServletRequest request){
@@ -57,13 +57,7 @@ public class ApiController {
 
         String clientIp = apiKeyService.getClientIp(request);
 
-        try{
-            String newKey = apiKeyService.renewApiKey(clientIp);
-            return ResponseEntity.ok(newKey);
-        } catch (RuntimeException e){
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(ErrorResponseDTO.of(HttpStatus.TOO_MANY_REQUESTS.getReasonPhrase(), e.getMessage()));
-        }
+        return ResponseEntity.ok(apiKeyService.renewApiKey(clientIp));
     }
 
     /**
