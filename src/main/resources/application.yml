@@ -64,5 +64,4 @@ management:
 logging:
   level:
     root: INFO
-    io.github.logos_api: DEBUG
-    org.hibernate.SQL: DEBUG
+    io.github.logos_api: INFO
